@@ -1,0 +1,8 @@
+Placeholder file to keep this folder in git repo (git ignores empty folders)
+
+In production Django will not serve static files, instead you should configure 
+your server to serve static files (they are requested through STATIC_URL) from 
+this folder (STATIC_ROOT).
+Other option is to use Whitenoise -- https://pypi.org/project/whitenoise/.
+To copy all static files from installed apps to STATIC_ROOT (this folder) run:
+$ python manage.py collectstatic
