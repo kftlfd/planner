@@ -1,3 +1,4 @@
+const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -25,12 +26,17 @@ module.exports = merge(common, {
   ],
 
   devServer: {
-    static: './dist',
+    static: {
+      directory: path.join(__dirname, 'static')
+    },
     port: 8080,
-    proxy: {
-      '/api/': 'http://localhost:8000',
-      '/auth/': 'http://localhost:8000',
-    }
+    proxy: [
+      {
+        context: ['/api/', '/auth/'],
+        target: 'http://localhost:8000'
+      }
+    ],
+    historyApiFallback: true
   },
 
   optimization: {
