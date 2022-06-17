@@ -16,36 +16,40 @@ def register_view(request):
                 )
                 user.save()
                 login(request, user)
-                return JsonResponse({'success': 'user registered'})
+                return JsonResponse({
+                    'success': 'Successfully registered',
+                    'id': user.id,
+                    'username': user.username
+                })
             except:
-                return JsonResponse({'error': 'error occured when creating user'}, status=500)
+                return JsonResponse({'error': 'Error occured while attempting to create new user'}, status=500)
         return JsonResponse(form.errors, status=400)
     return HttpResponseBadRequest
 
 def login_view(request):
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            return JsonResponse({
-                'success': 'user authenticated',
-                'id': request.user.id, 
-                'username': request.user.username
-            })
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
     if request.method == 'POST':
-        user = authenticate(request,
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-        if user:
-            login(request, user)
-            return JsonResponse({'success': 'user loged in'})
+        if request.user.is_authenticated:
+            user = request.user
+        elif request.POST:
+            user = authenticate(request,
+                username=request.POST.get('username', None),
+                password=request.POST.get('password', None)
+            )
+            if not user:
+                return JsonResponse({'error': 'Invalid username and/or password'}, status=404)
         else:
-            return JsonResponse({'error': 'wrong username or password'})
+            return JsonResponse({'error': 'Not logged in'}, status=401)
+        login(request, user)
+        return JsonResponse({
+            'success': 'Successfully logged in',
+            'id': user.id,
+            'username': user.username
+        })
     return HttpResponseBadRequest
 
 def logout_view(request):
     logout(request)
-    return JsonResponse({'success': 'user loged out'})
+    return JsonResponse({'success': 'Logged out'})
 
 
 urlpatterns = [
