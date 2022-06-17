@@ -1,40 +1,21 @@
-import React, { useEffect, useState } from "react";
-import './App.scss'
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import "./App.scss";
+import Navbar from "./components/Navbar";
+import Home from "./components/Home";
+import Welcome from "./components/Welcome";
+import { Register, Login } from "./components/Auth";
 
-export default function App() {
-  const [ data, setData ] = useState(null);
-  const [ loading, setLoading ] = useState(true);
-
-  useEffect( ()=>{
-
-    fetch('/api/')
-    .then(res => res.json())
-    .then(result => {
-      let tmp = JSON.stringify(result);
-      console.log('api fetch: ' + tmp);
-      setData(tmp);
-    })
-    .catch(e => {
-      console.error(e);
-      setData('Failed to load user');
-    })
-    .finally(() => {
-      setLoading(false)
-    })
-
-  }, [] )
-
-  if (loading) {
-    return(
-      <h1>Loading</h1>
-    )
-  } else {
-    return(
-      <>
-        <h1>Loaded</h1>
-        <pre>{data}</pre>
-      </>
-    )
-  }
-
+export default function App(props) {
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </>
+  );
 }

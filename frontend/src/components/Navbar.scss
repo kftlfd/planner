@@ -1,0 +1,13 @@
+.Navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.Navbar div {
+  display: flex;
+  gap: 1rem;
+}
