@@ -1,20 +1,21 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../auth";
 
 export default function Home(props) {
   const auth = useAuth();
-  const redirect = useNavigate();
+
+  if (auth.loading) {
+    return(
+      <div>Loading</div>
+    )
+  } else if (!auth.user) {
+    return(
+      <Navigate to="/welcome" />
+    )
+  }
 
   return (
-    <>
-      {auth.loading ? (
-        <div>Loading</div>
-      ) : auth.user ? (
-        <h1>Home</h1>
-      ) : (
-        redirect("/welcome")
-      )}
-    </>
+    <h1>Home</h1>
   );
 }

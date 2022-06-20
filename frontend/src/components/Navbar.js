@@ -8,25 +8,26 @@ export default function Navbar(props) {
   return (
     <nav className="Navbar">
       <div>
-        <Link to="/">Home</Link>
-        <Link to="/welcome">Welcome</Link>
+        <Link to={auth.user ? "/" : "#"}>Home</Link>
       </div>
-      {auth.loading ? (
-        <div>Loading</div>
-      ) : auth.user ? (
-        <div>
-          <span>{auth.user.username}</span>
-          <a href="#" onClick={auth.logout}>
-            Log Out
-          </a>
-        </div>
-      ) : (
-        <div>
-          <span>not signed in</span>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-        </div>
-      )}
+
+      <div>
+        {auth.loading ? (
+          <>Loading</>
+        ) : auth.user ? (
+          <>
+            <span>{auth.user.username}</span>
+            <a href="#" onClick={auth.logout}>
+              Log Out
+            </a>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+      </div>
     </nav>
   );
 }
