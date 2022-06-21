@@ -8,13 +8,11 @@ export default function Navbar(props) {
   return (
     <nav className="Navbar">
       <div>
-        <Link to={auth.user ? "/" : "#"}>Home</Link>
+        <Link to={auth.user ? "/" : "/welcome"}>Home</Link>
       </div>
 
       <div>
-        {auth.loading ? (
-          <>Loading</>
-        ) : auth.user ? (
+        {auth.user ? (
           <>
             <span>{auth.user.username}</span>
             <a href="#" onClick={auth.logout}>

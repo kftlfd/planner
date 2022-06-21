@@ -5,11 +5,7 @@ import { useAuth } from "../auth";
 export default function Home(props) {
   const auth = useAuth();
 
-  if (auth.loading) {
-    return(
-      <div>Loading</div>
-    )
-  } else if (!auth.user) {
+  if (!auth.user) {
     return(
       <Navigate to="/welcome" />
     )

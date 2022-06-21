@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import ProvideAuth from "./auth";
+import { useAuth } from "./auth";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Welcome from "./components/Welcome";
@@ -8,8 +8,16 @@ import { Register, Login } from "./components/LoginRegister";
 import "./App.scss";
 
 export default function App(props) {
+  const auth = useAuth();
+  
+  if (auth.loading) {
+    return(
+      <div>Loading app</div>
+    )
+  }
+
   return (
-    <ProvideAuth>
+    <>
       <Navbar />
       <Routes>
         <Route exact path="/" element={<Home />} />
@@ -18,6 +26,6 @@ export default function App(props) {
         <Route path="/login" element={<Login />} />
         <Route path="/*" element={<div>404 not found</div>} />
       </Routes>
-    </ProvideAuth>
+    </>
   );
 }
