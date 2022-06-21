@@ -16,6 +16,7 @@ export default function App(props) {
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/*" element={<div>404 not found</div>} />
       </Routes>
     </ProvideAuth>
   );
