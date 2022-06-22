@@ -1,24 +1,18 @@
-from django.urls import path, re_path, include
-from rest_framework import routers
+from django.urls import path, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
 
 
-# router = routers.DefaultRouter()
-# router.register(r'users', views.UserViewSet)
-# router.register(r'groups', views.GroupViewSet)
-# router.register(prefix, viewset)
-# urlpatterns = [
-#     path('', include(router.urls)),
-#     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
-# ]
+urlpatterns = [
+    path('users/', views.User_List.as_view()),
+    path('users/<int:pk>/', views.User_Detail.as_view()),
+    path('tasks/', views.Task_List.as_view()),
+    path('tasks/<int:pk>/', views.Task_Detail.as_view()),
+    path('tasklists/', views.TaskList_List.as_view()),
+    path('tasklists/<int:pk>/', views.TaskList_Detail.as_view()),
 
-urlpatterns = format_suffix_patterns([
-    path('users/', views.UserList.as_view()),
-    path('users/<int:pk>/', views.UserDetail.as_view()),
-])
-
-urlpatterns += [
-    re_path('.+', views.bad_request, name="api_error"),
+    re_path('.*', views.bad_request),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
