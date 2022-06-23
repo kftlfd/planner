@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAdminUser
 
 from .models import Task, Tasklist
 from .serializers import UserSerializer, TasklistSerializer, TaskSerializer
+from .permissions import IsUserOrAdmin, IsTasklistOwnerOrAdmin, IsTaskOwnerOrAdmin
 
 
 @api_view()
@@ -22,6 +23,7 @@ class User_List(generics.ListAPIView):
 class User_Detail(generics.RetrieveAPIView):
     queryset = User.objects.prefetch_related('tasklists')
     serializer_class = UserSerializer
+    permission_classes = [IsUserOrAdmin]
 
 
 class Tasklist_List(generics.ListCreateAPIView):
@@ -37,6 +39,7 @@ class Tasklist_List(generics.ListCreateAPIView):
 class Tasklist_Detail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tasklist.objects.prefetch_related('tasks')
     serializer_class = TasklistSerializer
+    permission_classes = [IsTasklistOwnerOrAdmin]
 
 
 class Task_List(generics.ListCreateAPIView):
@@ -54,3 +57,4 @@ class Task_List(generics.ListCreateAPIView):
 class Task_Detail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsTaskOwnerOrAdmin]
