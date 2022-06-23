@@ -1,4 +1,3 @@
-// Taken from
 // https://docs.djangoproject.com/en/4.0/ref/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
 function getCookie(name) {
   let cookieValue = null;
@@ -19,10 +18,15 @@ function getCookie(name) {
 const API = {
   root: "/api/",
   auth: "/auth/",
-  csrftoken: getCookie("csrftoken"),
+  csrftoken: () => getCookie("csrftoken"),
   register: "/auth/register",
   login: "/auth/login",
   logout: "/auth/logout",
+  userTasklists: (n) => `/api/user/${n}/`,
+  tasklistCreate: "/api/tasklist/",
+  tasklistDetail: (n) => `/api/tasklist/${n}/`,
+  taskCreate: "/api/task/",
+  taskDetail: (n) => `/api/task/${n}/`,
 };
 
 export default API;

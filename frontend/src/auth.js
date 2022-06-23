@@ -28,7 +28,7 @@ function useProvideAuth() {
   const register = async (formData) => {
     return await fetch(API.register, {
       method: "POST",
-      headers: { "X-CSRFToken": API.csrftoken },
+      headers: { "X-CSRFToken": API.csrftoken() },
       body: formData,
     })
       .then((response) => response.json())
@@ -45,7 +45,7 @@ function useProvideAuth() {
     try {
       const response = await fetch(API.login, {
         method: "POST",
-        headers: { "X-CSRFToken": API.csrftoken },
+        headers: { "X-CSRFToken": API.csrftoken() },
         body: formData,
       });
       const res = await response.json();
@@ -77,7 +77,7 @@ function useProvideAuth() {
     // if not authenticated, user is null
     fetch(API.login, {
       method: "POST",
-      headers: { "X-CSRFToken": API.csrftoken },
+      headers: { "X-CSRFToken": API.csrftoken() },
     })
       .then((response) => response.json())
       .then((res) => {
