@@ -5,12 +5,14 @@ from . import views
 
 
 urlpatterns = [
-    path('users/', views.User_List.as_view()),
-    path('users/<int:pk>/', views.User_Detail.as_view()),
-    path('tasks/', views.Task_List.as_view()),
-    path('tasks/<int:pk>/', views.Task_Detail.as_view()),
-    path('tasklists/', views.TaskList_List.as_view()),
-    path('tasklists/<int:pk>/', views.TaskList_Detail.as_view()),
+    path('user/', views.User_List.as_view(), name='user-list'),
+    path('user/<int:pk>/', views.User_Detail.as_view(), name='user-detail'),
+
+    path('tasklist/', views.Tasklist_List.as_view(), name='tasklist-list'),
+    path('tasklist/<int:pk>/', views.Tasklist_Detail.as_view(), name='tasklist-detail'),
+
+    path('task/', views.Task_List.as_view(), name='task-list'),
+    path('task/<int:pk>/', views.Task_Detail.as_view(), name='task-detail'),
 
     re_path('.*', views.bad_request),
 ]
