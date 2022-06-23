@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.serializers import ValidationError as SerializerValidationError
 
 from .models import Task, Tasklist
 from .serializers import UserSerializer, TasklistSerializer, TaskSerializer
@@ -26,10 +27,10 @@ class User_Detail(generics.RetrieveAPIView):
     permission_classes = [IsUserOrAdmin]
 
 
-class Tasklist_List(generics.ListCreateAPIView):
-    queryset = Tasklist.objects.prefetch_related('tasks')
+class Tasklist_Create(generics.CreateAPIView):
+    queryset = Tasklist.objects.all()
     serializer_class = TasklistSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         owner = self.request.user
@@ -37,24 +38,26 @@ class Tasklist_List(generics.ListCreateAPIView):
 
 
 class Tasklist_Detail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Tasklist.objects.prefetch_related('tasks')
+    queryset = Tasklist.objects.prefetch_related('owner', 'tasks')
     serializer_class = TasklistSerializer
     permission_classes = [IsTasklistOwnerOrAdmin]
 
 
-class Task_List(generics.ListCreateAPIView):
+class Task_Create(generics.CreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         user = self.request.user
         tl_id = self.request.data['tasklist']
         tasklist = Tasklist.objects.get(pk=tl_id)
+        if tasklist.owner != user:
+            raise SerializerValidationError("Not allowed to add task to other user's tasklists.")
         serializer.save(user=user, tasklist=tasklist)
 
 
 class Task_Detail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Task.objects.all()
+    queryset = Task.objects.prefetch_related('user', 'tasklist')
     serializer_class = TaskSerializer
     permission_classes = [IsTaskOwnerOrAdmin]

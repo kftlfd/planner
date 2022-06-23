@@ -10,10 +10,10 @@ urlpatterns = [
     path('user/', views.User_List.as_view(), name='user-list'),
     path('user/<int:pk>/', views.User_Detail.as_view(), name='user-detail'),
 
-    path('tasklist/', views.Tasklist_List.as_view(), name='tasklist-list'),
+    path('tasklist/', views.Tasklist_Create.as_view(), name='tasklist-create'),
     path('tasklist/<int:pk>/', views.Tasklist_Detail.as_view(), name='tasklist-detail'),
 
-    path('task/', views.Task_List.as_view(), name='task-list'),
+    path('task/', views.Task_Create.as_view(), name='task-Create'),
     path('task/<int:pk>/', views.Task_Detail.as_view(), name='task-detail'),
 
     re_path('.*', views.bad_request),

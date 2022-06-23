@@ -16,4 +16,5 @@ class IsTasklistOwnerOrAdmin(permissions.BasePermission):
 class IsTaskOwnerOrAdmin(permissions.BasePermission):
     """Custom permission to only allow owners of a task to view and edit it."""
     def has_object_permission(self, request, view, obj):
-        return (obj.user == request.user) or (request.user and request.user.is_staff)
+        return ((obj.user == request.user) and (obj.tasklist.owner == request.user)) \
+            or (request.user and request.user.is_staff)
