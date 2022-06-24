@@ -5,7 +5,7 @@ export default function Tasks(props) {
   const addTaskFormId = useId();
 
   if (!props.projectId) {
-    return <div>Select a project</div>;
+    return <div style={{ padding: "0.5rem" }}>Select a project</div>;
   }
 
   return (

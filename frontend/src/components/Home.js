@@ -118,6 +118,9 @@ export default function Home(props) {
       .then(
         (res) => {
           let modifiedProjects = { ...projectTasks };
+          if (!modifiedProjects[projectId]) {
+            modifiedProjects[projectId] = [];
+          }
           modifiedProjects[projectId].push(res);
           setProjectTasks(modifiedProjects);
         },
