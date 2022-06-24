@@ -3,11 +3,14 @@ import { Navigate } from "react-router-dom";
 import API from "../api";
 import { useAuth } from "../auth";
 import Projects from "./Projects";
+import Tasks from "./Tasks";
 
 export default function Home(props) {
   const auth = useAuth();
-  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [projectSelected, setProjectSelected] = useState(null);
+  const [projectTasks, setProjectTasks] = useState([]);
 
   useEffect(loadProjects, []);
 
@@ -16,8 +19,9 @@ export default function Home(props) {
       fetch(API.userProjects(auth.user.id))
         .then((response) => response.json())
         .then(
-          (res) => {
+          async (res) => {
             setProjects(res.projects);
+            setProjectTasks(loadProjectTasks(res.projects));
           },
           (err) => {
             console.log(err);
@@ -91,6 +95,88 @@ export default function Home(props) {
       );
   }
 
+  function loadProjectTasks(projects) {
+    let tasks = {};
+    projects.forEach(async (project) => {
+      let response = await fetch(API.projectDetail(project.id));
+      let res = await response.json();
+      tasks[project.id] = res.tasks;
+    });
+    return tasks;
+  }
+
+  function onTaskCreate(projectId, taskTitle) {
+    fetch(API.taskCreate, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": API.csrftoken(),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ project: projectId, title: taskTitle }),
+    })
+      .then((response) => response.json())
+      .then(
+        (res) => {
+          let modifiedProjects = { ...projectTasks };
+          modifiedProjects[projectId].push(res);
+          setProjectTasks(modifiedProjects);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+  }
+
+  function onTaskUpdate(projectId, taskId, taskUpdate) {
+    fetch(API.taskDetail(taskId), {
+      method: "PATCH",
+      headers: {
+        "X-CSRFToken": API.csrftoken(),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(taskUpdate),
+    })
+      .then((response) => response.json())
+      .then(
+        (res) => {
+          let modifiedProjects = { ...projectTasks };
+          modifiedProjects[projectId] = modifiedProjects[projectId].map(
+            (task) => {
+              if (task.id === taskId) {
+                return res;
+              } else {
+                return task;
+              }
+            }
+          );
+          setProjectTasks(modifiedProjects);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+  }
+
+  function onTaskDelete(projectId, taskId) {
+    fetch(API.taskDetail(taskId), {
+      method: "DELETE",
+      headers: { "X-CSRFToken": API.csrftoken() },
+    })
+      .then((response) => response.text())
+      .then(
+        () => {
+          let modifiedProjects = { ...projectTasks };
+          modifiedProjects[projectId] = modifiedProjects[projectId].filter(
+            (item) => item.id !== taskId
+          );
+          setProjectTasks(modifiedProjects);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+  }
+
   if (!auth.user) {
     return <Navigate to="/welcome" />;
   }
@@ -101,12 +187,20 @@ export default function Home(props) {
 
   return (
     <>
-      <h1>Home</h1>
       <Projects
         projects={projects}
+        projectSelected={projectSelected}
         onProjectCreate={onProjectCreate}
         onProjectRename={onProjectRename}
         onProjectDelete={onProjectDelete}
+        onProjectSelect={setProjectSelected}
+      />
+      <Tasks
+        projectId={projectSelected}
+        projectTasks={projectTasks[projectSelected]}
+        onTaskCreate={onTaskCreate}
+        onTaskUpdate={onTaskUpdate}
+        onTaskDelete={onTaskDelete}
       />
     </>
   );
