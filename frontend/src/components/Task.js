@@ -14,7 +14,7 @@ export default function Task(props) {
   };
 
   return (
-    <li>
+    <li style={{ margin: "0.5rem" }}>
       <div>{props.task.title}</div>
       <div>
         <input

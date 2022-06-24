@@ -5,7 +5,7 @@ export default function Project(props) {
   const renameValueChange = (e) => setRenameValue(e.target.value);
 
   return (
-    <div>
+    <div style={{ padding: "0.5rem" }}>
       <div
         onClick={() => props.onProjectSelect(props.item.id)}
         style={props.selected ? { fontWeight: "bold" } : {}}

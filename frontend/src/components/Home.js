@@ -186,7 +186,7 @@ export default function Home(props) {
   }
 
   return (
-    <>
+    <div style={{ flexGrow: "1", display: "flex" }}>
       <Projects
         projects={projects}
         projectSelected={projectSelected}
@@ -202,6 +202,6 @@ export default function Home(props) {
         onTaskUpdate={onTaskUpdate}
         onTaskDelete={onTaskDelete}
       />
-    </>
+    </div>
   );
 }

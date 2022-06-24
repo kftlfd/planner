@@ -7,7 +7,7 @@ export default function Projects(props) {
   const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
 
   return (
-    <div>
+    <div style={{ borderRight: "1px solid gray", padding: "0.5rem" }}>
       <form>
         <input
           id={newListInput}

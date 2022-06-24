@@ -9,7 +9,7 @@ export default function Tasks(props) {
   }
 
   return (
-    <div>
+    <div style={{ padding: "0.5rem" }}>
       <form>
         <input
           id={addTaskFormId}
