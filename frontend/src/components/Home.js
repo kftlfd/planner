@@ -2,31 +2,33 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import API from "../api";
 import { useAuth } from "../auth";
-import Tasklists from "./Tasklists";
+import Projects from "./Projects";
 
 export default function Home(props) {
   const auth = useAuth();
-  const [userTasklists, setUserTasklists] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(loadTasklists, []);
+  useEffect(loadProjects, []);
 
-  function loadTasklists() {
-    fetch(API.userTasklists(auth.user.id))
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          setUserTasklists(res.tasklists);
-        },
-        (err) => {
-          console.log(err);
-        }
-      )
-      .finally(setLoading(false));
+  function loadProjects() {
+    if (auth.user) {
+      fetch(API.userProjects(auth.user.id))
+        .then((response) => response.json())
+        .then(
+          (res) => {
+            setProjects(res.projects);
+          },
+          (err) => {
+            console.log(err);
+          }
+        )
+        .finally(setLoading(false));
+    }
   }
 
-  function onCreate(name) {
-    fetch(API.tasklistCreate, {
+  function onProjectCreate(name) {
+    fetch(API.projectCreate, {
       method: "POST",
       headers: {
         "X-CSRFToken": API.csrftoken(),
@@ -37,7 +39,7 @@ export default function Home(props) {
       .then((response) => response.json())
       .then(
         (res) => {
-          setUserTasklists([...userTasklists, res]);
+          setProjects([...projects, res]);
         },
         (err) => {
           console.log(err);
@@ -45,8 +47,8 @@ export default function Home(props) {
       );
   }
 
-  function onRename(id, name) {
-    fetch(API.tasklistDetail(id), {
+  function onProjectRename(id, name) {
+    fetch(API.projectDetail(id), {
       method: "PATCH",
       headers: {
         "X-CSRFToken": API.csrftoken(),
@@ -57,8 +59,8 @@ export default function Home(props) {
       .then((response) => response.json())
       .then(
         (res) => {
-          setUserTasklists(
-            userTasklists.map((item) => {
+          setProjects(
+            projects.map((item) => {
               if (item.id === res.id) {
                 return res;
               } else {
@@ -73,15 +75,15 @@ export default function Home(props) {
       );
   }
 
-  function onDelete(id) {
-    fetch(API.tasklistDetail(id), {
+  function onProjectDelete(id) {
+    fetch(API.projectDetail(id), {
       method: "DELETE",
       headers: { "X-CSRFToken": API.csrftoken() },
     })
       .then((response) => response.text())
       .then(
         () => {
-          setUserTasklists(userTasklists.filter((item) => item.id !== id));
+          setProjects(projects.filter((item) => item.id !== id));
         },
         (err) => {
           console.log(err);
@@ -100,11 +102,11 @@ export default function Home(props) {
   return (
     <>
       <h1>Home</h1>
-      <Tasklists
-        tasklists={userTasklists}
-        onCreate={onCreate}
-        onRename={onRename}
-        onDelete={onDelete}
+      <Projects
+        projects={projects}
+        onProjectCreate={onProjectCreate}
+        onProjectRename={onProjectRename}
+        onProjectDelete={onProjectDelete}
       />
     </>
   );
