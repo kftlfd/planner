@@ -7,17 +7,7 @@ export default function Projects(props) {
   const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
 
   return (
-    <>
-      {props.projects?.map((item) => {
-        return (
-          <Project
-            key={"project-" + item.id}
-            item={item}
-            onProjectRename={props.onProjectRename}
-            onProjectDelete={props.onProjectDelete}
-          />
-        );
-      })}
+    <div>
       <form>
         <input
           id={newListInput}
@@ -37,6 +27,18 @@ export default function Projects(props) {
           + Add new
         </button>
       </form>
-    </>
+      {props.projects?.map((item) => {
+        return (
+          <Project
+            key={"project-" + item.id}
+            item={item}
+            selected={props.projectSelected === item.id}
+            onProjectRename={props.onProjectRename}
+            onProjectDelete={props.onProjectDelete}
+            onProjectSelect={props.onProjectSelect}
+          />
+        );
+      })}
+    </div>
   );
 }

@@ -6,7 +6,12 @@ export default function Project(props) {
 
   return (
     <div>
-      <div>{props.item.name}</div>
+      <div
+        onClick={() => props.onProjectSelect(props.item.id)}
+        style={props.selected ? { fontWeight: "bold" } : {}}
+      >
+        {props.item.name}
+      </div>
       <form>
         <input
           id={"rename-" + props.item.id}
