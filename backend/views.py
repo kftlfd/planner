@@ -50,12 +50,12 @@ class Task_Create(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = self.request.user
-        tl_id = self.request.data['tasklist']
-        tasklist = Project.objects.get(pk=tl_id)
-        if tasklist.owner != user:
+        tl_id = self.request.data['project']
+        project = Project.objects.get(pk=tl_id)
+        if project.owner != user:
             raise SerializerValidationError(
-                "Not allowed to add task to other user's tasklists.")
-        serializer.save(user=user, tasklist=tasklist)
+                "Not allowed to add task to other user's projects.")
+        serializer.save(user=user, project=project)
 
 
 class Task_Detail(generics.RetrieveUpdateDestroyAPIView):
