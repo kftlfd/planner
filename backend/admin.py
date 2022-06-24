@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Task, Tasklist
+from .models import Task, Project
 
 
-admin.site.register(Tasklist)
+admin.site.register(Project)
 admin.site.register(Task)

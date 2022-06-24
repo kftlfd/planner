@@ -1,30 +1,32 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import Task, Tasklist
+from .models import Task, Project
 
 
-class UserTasklistsSerializer(serializers.ModelSerializer):
+class UserProjectsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tasklist
+        model = Project
         fields = ['id', 'name']
 
 
 class UserSerializer(serializers.ModelSerializer):
-    tasklists = UserTasklistsSerializer(many=True, read_only=True)
+    projects = UserProjectsSerializer(many=True, read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'tasklists']
+        fields = ['id', 'username', 'projects']
 
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        exclude = ['user', 'tasklist']
+        exclude = ['user', 'project']
 
 
-class TasklistSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
+
     class Meta:
-        model = Tasklist
+        model = Project
         fields = ['id', 'name', 'tasks']
