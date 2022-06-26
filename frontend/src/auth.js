@@ -25,41 +25,36 @@ function useProvideAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const register = async (formData) => {
-    return await fetch(API.register, {
+  useEffect(() => {
+    login(null).then(() => setLoading(false));
+  }, []);
+
+  async function sendAuthRequest(url, formData) {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "X-CSRFToken": API.csrftoken() },
       body: formData,
-    })
-      .then((response) => response.json())
-      .then((res) => {
-        if (res.success) {
-          setUser(res);
-        }
-        return res;
-      })
-      .catch(() => console.error("register error"));
-  };
-
-  const login = async (formData) => {
+    });
+    const responseClone = response.clone();
     try {
-      const response = await fetch(API.login, {
-        method: "POST",
-        headers: { "X-CSRFToken": API.csrftoken() },
-        body: formData,
-      });
-      const res = await response.json();
-      if (res.success) {
-        setUser(res);
-      }
+      let res = await response.json();
+      if (res.success) setUser(res);
       return res;
-    } catch (e) {
-      console.error(e, "logging in error");
-      return;
+    } catch (err) {
+      let responseText = await responseClone.text();
+      return { serverError: responseText, errorInfo: err.message };
     }
-  };
+  }
 
-  const logout = async () => {
+  async function register(formData) {
+    return await sendAuthRequest(API.register, formData);
+  }
+
+  async function login(formData) {
+    return await sendAuthRequest(API.login, formData);
+  }
+
+  async function logout() {
     return await fetch(API.logout)
       .then((res) => {
         if (res.ok) {
@@ -70,30 +65,7 @@ function useProvideAuth() {
         }
       })
       .catch((e) => console.error(e, "logout request error"));
-  };
-
-  useEffect(() => {
-    // on mount send request for current user's data
-    // if not authenticated, user is null
-    fetch(API.login, {
-      method: "POST",
-      headers: { "X-CSRFToken": API.csrftoken() },
-    })
-      .then((response) => response.json())
-      .then((res) => {
-        if (res.success) {
-          setUser(res);
-          console.log("logged in");
-        } else {
-          console.log("not logged in");
-        }
-      })
-      .catch((e) => console.error(e, "getting user on mount error"))
-      .finally(() => setLoading(false));
-
-    // remove user on unmount
-    return () => setUser(null);
-  }, []);
+  }
 
   return {
     loading,
