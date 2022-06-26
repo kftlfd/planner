@@ -5,7 +5,6 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
-import "./App.scss";
 
 export default function App(props) {
   const auth = useAuth();
