@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import API from "../api";
 import { useAuth } from "../auth";
+import Navbar from "./Navbar";
 import Projects from "./Projects";
 import Tasks from "./Tasks";
 
-export default function Home(props) {
+export default function Main(props) {
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
@@ -189,22 +190,25 @@ export default function Home(props) {
   }
 
   return (
-    <div style={{ flexGrow: "1", display: "flex" }}>
-      <Projects
-        projects={projects}
-        projectSelected={projectSelected}
-        onProjectCreate={onProjectCreate}
-        onProjectRename={onProjectRename}
-        onProjectDelete={onProjectDelete}
-        onProjectSelect={setProjectSelected}
-      />
-      <Tasks
-        projectId={projectSelected}
-        projectTasks={projectTasks[projectSelected]}
-        onTaskCreate={onTaskCreate}
-        onTaskUpdate={onTaskUpdate}
-        onTaskDelete={onTaskDelete}
-      />
-    </div>
+    <>
+      <Navbar />
+      <div style={{ flexGrow: "1", display: "flex" }}>
+        <Projects
+          projects={projects}
+          projectSelected={projectSelected}
+          onProjectCreate={onProjectCreate}
+          onProjectRename={onProjectRename}
+          onProjectDelete={onProjectDelete}
+          onProjectSelect={setProjectSelected}
+        />
+        <Tasks
+          projectId={projectSelected}
+          projectTasks={projectTasks[projectSelected]}
+          onTaskCreate={onTaskCreate}
+          onTaskUpdate={onTaskUpdate}
+          onTaskDelete={onTaskDelete}
+        />
+      </div>
+    </>
   );
 }

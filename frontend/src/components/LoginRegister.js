@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import CheckIcon from "@mui/icons-material/Check";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Navbar from "./Navbar";
 
 export function Register(props) {
   const auth = useAuth();
@@ -33,57 +34,60 @@ export function Register(props) {
   }
 
   return (
-    <form className="AuthForm" onSubmit={sendRegisterForm}>
-      <TextField
-        name="username"
-        type="text"
-        label="Username"
-        variant="filled"
-        size="small"
-        error={formResponse?.username ? true : false}
-        helperText={formResponse?.username}
-      />
-      <TextField
-        name="password1"
-        type="password"
-        label="Password"
-        variant="filled"
-        size="small"
-        error={formResponse?.password1 ? true : false}
-        helperText={formResponse?.password1}
-      />
-      <TextField
-        name="password2"
-        type="password"
-        label="Confirm Password"
-        variant="filled"
-        size="small"
-        error={formResponse?.password2 ? true : false}
-        helperText={formResponse?.password2}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        color={formResponse?.success ? "success" : "primary"}
-        endIcon={formResponse?.success ? <CheckIcon /> : null}
-      >
-        {formResponse?.success ? "Sighned Up" : "Sign Up"}
-      </Button>
-      {formResponse?.serverError && (
-        // if can't connect to server
-        <Alert severity="warning">
-          <AlertTitle>Server Error</AlertTitle>
-          {formResponse.serverError}
-        </Alert>
-      )}
-      {formResponse?.error && (
-        // if can't create new user
-        <Alert severity="warning">
-          <AlertTitle>Server Error</AlertTitle>
-          {formResponse.error}
-        </Alert>
-      )}
-    </form>
+    <>
+      <Navbar />
+      <form className="AuthForm" onSubmit={sendRegisterForm}>
+        <TextField
+          name="username"
+          type="text"
+          label="Username"
+          variant="filled"
+          size="small"
+          error={formResponse?.username ? true : false}
+          helperText={formResponse?.username}
+        />
+        <TextField
+          name="password1"
+          type="password"
+          label="Password"
+          variant="filled"
+          size="small"
+          error={formResponse?.password1 ? true : false}
+          helperText={formResponse?.password1}
+        />
+        <TextField
+          name="password2"
+          type="password"
+          label="Confirm Password"
+          variant="filled"
+          size="small"
+          error={formResponse?.password2 ? true : false}
+          helperText={formResponse?.password2}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          color={formResponse?.success ? "success" : "primary"}
+          endIcon={formResponse?.success ? <CheckIcon /> : null}
+        >
+          {formResponse?.success ? "Sighned Up" : "Sign Up"}
+        </Button>
+        {formResponse?.serverError && (
+          // if can't connect to server
+          <Alert severity="warning">
+            <AlertTitle>Server Error</AlertTitle>
+            {formResponse.serverError}
+          </Alert>
+        )}
+        {formResponse?.error && (
+          // if can't create new user
+          <Alert severity="warning">
+            <AlertTitle>Server Error</AlertTitle>
+            {formResponse.error}
+          </Alert>
+        )}
+      </form>
+    </>
   );
 }
 
@@ -113,40 +117,43 @@ export function Login() {
   }
 
   return (
-    <form className="AuthForm" onSubmit={sendLoginForm}>
-      <TextField
-        name="username"
-        type="text"
-        label="Username"
-        variant="filled"
-        size="small"
-        autoComplete="false"
-        error={formResponse?.error ? true : false}
-      />
-      <TextField
-        name="password"
-        type="password"
-        label="Password"
-        variant="filled"
-        size="small"
-        error={formResponse?.error ? true : false}
-        helperText={formResponse?.error}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        color={formResponse?.success ? "success" : "primary"}
-        endIcon={formResponse?.success ? <CheckIcon /> : null}
-      >
-        {formResponse?.success ? "Logged In" : "Log In"}
-      </Button>
-      {formResponse?.serverError && (
-        // can't connect to server
-        <Alert severity="warning">
-          <AlertTitle>Server Error</AlertTitle>
-          {formResponse.serverError}
-        </Alert>
-      )}
-    </form>
+    <>
+      <Navbar />
+      <form className="AuthForm" onSubmit={sendLoginForm}>
+        <TextField
+          name="username"
+          type="text"
+          label="Username"
+          variant="filled"
+          size="small"
+          autoComplete="false"
+          error={formResponse?.error ? true : false}
+        />
+        <TextField
+          name="password"
+          type="password"
+          label="Password"
+          variant="filled"
+          size="small"
+          error={formResponse?.error ? true : false}
+          helperText={formResponse?.error}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          color={formResponse?.success ? "success" : "primary"}
+          endIcon={formResponse?.success ? <CheckIcon /> : null}
+        >
+          {formResponse?.success ? "Logged In" : "Log In"}
+        </Button>
+        {formResponse?.serverError && (
+          // can't connect to server
+          <Alert severity="warning">
+            <AlertTitle>Server Error</AlertTitle>
+            {formResponse.serverError}
+          </Alert>
+        )}
+      </form>
+    </>
   );
 }

@@ -1,8 +1,7 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useAuth } from "./auth";
-import Navbar from "./components/Navbar";
-import Home from "./components/Home";
+import Main from "./components/Main";
 import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
 
@@ -16,11 +15,10 @@ export default function App(props) {
 
   return (
     <>
-      <Navbar />
       <Routes>
         <Route
           path="/"
-          element={loggedIn ? <Home /> : <Navigate to="/welcome" />}
+          element={loggedIn ? <Main /> : <Navigate to="/welcome" />}
         />
         <Route path="/welcome" element={<Welcome />} />
         <Route

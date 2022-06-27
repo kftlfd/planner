@@ -1,5 +1,11 @@
 import React from "react";
+import Navbar from "./Navbar";
 
 export default function Welcome(props) {
-  return <h1>Welcome</h1>;
+  return (
+    <>
+      <Navbar />
+      <h1>Welcome</h1>
+    </>
+  );
 }
