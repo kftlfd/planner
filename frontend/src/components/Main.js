@@ -4,7 +4,7 @@ import API from "../api";
 import { useAuth } from "../auth";
 import Navbar from "./Navbar";
 import Drawer from "./Drawer";
-import Projects from "./Projects";
+import ProjectsList from "./ProjectsList";
 import Tasks from "./Tasks";
 
 export default function Main(props) {
@@ -199,7 +199,7 @@ export default function Main(props) {
       <Navbar />
 
       <Drawer>
-        <Projects
+        <ProjectsList
           projects={projects}
           projectSelected={projectSelected}
           onProjectSelect={setProjectSelected}

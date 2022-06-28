@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useState } from "react";
-import Project from "./Project";
+import { NavLink } from "react-router-dom";
+import Project from "./Deprecated_Project";
 
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
@@ -128,7 +129,7 @@ function ProjectEditDialog(props) {
   );
 }
 
-export default function Projects(props) {
+export default function ProjectsList(props) {
   const newListInput = useId();
   const [newTasklistName, setNewTasklistName] = useState("");
   const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
@@ -144,18 +145,19 @@ export default function Projects(props) {
   const projectsList = (
     <List>
       {props.projects.map((item) => (
-        <ListItem
-          key={"pj-" + item.id}
-          onClick={() => props.onProjectSelect(item.id)}
-          disablePadding
-        >
-          <ListItemButton>
-            <ListItemIcon>
-              <ListIcon />
-            </ListItemIcon>
-            <ListItemText>{item.name}</ListItemText>
-          </ListItemButton>
-        </ListItem>
+        <NavLink to={`project/${item.id}`} key={"pj-" + item.id}>
+          <ListItem
+            onClick={() => props.onProjectSelect(item.id)}
+            disablePadding
+          >
+            <ListItemButton>
+              <ListItemIcon>
+                <ListIcon />
+              </ListItemIcon>
+              <ListItemText>{item.name}</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </NavLink>
       ))}
     </List>
   );
