@@ -1,5 +1,9 @@
 $bg: aliceblue;
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -12,7 +16,7 @@ body {
 #root {
   flex-grow: 1;
   display: flex;
-  flex-direction: column;
+  padding-top: 2rem;
 }
 
 h1 {
@@ -27,7 +31,13 @@ h1 {
   align-items: center;
   gap: 1rem;
   padding: 0.5rem;
-  border-bottom: 1px solid #333;
+  height: 2rem;
+  width: 100%;
+  position: fixed;
+  z-index: 1300;
+  margin-top: -2rem;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .Navbar div {
@@ -38,7 +48,5 @@ h1 {
 .AuthForm {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
-  padding: 2rem;
 }

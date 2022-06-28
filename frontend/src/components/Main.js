@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import API from "../api";
 import { useAuth } from "../auth";
 import Navbar from "./Navbar";
+import Drawer from "./Drawer";
 import Projects from "./Projects";
 import Tasks from "./Tasks";
 
@@ -192,7 +193,7 @@ export default function Main(props) {
   return (
     <>
       <Navbar />
-      <div style={{ flexGrow: "1", display: "flex" }}>
+      <Drawer>
         <Projects
           projects={projects}
           projectSelected={projectSelected}
@@ -201,14 +202,14 @@ export default function Main(props) {
           onProjectDelete={onProjectDelete}
           onProjectSelect={setProjectSelected}
         />
-        <Tasks
-          projectId={projectSelected}
-          projectTasks={projectTasks[projectSelected]}
-          onTaskCreate={onTaskCreate}
-          onTaskUpdate={onTaskUpdate}
-          onTaskDelete={onTaskDelete}
-        />
-      </div>
+      </Drawer>
+      <Tasks
+        projectId={projectSelected}
+        projectTasks={projectTasks[projectSelected]}
+        onTaskCreate={onTaskCreate}
+        onTaskUpdate={onTaskUpdate}
+        onTaskDelete={onTaskDelete}
+      />
     </>
   );
 }
