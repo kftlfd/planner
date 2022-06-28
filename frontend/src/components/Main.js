@@ -23,7 +23,7 @@ export default function Main(props) {
         .then(
           async (res) => {
             setProjects(res.projects);
-            setProjectTasks(loadProjectTasks(res.projects));
+            setProjectTasks(loadTasks(res.projects));
           },
           (err) => {
             console.log(err);
@@ -33,71 +33,73 @@ export default function Main(props) {
     }
   }
 
-  function onProjectCreate(name) {
-    fetch(API.projectCreate, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": API.csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ name: name }),
-    })
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          setProjects([...projects, res]);
+  const handleProjects = {
+    create: (name) => {
+      fetch(API.projectCreate, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": API.csrftoken(),
+          "content-type": "application/json",
         },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
+        body: JSON.stringify({ name: name }),
+      })
+        .then((response) => response.json())
+        .then(
+          (res) => {
+            setProjects([...projects, res]);
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
 
-  function onProjectRename(id, name) {
-    fetch(API.projectDetail(id), {
-      method: "PATCH",
-      headers: {
-        "X-CSRFToken": API.csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ name: name }),
-    })
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          setProjects(
-            projects.map((item) => {
-              if (item.id === res.id) {
-                return res;
-              } else {
-                return item;
-              }
-            })
-          );
+    update: (id, projectUpdate) => {
+      fetch(API.projectDetail(id), {
+        method: "PATCH",
+        headers: {
+          "X-CSRFToken": API.csrftoken(),
+          "content-type": "application/json",
         },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
+        body: JSON.stringify(projectUpdate),
+      })
+        .then((response) => response.json())
+        .then(
+          (res) => {
+            setProjects(
+              projects.map((item) => {
+                if (item.id === res.id) {
+                  return res;
+                } else {
+                  return item;
+                }
+              })
+            );
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
 
-  function onProjectDelete(id) {
-    fetch(API.projectDetail(id), {
-      method: "DELETE",
-      headers: { "X-CSRFToken": API.csrftoken() },
-    })
-      .then((response) => response.text())
-      .then(
-        () => {
-          setProjects(projects.filter((item) => item.id !== id));
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
+    delete: (id) => {
+      fetch(API.projectDetail(id), {
+        method: "DELETE",
+        headers: { "X-CSRFToken": API.csrftoken() },
+      })
+        .then((response) => response.text())
+        .then(
+          () => {
+            setProjects(projects.filter((item) => item.id !== id));
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
+  };
 
-  function loadProjectTasks(projects) {
+  function loadTasks(projects) {
     let tasks = {};
     projects.forEach(async (project) => {
       let response = await fetch(API.projectDetail(project.id));
@@ -107,80 +109,82 @@ export default function Main(props) {
     return tasks;
   }
 
-  function onTaskCreate(projectId, taskTitle) {
-    fetch(API.taskCreate, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": API.csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ project: projectId, title: taskTitle }),
-    })
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          let modifiedProjects = { ...projectTasks };
-          if (!modifiedProjects[projectId]) {
-            modifiedProjects[projectId] = [];
-          }
-          modifiedProjects[projectId].push(res);
-          setProjectTasks(modifiedProjects);
+  const handleTasks = {
+    create: (projectId, taskTitle) => {
+      fetch(API.taskCreate, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": API.csrftoken(),
+          "content-type": "application/json",
         },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
-
-  function onTaskUpdate(projectId, taskId, taskUpdate) {
-    fetch(API.taskDetail(taskId), {
-      method: "PATCH",
-      headers: {
-        "X-CSRFToken": API.csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(taskUpdate),
-    })
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          let modifiedProjects = { ...projectTasks };
-          modifiedProjects[projectId] = modifiedProjects[projectId].map(
-            (task) => {
-              if (task.id === taskId) {
-                return res;
-              } else {
-                return task;
-              }
+        body: JSON.stringify({ project: projectId, title: taskTitle }),
+      })
+        .then((response) => response.json())
+        .then(
+          (res) => {
+            let modifiedProjects = { ...projectTasks };
+            if (!modifiedProjects[projectId]) {
+              modifiedProjects[projectId] = [];
             }
-          );
-          setProjectTasks(modifiedProjects);
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
+            modifiedProjects[projectId].push(res);
+            setProjectTasks(modifiedProjects);
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
 
-  function onTaskDelete(projectId, taskId) {
-    fetch(API.taskDetail(taskId), {
-      method: "DELETE",
-      headers: { "X-CSRFToken": API.csrftoken() },
-    })
-      .then((response) => response.text())
-      .then(
-        () => {
-          let modifiedProjects = { ...projectTasks };
-          modifiedProjects[projectId] = modifiedProjects[projectId].filter(
-            (item) => item.id !== taskId
-          );
-          setProjectTasks(modifiedProjects);
+    update: (projectId, taskId, taskUpdate) => {
+      fetch(API.taskDetail(taskId), {
+        method: "PATCH",
+        headers: {
+          "X-CSRFToken": API.csrftoken(),
+          "content-type": "application/json",
         },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
+        body: JSON.stringify(taskUpdate),
+      })
+        .then((response) => response.json())
+        .then(
+          (res) => {
+            let modifiedProjects = { ...projectTasks };
+            modifiedProjects[projectId] = modifiedProjects[projectId].map(
+              (task) => {
+                if (task.id === taskId) {
+                  return res;
+                } else {
+                  return task;
+                }
+              }
+            );
+            setProjectTasks(modifiedProjects);
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
+
+    delete: (projectId, taskId) => {
+      fetch(API.taskDetail(taskId), {
+        method: "DELETE",
+        headers: { "X-CSRFToken": API.csrftoken() },
+      })
+        .then((response) => response.text())
+        .then(
+          () => {
+            let modifiedProjects = { ...projectTasks };
+            modifiedProjects[projectId] = modifiedProjects[projectId].filter(
+              (item) => item.id !== taskId
+            );
+            setProjectTasks(modifiedProjects);
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    },
+  };
 
   if (!auth.user) {
     return <Navigate to="/welcome" />;
@@ -193,22 +197,20 @@ export default function Main(props) {
   return (
     <>
       <Navbar />
+
       <Drawer>
         <Projects
           projects={projects}
           projectSelected={projectSelected}
-          onProjectCreate={onProjectCreate}
-          onProjectRename={onProjectRename}
-          onProjectDelete={onProjectDelete}
           onProjectSelect={setProjectSelected}
+          handleProjects={handleProjects}
         />
       </Drawer>
+
       <Tasks
         projectId={projectSelected}
         projectTasks={projectTasks[projectSelected]}
-        onTaskCreate={onTaskCreate}
-        onTaskUpdate={onTaskUpdate}
-        onTaskDelete={onTaskDelete}
+        handleTasks={handleTasks}
       />
     </>
   );

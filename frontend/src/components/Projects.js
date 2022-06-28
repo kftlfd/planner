@@ -20,7 +20,7 @@ export default function Projects(props) {
           onClick={(event) => {
             event.preventDefault();
             let name = document.getElementById(newListInput).value;
-            props.onProjectCreate(name);
+            props.handleProjects.create(name);
           }}
           disabled={!newTasklistName}
         >
@@ -33,8 +33,7 @@ export default function Projects(props) {
             key={"project-" + item.id}
             item={item}
             selected={props.projectSelected === item.id}
-            onProjectRename={props.onProjectRename}
-            onProjectDelete={props.onProjectDelete}
+            handleProjects={props.handleProjects}
             onProjectSelect={props.onProjectSelect}
           />
         );

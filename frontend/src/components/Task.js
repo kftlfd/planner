@@ -10,7 +10,9 @@ export default function Task(props) {
   const onTaskDoneChange = () => {
     let newValue = !taskDone;
     setTaskDone(newValue);
-    props.onTaskUpdate(props.projectId, props.task.id, { done: newValue });
+    props.handleTasks.update(props.projectId, props.task.id, {
+      done: newValue,
+    });
   };
 
   return (
@@ -35,7 +37,7 @@ export default function Task(props) {
           disabled={!taskTitle}
           onClick={(event) => {
             event.preventDefault();
-            props.onTaskUpdate(props.projectId, props.task.id, {
+            props.handleTasks.update(props.projectId, props.task.id, {
               title: document.getElementById("task-" + props.task.id).value,
             });
           }}
@@ -47,7 +49,7 @@ export default function Task(props) {
         <button
           onClick={(event) => {
             event.preventDefault();
-            props.onTaskDelete(props.projectId, props.task.id);
+            props.handleTasks.delete(props.projectId, props.task.id);
           }}
         >
           Delete

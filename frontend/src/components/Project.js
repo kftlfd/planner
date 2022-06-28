@@ -24,7 +24,7 @@ export default function Project(props) {
           onClick={(event) => {
             event.preventDefault();
             let name = document.getElementById("rename-" + props.item.id).value;
-            props.onProjectRename(props.item.id, name);
+            props.handleProjects.update(props.item.id, { name: name });
           }}
           disabled={!renameValue}
         >
@@ -35,7 +35,7 @@ export default function Project(props) {
         <button
           onClick={(event) => {
             event.preventDefault();
-            props.onProjectDelete(props.item.id);
+            props.handleProjects.delete(props.item.id);
           }}
         >
           Delete

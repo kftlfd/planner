@@ -19,7 +19,7 @@ export default function Tasks(props) {
         <button
           onClick={(event) => {
             event.preventDefault();
-            props.onTaskCreate(
+            props.handleTasks.create(
               props.projectId,
               document.getElementById(addTaskFormId).value
             );
@@ -35,8 +35,9 @@ export default function Tasks(props) {
               key={"task-" + item.id}
               projectId={props.projectId}
               task={item}
-              onTaskUpdate={props.onTaskUpdate}
-              onTaskDelete={props.onTaskDelete}
+              handleTasks={props.handleTasks}
+              // onTaskUpdate={props.onTaskUpdate}
+              // onTaskDelete={props.onTaskDelete}
             />
           );
         })}
