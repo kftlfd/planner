@@ -1,4 +1,4 @@
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import Project from "./Project";
 
 import Divider from "@mui/material/Divider";
@@ -12,20 +12,18 @@ import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
-function ProjectEditDialog(props) {
-  const { open, onClose, project } = props;
+function ProjectCreateDialog(props) {
+  const { open, onClose, handleProjects } = props;
+
+  const [nameValue, setNameValue] = useState("");
+  const handleNameChange = (e) => setNameValue(e.target.value);
 
   const handleClose = () => {
     onClose();
   };
 
-  const handleRename = (id, name) => {
-    console.log(id, name);
-    onClose();
-  };
-
-  const handleDelete = (id) => {
-    console.log(id);
+  const handleCreate = async (name) => {
+    await handleProjects.create(name);
     onClose();
   };
 
@@ -39,7 +37,66 @@ function ProjectEditDialog(props) {
           gap: "1rem",
         }}
       >
-        <h4>Edit project</h4>
+        <h4>Add new project</h4>
+
+        <form
+          name="create"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleCreate(event.target.name.value);
+          }}
+        >
+          <TextField
+            type="text"
+            name="name"
+            label="Name"
+            value={nameValue}
+            onChange={handleNameChange}
+          />
+          <Button type="submit" disabled={!nameValue}>
+            Create
+          </Button>
+        </form>
+      </div>
+    </Dialog>
+  );
+}
+
+function ProjectEditDialog(props) {
+  const { open, onClose, project, handleProjects } = props;
+
+  const [renameValue, setRenameValue] = useState("");
+  const handleRenameChange = (e) => setRenameValue(e.target.value);
+
+  useEffect(() => {
+    if (project) setRenameValue(project.name);
+  }, [project]);
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  const handleRename = async (id, name) => {
+    await handleProjects.update(id, { name: name });
+    onClose();
+  };
+
+  const handleDelete = async (id) => {
+    await handleProjects.delete(id);
+    onClose();
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <div
+        style={{
+          padding: "1rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+        }}
+      >
+        <h4>Edit project: {project.name}</h4>
 
         <form
           name="rename"
@@ -52,9 +109,12 @@ function ProjectEditDialog(props) {
             type="text"
             name="name"
             label="Name"
-            value={project.name}
+            value={renameValue}
+            onChange={handleRenameChange}
           />
-          <Button type="submit">Rename</Button>
+          <Button type="submit" disabled={!renameValue}>
+            Rename
+          </Button>
         </form>
 
         <form
@@ -82,6 +142,14 @@ export default function Projects(props) {
   };
   const handleEditDialogClose = () => {
     setEditDialogOpen(false);
+  };
+
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const handleCreateDialogOpen = () => {
+    setCreateDialogOpen(true);
+  };
+  const handleCreateDialogClose = () => {
+    setCreateDialogOpen(false);
   };
 
   return (
@@ -127,6 +195,7 @@ export default function Projects(props) {
                 (item) => item.id === props.projectSelected
               )[0]
             }
+            handleProjects={props.handleProjects}
           />
 
           <Divider />
@@ -140,8 +209,15 @@ export default function Projects(props) {
           padding: "0.5rem",
         }}
       >
-        <Button variant="outlined">Add new</Button>
+        <Button variant="outlined" onClick={handleCreateDialogOpen}>
+          Add new
+        </Button>
       </div>
+      <ProjectCreateDialog
+        open={createDialogOpen}
+        onClose={handleCreateDialogClose}
+        handleProjects={props.handleProjects}
+      />
       <Divider />
 
       <div style={{ padding: "0.5rem" }}>
