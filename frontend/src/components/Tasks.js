@@ -1,10 +1,15 @@
-import React, { useId } from "react";
+import React, { useEffect, useId } from "react";
 import Task from "./Task";
+import { useProjects } from "../ProjectsContext";
 
 export default function Tasks(props) {
+  const { projectTasks, handleTasks, projectSelected } = useProjects();
+
+  useEffect(() => console.log(projectTasks), [projectTasks]);
+
   const addTaskFormId = useId();
 
-  if (!props.projectId) {
+  if (!projectSelected) {
     return <div style={{ padding: "0.5rem" }}>Select a project</div>;
   }
 
@@ -19,8 +24,8 @@ export default function Tasks(props) {
         <button
           onClick={(event) => {
             event.preventDefault();
-            props.handleTasks.create(
-              props.projectId,
+            handleTasks.create(
+              projectSelected,
               document.getElementById(addTaskFormId).value
             );
           }}
@@ -29,18 +34,14 @@ export default function Tasks(props) {
         </button>
       </form>
       <ul>
-        {props.projectTasks?.map((item) => {
-          return (
-            <Task
-              key={"task-" + item.id}
-              projectId={props.projectId}
-              task={item}
-              handleTasks={props.handleTasks}
-              // onTaskUpdate={props.onTaskUpdate}
-              // onTaskDelete={props.onTaskDelete}
-            />
-          );
-        })}
+        {projectTasks[projectSelected].map((item) => (
+          <Task
+            key={"task-" + item.id}
+            projectId={projectSelected}
+            task={item}
+            handleTasks={handleTasks}
+          />
+        ))}
       </ul>
     </div>
   );

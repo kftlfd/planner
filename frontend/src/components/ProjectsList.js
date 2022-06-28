@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Project from "./Deprecated_Project";
+import { useProjects } from "../ProjectsContext";
 
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
@@ -130,6 +131,9 @@ function ProjectEditDialog(props) {
 }
 
 export default function ProjectsList(props) {
+  const { projects, handleProjects, projectSelected, setProjectSelected } =
+    useProjects();
+
   const newListInput = useId();
   const [newTasklistName, setNewTasklistName] = useState("");
   const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
@@ -144,20 +148,21 @@ export default function ProjectsList(props) {
 
   const projectsList = (
     <List>
-      {props.projects.map((item) => (
-        <NavLink to={`project/${item.id}`} key={"pj-" + item.id}>
-          <ListItem
-            onClick={() => props.onProjectSelect(item.id)}
-            disablePadding
-          >
-            <ListItemButton>
-              <ListItemIcon>
-                <ListIcon />
-              </ListItemIcon>
-              <ListItemText>{item.name}</ListItemText>
-            </ListItemButton>
-          </ListItem>
-        </NavLink>
+      {projects.map((item) => (
+        // <NavLink to={`project/${item.id}`}>
+        <ListItem
+          key={"pj-" + item.id}
+          onClick={() => setProjectSelected(item.id)}
+          disablePadding
+        >
+          <ListItemButton>
+            <ListItemIcon>
+              <ListIcon />
+            </ListItemIcon>
+            <ListItemText>{item.name}</ListItemText>
+          </ListItemButton>
+        </ListItem>
+        // </NavLink>
       ))}
     </List>
   );
@@ -179,10 +184,8 @@ export default function ProjectsList(props) {
       <ProjectEditDialog
         open={editDialogOpen}
         onClose={handleEditDialogClose}
-        project={
-          props.projects.filter((item) => item.id === props.projectSelected)[0]
-        }
-        handleProjects={props.handleProjects}
+        project={projects.filter((item) => item.id === projectSelected)[0]}
+        handleProjects={handleProjects}
       />
     </>
   );
@@ -204,7 +207,7 @@ export default function ProjectsList(props) {
       <ProjectCreateDialog
         open={createDialogOpen}
         onClose={handleCreateDialogClose}
-        handleProjects={props.handleProjects}
+        handleProjects={handleProjects}
       />
     </>
   );
@@ -247,7 +250,7 @@ export default function ProjectsList(props) {
     <>
       {projectsList}
       <Divider />
-      {props.projectSelected && (
+      {projectSelected && (
         <>
           {projectEditButton}
           <Divider />
