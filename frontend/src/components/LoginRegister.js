@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth";
+import { useAuth } from "../AuthContext";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";

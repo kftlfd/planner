@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import API from "../api";
-import { useAuth } from "../auth";
+import { useAuth } from "../AuthContext";
 import Navbar from "./Navbar";
 import Drawer from "./Drawer";
 import ProjectsList from "./ProjectsList";
