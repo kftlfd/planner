@@ -4,6 +4,7 @@ import { useAuth } from "./auth";
 import Main from "./components/Main";
 import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
+import NotFoundError from "./components/NotFoundError";
 
 export default function App(props) {
   const auth = useAuth();
@@ -16,20 +17,11 @@ export default function App(props) {
   return (
     <>
       <Routes>
-        <Route
-          path="/"
-          element={loggedIn ? <Main /> : <Navigate to="/welcome" />}
-        />
+        <Route path="/" element={<Main />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route
-          path="/register"
-          element={loggedIn ? <Navigate to="/" /> : <Register />}
-        />
-        <Route
-          path="/login"
-          element={loggedIn ? <Navigate to="/" /> : <Login />}
-        />
-        <Route path="/*" element={<div>404 not found</div>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/*" element={<NotFoundError />} />
       </Routes>
     </>
   );
