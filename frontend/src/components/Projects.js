@@ -9,6 +9,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ListIcon from "@mui/icons-material/List";
 import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
@@ -18,9 +19,7 @@ function ProjectCreateDialog(props) {
   const [nameValue, setNameValue] = useState("");
   const handleNameChange = (e) => setNameValue(e.target.value);
 
-  const handleClose = () => {
-    onClose();
-  };
+  const handleClose = () => onClose();
 
   const handleCreate = async (name) => {
     await handleProjects.create(name);
@@ -37,7 +36,7 @@ function ProjectCreateDialog(props) {
           gap: "1rem",
         }}
       >
-        <h4>Add new project</h4>
+        <DialogTitle>Add new project</DialogTitle>
 
         <form
           name="create"
@@ -72,9 +71,7 @@ function ProjectEditDialog(props) {
     if (project) setRenameValue(project.name);
   }, [project]);
 
-  const handleClose = () => {
-    onClose();
-  };
+  const handleClose = () => onClose();
 
   const handleRename = async (id, name) => {
     await handleProjects.update(id, { name: name });
@@ -96,7 +93,7 @@ function ProjectEditDialog(props) {
           gap: "1rem",
         }}
       >
-        <h4>Edit project: {project.name}</h4>
+        <DialogTitle>Edit project: {project.name}</DialogTitle>
 
         <form
           name="rename"
@@ -137,71 +134,59 @@ export default function Projects(props) {
   const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const handleEditDialogOpen = () => {
-    setEditDialogOpen(true);
-  };
-  const handleEditDialogClose = () => {
-    setEditDialogOpen(false);
-  };
+  const handleEditDialogOpen = () => setEditDialogOpen(true);
+  const handleEditDialogClose = () => setEditDialogOpen(false);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const handleCreateDialogOpen = () => {
-    setCreateDialogOpen(true);
-  };
-  const handleCreateDialogClose = () => {
-    setCreateDialogOpen(false);
-  };
+  const handleCreateDialogOpen = () => setCreateDialogOpen(true);
+  const handleCreateDialogClose = () => setCreateDialogOpen(false);
 
-  return (
+  const projectsList = (
+    <List>
+      {props.projects.map((item) => (
+        <ListItem
+          key={"pj-" + item.id}
+          onClick={() => props.onProjectSelect(item.id)}
+          disablePadding
+        >
+          <ListItemButton>
+            <ListItemIcon>
+              <ListIcon />
+            </ListItemIcon>
+            <ListItemText>{item.name}</ListItemText>
+          </ListItemButton>
+        </ListItem>
+      ))}
+    </List>
+  );
+
+  const projectEditButton = (
     <>
-      <List>
-        {props.projects.map((item) => (
-          <ListItem
-            key={"pj-" + item.id}
-            onClick={() => props.onProjectSelect(item.id)}
-            disablePadding
-          >
-            <ListItemButton>
-              <ListItemIcon>
-                <ListIcon />
-              </ListItemIcon>
-              <ListItemText>{item.name}</ListItemText>
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "0.5rem",
+        }}
+      >
+        <Button variant="outlined" onClick={handleEditDialogOpen}>
+          Edit
+        </Button>
+      </div>
 
-      <Divider />
+      <ProjectEditDialog
+        open={editDialogOpen}
+        onClose={handleEditDialogClose}
+        project={
+          props.projects.filter((item) => item.id === props.projectSelected)[0]
+        }
+        handleProjects={props.handleProjects}
+      />
+    </>
+  );
 
-      {props.projectSelected && (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: "0.5rem",
-            }}
-          >
-            <Button variant="outlined" onClick={handleEditDialogOpen}>
-              Edit
-            </Button>
-          </div>
-
-          <ProjectEditDialog
-            open={editDialogOpen}
-            onClose={handleEditDialogClose}
-            project={
-              props.projects.filter(
-                (item) => item.id === props.projectSelected
-              )[0]
-            }
-            handleProjects={props.handleProjects}
-          />
-
-          <Divider />
-        </>
-      )}
-
+  const projectAddButton = (
+    <>
       <div
         style={{
           display: "flex",
@@ -213,46 +198,60 @@ export default function Projects(props) {
           Add new
         </Button>
       </div>
+
       <ProjectCreateDialog
         open={createDialogOpen}
         onClose={handleCreateDialogClose}
         handleProjects={props.handleProjects}
       />
+    </>
+  );
+
+  const deprecatedProjectsList = (
+    <div style={{ padding: "0.5rem" }}>
+      <form>
+        <input
+          id={newListInput}
+          type={"text"}
+          value={newTasklistName}
+          onChange={newTasklistNameChange}
+          placeholder={"New list"}
+        />
+        <button
+          onClick={(event) => {
+            event.preventDefault();
+            let name = document.getElementById(newListInput).value;
+            props.handleProjects.create(name);
+          }}
+          disabled={!newTasklistName}
+        >
+          + Add new
+        </button>
+      </form>
+
+      {props.projects?.map((item) => (
+        <Project
+          key={"project-" + item.id}
+          item={item}
+          selected={props.projectSelected === item.id}
+          handleProjects={props.handleProjects}
+          onProjectSelect={props.onProjectSelect}
+        />
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      {projectsList}
       <Divider />
-
-      <div style={{ padding: "0.5rem" }}>
-        <form>
-          <input
-            id={newListInput}
-            type={"text"}
-            value={newTasklistName}
-            onChange={newTasklistNameChange}
-            placeholder={"New list"}
-          ></input>
-          <button
-            onClick={(event) => {
-              event.preventDefault();
-              let name = document.getElementById(newListInput).value;
-              props.handleProjects.create(name);
-            }}
-            disabled={!newTasklistName}
-          >
-            + Add new
-          </button>
-        </form>
-
-        {props.projects?.map((item) => {
-          return (
-            <Project
-              key={"project-" + item.id}
-              item={item}
-              selected={props.projectSelected === item.id}
-              handleProjects={props.handleProjects}
-              onProjectSelect={props.onProjectSelect}
-            />
-          );
-        })}
-      </div>
+      {props.projectSelected && (
+        <>
+          {projectEditButton}
+          <Divider />
+        </>
+      )}
+      {projectAddButton}
     </>
   );
 }
