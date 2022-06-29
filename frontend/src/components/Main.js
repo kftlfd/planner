@@ -4,7 +4,6 @@ import { useAuth } from "../AuthContext";
 import Navbar from "./Navbar";
 import Drawer from "./Drawer";
 import ProjectsList from "./ProjectsList";
-import Tasks from "./Tasks";
 
 export default function Main(props) {
   const auth = useAuth();
@@ -20,8 +19,6 @@ export default function Main(props) {
       <Drawer>
         <ProjectsList />
       </Drawer>
-
-      <Tasks />
 
       <Outlet />
     </>
