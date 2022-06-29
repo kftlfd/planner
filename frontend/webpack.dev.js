@@ -1,46 +1,44 @@
-const path = require('path');
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const path = require("path");
+const { merge } = require("webpack-merge");
+const common = require("./webpack.common.js");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = merge(common, {
+  mode: "development",
 
-  mode: 'development',
-
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
 
   module: {
     rules: [
       {
         test: /\.(sa|sc|c)ss$/i,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
-    ]
+    ],
   },
 
   plugins: [
     new HtmlWebpackPlugin({
-     template: 'templates/dev.html'
+      template: "templates/dev.html",
     }),
   ],
 
   devServer: {
     static: {
-      directory: path.join(__dirname, 'static')
+      directory: path.join(__dirname, "static"),
+      publicPath: "/",
     },
     port: 8080,
     proxy: [
       {
-        context: ['/api/', '/auth/'],
-        target: 'http://localhost:8000'
-      }
+        context: ["/api/", "/auth/"],
+        target: "http://localhost:8000",
+      },
     ],
-    historyApiFallback: true
+    historyApiFallback: true,
   },
 
   optimization: {
-    runtimeChunk: 'single',
+    runtimeChunk: "single",
   },
-
 });
