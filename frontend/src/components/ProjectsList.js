@@ -149,7 +149,6 @@ export default function ProjectsList(props) {
   const projectsList = (
     <List>
       {projects.map((item) => (
-        // <NavLink to={`project/${item.id}`}>
         <ListItem
           key={"pj-" + item.id}
           onClick={() => setProjectSelected(item.id)}
@@ -161,8 +160,8 @@ export default function ProjectsList(props) {
             </ListItemIcon>
             <ListItemText>{item.name}</ListItemText>
           </ListItemButton>
+          <NavLink to={`project/${item.id}`}>{item.name}</NavLink>
         </ListItem>
-        // </NavLink>
       ))}
     </List>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import Navbar from "./Navbar";
 import Drawer from "./Drawer";
@@ -22,6 +22,8 @@ export default function Main(props) {
       </Drawer>
 
       <Tasks />
+
+      <Outlet />
     </>
   );
 }
