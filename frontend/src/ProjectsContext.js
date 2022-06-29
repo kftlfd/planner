@@ -19,26 +19,37 @@ export function useProjects() {
 
 function useProvideProjects() {
   const auth = useAuth();
+  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
-  const [projectTasks, setProjectTasks] = useState([]);
+  const [projectTasks, setProjectTasks] = useState({});
   const [projectSelected, setProjectSelected] = useState(null);
 
   useEffect(() => {
-    if (auth.user) loadProjects(auth.user.id);
-  }, [auth.user]);
+    load();
+  }, []);
 
-  function loadProjects(userId) {
-    fetch(API.userProjects(userId))
-      .then((response) => response.json())
-      .then(
-        (res) => {
-          setProjects(res.projects);
-          setProjectTasks(loadTasks(res.projects));
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
+  async function load() {
+    if (auth.user) {
+      setProjects(await loadProjects(auth.user.id));
+    }
+    setLoading(false);
+  }
+
+  async function loadProjects(userId) {
+    let response = await fetch(API.userProjects(userId));
+    let res = await response.json();
+    return res.projects;
+    // .then((response) => response.json())
+    // .then(
+    //   (res) => {
+    //     setProjects(res.projects);
+    //     setProjectTasks(loadTasks(res.projects));
+    //   },
+    //   (err) => {
+    //     console.log(err);
+    //   }
+    // )
+    // .then(() => null);
   }
 
   function loadTasks(projects) {
@@ -49,6 +60,21 @@ function useProvideProjects() {
       tasks[project.id] = res.tasks;
     });
     return tasks;
+  }
+
+  async function getProjectTasks(projectId) {
+    let project = projects.find((item) => item.id === projectId);
+    if (!project) {
+      return [{ error: `Project with projectId ${projectId} not found.` }];
+    }
+
+    if (!project.tasks) {
+      let response = await fetch(API.projectDetail(projectId));
+      let res = await response.json();
+      project.tasks = res.tasks;
+    }
+
+    return project.tasks;
   }
 
   const handleProjects = {
@@ -199,13 +225,13 @@ function useProvideProjects() {
   };
 
   return {
-    loadProjects,
-    loadTasks,
+    loading,
     handleProjects,
     handleTasks,
     projects,
     projectTasks,
     projectSelected,
     setProjectSelected,
+    getProjectTasks,
   };
 }

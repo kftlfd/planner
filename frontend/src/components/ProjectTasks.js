@@ -4,7 +4,21 @@ import { useProjects } from "../ProjectsContext";
 
 export default function ProjectTasks(props) {
   const { projectId } = useParams();
-  const { projectTasks } = useProjects();
+  const { getProjectTasks } = useProjects();
+  const [tasks, setTasks] = useState([]);
+
+  async function loadTasks(projectId) {
+    setTasks([]);
+    setTasks(await getProjectTasks(Number(projectId)));
+  }
+
+  useEffect(() => {
+    loadTasks(projectId);
+  }, []);
+
+  useEffect(() => {
+    loadTasks(projectId);
+  }, [projectId]);
 
   return (
     <div
@@ -16,11 +30,18 @@ export default function ProjectTasks(props) {
     >
       <h4>{"<ProjectTasks.js>"}</h4>
       <div>Project {projectId}</div>
-      <ul>
-        {projectTasks[projectId]?.map((item) => (
-          <li key={item.id}>{item.title}</li>
-        ))}
-      </ul>
+      <div>
+        {tasks.map((item, index) => {
+          if (item.id) {
+            return (
+              <div key={`pj-${projectId}-task-${item.id}`}>{item.title}</div>
+            );
+          }
+          if (item.error) {
+            return <div key={`pj-${projectId}-err-${index}`}>{item.error}</div>;
+          }
+        })}
+      </div>
     </div>
   );
 }
