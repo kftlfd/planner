@@ -4,58 +4,56 @@ import { useProjects } from "../ProjectsContext";
 import Task from "./Task";
 
 export default function ProjectTasks(props) {
-  const { getProjectTasks, handleTasks } = useProjects();
   const params = useParams();
-  const [tasks, setTasks] = useState([]);
   const [projectId, setProjectId] = useState(Number(params.projectId));
+  const { projects, checkProjectTasks, handleTasks } = useProjects();
 
-  const [addTaskTitle, setAddTaskTitle] = useState("");
-  const handleAddTaskTitleChange = (e) => setAddTaskTitle(e.target.value);
-
-  async function loadTasks(projectId) {
-    setTasks([]);
-    setTasks(await getProjectTasks(projectId));
-  }
+  const [taskAddTitle, setTaskAddTitle] = useState("");
+  const handleTaskAddTitleChange = (e) => setTaskAddTitle(e.target.value);
 
   useEffect(() => {
-    loadTasks(projectId);
-  }, []);
-
-  useEffect(() => {
-    loadTasks(projectId);
-  }, [projectId]);
+    checkProjectTasks(projectId);
+  }, [[], projectId]);
 
   useEffect(() => {
     setProjectId(Number(params.projectId));
   }, [params.projectId]);
 
+  if (!projects[projectId]) {
+    return <></>;
+  }
+
   const taskAddForm = (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        handleTasks.create(projectId, addTaskTitle);
+        handleTasks.create(projectId, taskAddTitle);
       }}
     >
       <input
         type={"text"}
         placeholder={"New task"}
-        value={addTaskTitle}
-        onChange={handleAddTaskTitleChange}
+        value={taskAddTitle}
+        onChange={handleTaskAddTitleChange}
       />
-      <button type={"submit"} disabled={!addTaskTitle}>
+      <button type={"submit"} disabled={!taskAddTitle}>
         + Add task
       </button>
     </form>
   );
 
-  const tasksList = tasks.map((item, index) => {
-    if (item.id) {
-      return <Task key={`pj-${projectId}-task-${item.id}`} task={item} />;
-    }
-    if (item.error) {
-      return <div key={`pj-${projectId}-err-${index}`}>{item.error}</div>;
-    }
-  });
+  const tasksList = projects[projectId].tasks
+    ? Object.keys(projects[projectId].tasks).map((id) => {
+        if (projects[projectId].tasks?.[id]) {
+          return (
+            <Task
+              key={`pj-${projectId}-task-${id}`}
+              task={projects[projectId].tasks[id]}
+            />
+          );
+        }
+      })
+    : null;
 
   return (
     <div
@@ -65,7 +63,6 @@ export default function ProjectTasks(props) {
         wordWrap: "anywhere",
       }}
     >
-      <h4>{"<ProjectTasks.js>"}</h4>
       {taskAddForm}
       {tasksList}
     </div>

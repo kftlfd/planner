@@ -1,17 +1,27 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { useParams, Outlet } from "react-router-dom";
+import { useProjects } from "../ProjectsContext";
 
 export default function Project(props) {
+  const { projectId } = useParams();
+  const { projects } = useProjects();
+
   return (
     <div
       style={{
         flexGrow: "1",
-        margin: "1rem",
         padding: "1rem",
-        backgroundColor: "lemonchiffon",
       }}
     >
-      <h4>{"<Project.js>"}</h4>
+      {projectId ? (
+        projects[Number(projectId)] ? (
+          <h4>{projects[Number(projectId)].name}</h4>
+        ) : (
+          <h4>Project {projectId} not found</h4>
+        )
+      ) : (
+        <h4>Select a project</h4>
+      )}
       <Outlet />
     </div>
   );
