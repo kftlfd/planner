@@ -1,6 +1,5 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Project from "./Deprecated_Project";
 import { useProjects } from "../ProjectsContext";
 
 import Divider from "@mui/material/Divider";
@@ -64,7 +63,8 @@ function ProjectCreateDialog(props) {
 }
 
 function ProjectEditDialog(props) {
-  const { open, onClose, project, handleProjects } = props;
+  const { open, onClose, project, projectId, handleProjects } = props;
+  const navigate = useNavigate();
 
   const [renameValue, setRenameValue] = useState("");
   const handleRenameChange = (e) => setRenameValue(e.target.value);
@@ -83,6 +83,7 @@ function ProjectEditDialog(props) {
   const handleDelete = async (id) => {
     await handleProjects.delete(id);
     onClose();
+    navigate("/project/");
   };
 
   return (
@@ -101,7 +102,7 @@ function ProjectEditDialog(props) {
           name="rename"
           onSubmit={(event) => {
             event.preventDefault();
-            handleRename(project.id, event.target.name.value);
+            handleRename(projectId, event.target.name.value);
           }}
         >
           <TextField
@@ -120,7 +121,7 @@ function ProjectEditDialog(props) {
           name="delete"
           onSubmit={(event) => {
             event.preventDefault();
-            handleDelete(project.id);
+            handleDelete(projectId);
           }}
         >
           <Button type="submit">Delete</Button>
@@ -131,12 +132,9 @@ function ProjectEditDialog(props) {
 }
 
 export default function ProjectsList(props) {
-  const { projects, handleProjects, projectSelected, setProjectSelected } =
-    useProjects();
-
-  const newListInput = useId();
-  const [newTasklistName, setNewTasklistName] = useState("");
-  const newTasklistNameChange = (e) => setNewTasklistName(e.target.value);
+  const { projects, handleProjects } = useProjects();
+  const navigate = useNavigate();
+  const params = useParams();
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const handleEditDialogOpen = () => setEditDialogOpen(true);
@@ -146,23 +144,20 @@ export default function ProjectsList(props) {
   const handleCreateDialogOpen = () => setCreateDialogOpen(true);
   const handleCreateDialogClose = () => setCreateDialogOpen(false);
 
-  const navigate = useNavigate();
-  const params = useParams();
-
   const projectsList = (
     <List>
-      {projects.map((item) => (
+      {Object.keys(projects).map((id) => (
         <ListItem
-          key={"pj-" + item.id}
-          onClick={() => navigate(`project/${item.id}`)}
-          selected={Number(params.projectId) === item.id}
+          key={"pj-" + id}
+          onClick={() => navigate(`project/${id}`)}
+          selected={Number(params.projectId) === id}
           disablePadding
         >
           <ListItemButton>
             <ListItemIcon>
               <ListIcon />
             </ListItemIcon>
-            <ListItemText>{item.name}</ListItemText>
+            <ListItemText>{projects[id].name}</ListItemText>
           </ListItemButton>
         </ListItem>
       ))}
@@ -186,7 +181,8 @@ export default function ProjectsList(props) {
       <ProjectEditDialog
         open={editDialogOpen}
         onClose={handleEditDialogClose}
-        project={projects.filter((item) => item.id === projectSelected)[0]}
+        project={projects[Number(params.projectId)]}
+        projectId={Number(params.projectId)}
         handleProjects={handleProjects}
       />
     </>
@@ -214,45 +210,11 @@ export default function ProjectsList(props) {
     </>
   );
 
-  const deprecatedProjectsList = (
-    <div style={{ padding: "0.5rem" }}>
-      <form>
-        <input
-          id={newListInput}
-          type={"text"}
-          value={newTasklistName}
-          onChange={newTasklistNameChange}
-          placeholder={"New list"}
-        />
-        <button
-          onClick={(event) => {
-            event.preventDefault();
-            let name = document.getElementById(newListInput).value;
-            props.handleProjects.create(name);
-          }}
-          disabled={!newTasklistName}
-        >
-          + Add new
-        </button>
-      </form>
-
-      {props.projects?.map((item) => (
-        <Project
-          key={"project-" + item.id}
-          item={item}
-          selected={props.projectSelected === item.id}
-          handleProjects={props.handleProjects}
-          onProjectSelect={props.onProjectSelect}
-        />
-      ))}
-    </div>
-  );
-
   return (
     <>
       {projectsList}
       <Divider />
-      {projectSelected && (
+      {params.projectId && projects[Number(params.projectId)] && (
         <>
           {projectEditButton}
           <Divider />
