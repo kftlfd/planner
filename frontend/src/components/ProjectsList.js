@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Project from "./Deprecated_Project";
 import { useProjects } from "../ProjectsContext";
 
@@ -146,12 +146,16 @@ export default function ProjectsList(props) {
   const handleCreateDialogOpen = () => setCreateDialogOpen(true);
   const handleCreateDialogClose = () => setCreateDialogOpen(false);
 
+  const navigate = useNavigate();
+  const params = useParams();
+
   const projectsList = (
     <List>
       {projects.map((item) => (
         <ListItem
           key={"pj-" + item.id}
-          onClick={() => setProjectSelected(item.id)}
+          onClick={() => navigate(`project/${item.id}`)}
+          selected={Number(params.projectId) === item.id}
           disablePadding
         >
           <ListItemButton>
@@ -160,7 +164,6 @@ export default function ProjectsList(props) {
             </ListItemIcon>
             <ListItemText>{item.name}</ListItemText>
           </ListItemButton>
-          <NavLink to={`project/${item.id}`}>{item.name}</NavLink>
         </ListItem>
       ))}
     </List>
