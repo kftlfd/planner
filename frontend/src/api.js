@@ -22,9 +22,11 @@ const API = {
   register: "/auth/register",
   login: "/auth/login",
   logout: "/auth/logout",
-  userProjects: (n) => `/api/user/${n}/`,
+  userDetail: (n) => `/api/user/${n}/`,
+  userProjects: (n) => `/api/user/${n}/projects/`,
   projectCreate: "/api/project/",
   projectDetail: (n) => `/api/project/${n}/`,
+  projectTasks: (n) => `/api/project/${n}/tasks/`,
   taskCreate: "/api/task/",
   taskDetail: (n) => `/api/task/${n}/`,
 };

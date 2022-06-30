@@ -20,62 +20,45 @@ export function useProjects() {
 function useProvideProjects() {
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState([]);
-  const [projectTasks, setProjectTasks] = useState({});
+  const [projects, setProjects] = useState({});
+
+  // deprecate these
   const [projectSelected, setProjectSelected] = useState(null);
+  const [projectTasks, setProjectTasks] = useState({});
 
   useEffect(() => {
-    load();
+    async function loadProjects() {
+      if (auth.user) {
+        let response = await fetch(API.userProjects(auth.user.id));
+        let res = await response.json();
+        setProjects(res);
+      }
+      setLoading(false);
+    }
+    loadProjects();
   }, []);
 
-  async function load() {
-    if (auth.user) {
-      setProjects(await loadProjects(auth.user.id));
-    }
-    setLoading(false);
-  }
-
-  async function loadProjects(userId) {
-    let response = await fetch(API.userProjects(userId));
-    let res = await response.json();
-    return res.projects;
-    // .then((response) => response.json())
-    // .then(
-    //   (res) => {
-    //     setProjects(res.projects);
-    //     setProjectTasks(loadTasks(res.projects));
-    //   },
-    //   (err) => {
-    //     console.log(err);
-    //   }
-    // )
-    // .then(() => null);
-  }
-
-  function loadTasks(projects) {
-    let tasks = {};
-    projects.forEach(async (project) => {
-      let response = await fetch(API.projectDetail(project.id));
-      let res = await response.json();
-      tasks[project.id] = res.tasks;
-    });
-    return tasks;
-  }
-
-  async function getProjectTasks(projectId) {
-    let project = projects.find((item) => item.id === projectId);
-    if (!project) {
-      return [{ error: `Project with projectId ${projectId} not found.` }];
+  const checkProjectTasks = async (projectId) => {
+    if (!projects[projectId]) {
+      console.error(`Project with id ${projectId} not found.`);
+      return;
     }
 
-    if (!project.tasks) {
-      let response = await fetch(API.projectDetail(projectId));
-      let res = await response.json();
-      project.tasks = res.tasks;
+    if (!projects[projectId].tasks) {
+      fetch(API.projectTasks(projectId))
+        .then((response) => (response.ok ? response.json() : response.text()))
+        .then((res) => {
+          if (typeof res === "object") {
+            setProjects((projects) => ({
+              ...projects,
+              [projectId]: { ...projects[projectId], tasks: res },
+            }));
+          } else {
+            console.error("Error while loading project tasks:", res);
+          }
+        });
     }
-
-    return project.tasks;
-  }
+  };
 
   const handleProjects = {
     create: (name) => {
@@ -90,10 +73,10 @@ function useProvideProjects() {
         .then((response) => response.json())
         .then(
           (res) => {
-            setProjects([...projects, res]);
-            let modified = projectTasks;
-            projectTasks[res.id] = [];
-            setProjectTasks(modified);
+            setProjects((projects) => ({
+              ...projects,
+              [res.id]: res,
+            }));
           },
           (err) => {
             console.log(err);
@@ -101,8 +84,8 @@ function useProvideProjects() {
         );
     },
 
-    update: (id, projectUpdate) => {
-      fetch(API.projectDetail(id), {
+    update: (projectId, projectUpdate) => {
+      fetch(API.projectDetail(projectId), {
         method: "PATCH",
         headers: {
           "X-CSRFToken": API.csrftoken(),
@@ -113,15 +96,10 @@ function useProvideProjects() {
         .then((response) => response.json())
         .then(
           (res) => {
-            setProjects(
-              projects.map((item) => {
-                if (item.id === res.id) {
-                  return res;
-                } else {
-                  return item;
-                }
-              })
-            );
+            setProjects((projects) => ({
+              ...projects,
+              [projectId]: res,
+            }));
           },
           (err) => {
             console.log(err);
@@ -129,16 +107,19 @@ function useProvideProjects() {
         );
     },
 
-    delete: (id) => {
-      fetch(API.projectDetail(id), {
+    delete: (projectId) => {
+      fetch(API.projectDetail(projectId), {
         method: "DELETE",
         headers: { "X-CSRFToken": API.csrftoken() },
       })
         .then((response) => response.text())
         .then(
           () => {
-            setProjects(projects.filter((item) => item.id !== id));
-            setProjectSelected(null);
+            setProjects((projects) => {
+              const copy = { ...projects };
+              delete copy[projectId];
+              return copy;
+            });
           },
           (err) => {
             console.log(err);
@@ -160,12 +141,13 @@ function useProvideProjects() {
         .then((response) => response.json())
         .then(
           (res) => {
-            let modifiedProjects = { ...projectTasks };
-            if (!modifiedProjects[projectId]) {
-              modifiedProjects[projectId] = [];
-            }
-            modifiedProjects[projectId].push(res);
-            setProjectTasks(modifiedProjects);
+            setProjects((prev) => ({
+              ...prev,
+              [projectId]: {
+                ...prev[projectId],
+                tasks: { ...prev[projectId].tasks, [res.id]: res },
+              },
+            }));
           },
           (err) => {
             console.log(err);
@@ -185,17 +167,16 @@ function useProvideProjects() {
         .then((response) => response.json())
         .then(
           (res) => {
-            let modifiedProjects = { ...projectTasks };
-            modifiedProjects[projectId] = modifiedProjects[projectId].map(
-              (task) => {
-                if (task.id === taskId) {
-                  return res;
-                } else {
-                  return task;
-                }
-              }
-            );
-            setProjectTasks(modifiedProjects);
+            setProjects((projects) => ({
+              ...projects,
+              [projectId]: {
+                ...projects[projectId],
+                tasks: {
+                  ...projects[projectId].tasks,
+                  [taskId]: res,
+                },
+              },
+            }));
           },
           (err) => {
             console.log(err);
@@ -210,12 +191,12 @@ function useProvideProjects() {
       })
         .then((response) => response.text())
         .then(
-          () => {
-            let modifiedProjects = { ...projectTasks };
-            modifiedProjects[projectId] = modifiedProjects[projectId].filter(
-              (item) => item.id !== taskId
-            );
-            setProjectTasks(modifiedProjects);
+          (res) => {
+            setProjects((projects) => {
+              let copy = { ...projects };
+              delete copy[projectId].tasks[taskId];
+              return copy;
+            });
           },
           (err) => {
             console.log(err);
@@ -226,12 +207,14 @@ function useProvideProjects() {
 
   return {
     loading,
+    projects,
+    checkProjectTasks,
     handleProjects,
     handleTasks,
-    projects,
+
+    // deprecate these
     projectTasks,
     projectSelected,
     setProjectSelected,
-    getProjectTasks,
   };
 }
