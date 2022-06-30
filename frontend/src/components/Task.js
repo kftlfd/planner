@@ -1,60 +1,71 @@
 import React, { useState } from "react";
+import { useProjects } from "../ProjectsContext";
 
 export default function Task(props) {
-  const [taskTitle, setTaskTitle] = useState(props.task.title);
-  const onTaskTitleChange = (e) => {
-    setTaskTitle(e.target.value);
-  };
+  const { projectId, task, showDoneTasks } = props;
+  const { handleTasks } = useProjects();
 
-  const [taskDone, setTaskDone] = useState(props.task.done);
+  const [taskRenameValue, setTaskRenameValue] = useState(task.title);
+  const onTaskRenameValueChange = (e) => setTaskRenameValue(e.target.value);
+
+  const [taskDone, setTaskDone] = useState(task.done);
   const onTaskDoneChange = () => {
     let newValue = !taskDone;
     setTaskDone(newValue);
-    props.handleTasks.update(props.projectId, props.task.id, {
+    handleTasks.update(projectId, task.id, {
       done: newValue,
     });
   };
 
+  const handleTaskRename = (event) => {
+    event.preventDefault();
+    handleTasks.update(projectId, task.id, {
+      title: event.target.rename.value,
+    });
+  };
+
+  const handleTaskDelete = (event) => {
+    event.preventDefault();
+    handleTasks.delete(projectId, task.id);
+  };
+
   return (
-    <li style={{ margin: "0.5rem" }}>
-      <div>{props.task.title}</div>
-      <div>
-        <input
-          type={"checkbox"}
-          checked={taskDone}
-          onChange={onTaskDoneChange}
-        />
+    <div
+      style={{
+        marginTop: "1rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.3rem",
+        display: task.done ? (showDoneTasks ? "block" : "none") : "block",
+      }}
+    >
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <div>
+          <input
+            type={"checkbox"}
+            checked={taskDone}
+            onChange={onTaskDoneChange}
+          />
+        </div>
+        <div>{task.title}</div>
       </div>
-      <div>
-        <input
-          id={"task-" + props.task.id}
-          type={"text"}
-          placeholder={"Task title"}
-          value={taskTitle}
-          onChange={onTaskTitleChange}
-        ></input>
-        <button
-          disabled={!taskTitle}
-          onClick={(event) => {
-            event.preventDefault();
-            props.handleTasks.update(props.projectId, props.task.id, {
-              title: document.getElementById("task-" + props.task.id).value,
-            });
-          }}
-        >
-          Rename
-        </button>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <form onSubmit={handleTaskRename}>
+          <input
+            type={"text"}
+            name={"rename"}
+            placeholder={"Task title"}
+            value={taskRenameValue}
+            onChange={onTaskRenameValueChange}
+          ></input>
+          <button type={"submit"} disabled={!taskRenameValue}>
+            Rename
+          </button>
+        </form>
+        <form onSubmit={handleTaskDelete}>
+          <button type={"submit"}>Delete</button>
+        </form>
       </div>
-      <div>
-        <button
-          onClick={(event) => {
-            event.preventDefault();
-            props.handleTasks.delete(props.projectId, props.task.id);
-          }}
-        >
-          Delete
-        </button>
-      </div>
-    </li>
+    </div>
   );
 }

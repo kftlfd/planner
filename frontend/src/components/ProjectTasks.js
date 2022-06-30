@@ -11,6 +11,9 @@ export default function ProjectTasks(props) {
   const [taskAddTitle, setTaskAddTitle] = useState("");
   const handleTaskAddTitleChange = (e) => setTaskAddTitle(e.target.value);
 
+  const [showDoneTasks, setShowDoneTasks] = useState(true);
+  const handleShowDoneChange = () => setShowDoneTasks(!showDoneTasks);
+
   useEffect(() => {
     checkProjectTasks(projectId);
   }, [[], projectId]);
@@ -42,13 +45,27 @@ export default function ProjectTasks(props) {
     </form>
   );
 
+  const showDoneToggle = (
+    <div>
+      <input
+        id={"show-done-toggle"}
+        type={"checkbox"}
+        checked={showDoneTasks}
+        onChange={handleShowDoneChange}
+      />
+      <label for={"show-done-toggle"}>Show done</label>
+    </div>
+  );
+
   const tasksList = projects[projectId].tasks
     ? Object.keys(projects[projectId].tasks).map((id) => {
         if (projects[projectId].tasks?.[id]) {
           return (
             <Task
               key={`pj-${projectId}-task-${id}`}
+              projectId={projectId}
               task={projects[projectId].tasks[id]}
+              showDoneTasks={showDoneTasks}
             />
           );
         }
@@ -63,7 +80,10 @@ export default function ProjectTasks(props) {
         wordWrap: "anywhere",
       }}
     >
-      {taskAddForm}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {taskAddForm}
+        {showDoneToggle}
+      </div>
       {tasksList}
     </div>
   );
