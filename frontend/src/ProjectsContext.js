@@ -22,10 +22,6 @@ function useProvideProjects() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState({});
 
-  // deprecate these
-  const [projectSelected, setProjectSelected] = useState(null);
-  const [projectTasks, setProjectTasks] = useState({});
-
   useEffect(() => {
     async function loadProjects() {
       if (auth.user) {
@@ -38,7 +34,7 @@ function useProvideProjects() {
     loadProjects();
   }, []);
 
-  const checkProjectTasks = async (projectId) => {
+  const checkProjectTasks = (projectId) => {
     if (!projects[projectId]) {
       console.error(`Project with id ${projectId} not found.`);
       return;
@@ -211,10 +207,5 @@ function useProvideProjects() {
     checkProjectTasks,
     handleProjects,
     handleTasks,
-
-    // deprecate these
-    projectTasks,
-    projectSelected,
-    setProjectSelected,
   };
 }
