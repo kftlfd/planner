@@ -39,7 +39,7 @@ def user_projects(request, pk):
         return Response({'Error': 'No permissions'}, status=status.HTTP_403_FORBIDDEN)
 
     projects = Project.objects.filter(owner=user)
-    return Response({p.id: {"name": p.name} for p in projects})
+    return Response({p.id: {"name": p.name, "id": p.id} for p in projects})
 
 
 class Project_Create(generics.CreateAPIView):
