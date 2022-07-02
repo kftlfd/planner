@@ -8,6 +8,9 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  FormGroup,
+  FormControlLabel,
+  Switch,
   Divider,
   Dialog,
   DialogTitle,
@@ -23,6 +26,8 @@ export default function Project(props) {
   const { projects, handleProjects } = useProjects();
   const { projectId } = useParams();
   const navigate = useNavigate();
+
+  const [hideDoneTasks, setHideDoneTasks] = useState(false);
 
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const toggleRenameDialog = () => setRenameDialogOpen(!renameDialogOpen);
@@ -64,26 +69,23 @@ export default function Project(props) {
           open={open}
           onClose={closeOptionsMenu}
           MenuListProps={{
-            "aria-labelledby": "basic-button",
+            "aria-labelledby": "project-options-button",
           }}
         >
-          <MenuItem
-            onClick={() => {
-              closeOptionsMenu();
-              toggleRenameDialog();
-            }}
-          >
-            Rename
+          <MenuItem onClick={() => setHideDoneTasks(!hideDoneTasks)}>
+            <FormGroup>
+              <FormControlLabel
+                control={<Switch checked={hideDoneTasks} />}
+                label="Hide done"
+                labelPlacement="start"
+                sx={{ marginInline: "0" }}
+              />
+            </FormGroup>
           </MenuItem>
           <Divider />
-          <MenuItem
-            onClick={() => {
-              closeOptionsMenu();
-              toggleDeleteDialog();
-            }}
-          >
-            Delete
-          </MenuItem>
+          <MenuItem onClick={toggleRenameDialog}>Rename</MenuItem>
+          <Divider />
+          <MenuItem onClick={toggleDeleteDialog}>Delete</MenuItem>
         </Menu>
       </>
     );
@@ -187,7 +189,7 @@ export default function Project(props) {
       ) : (
         <Header>Select a project</Header>
       )}
-      <Outlet />
+      <Outlet context={{ hideDoneTasks }} />
     </div>
   );
 }

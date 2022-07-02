@@ -14,9 +14,6 @@ export default function ProjectTasks(props) {
   const [taskAddTitle, setTaskAddTitle] = useState("");
   const handleTaskAddTitleChange = (e) => setTaskAddTitle(e.target.value);
 
-  const [showDoneTasks, setShowDoneTasks] = useState(true);
-  const handleShowDoneChange = () => setShowDoneTasks(!showDoneTasks);
-
   useEffect(() => {
     checkProjectTasks(projectId);
   }, [[], projectId]);
@@ -35,12 +32,14 @@ export default function ProjectTasks(props) {
 
   const TaskCreateForm = () => (
     <form
+      style={{ display: "flex", marginBottom: "0.7rem" }}
       onSubmit={(event) => {
         event.preventDefault();
         handleTasks.create(projectId, taskAddTitle);
       }}
     >
       <input
+        style={{ flexGrow: "1" }}
         type={"text"}
         placeholder={"New task"}
         value={taskAddTitle}
@@ -52,18 +51,6 @@ export default function ProjectTasks(props) {
     </form>
   );
 
-  const ShowDoneToggle = () => (
-    <div>
-      <input
-        id={"show-done-toggle"}
-        type={"checkbox"}
-        checked={showDoneTasks}
-        onChange={handleShowDoneChange}
-      />
-      <label htmlFor={"show-done-toggle"}>Show done</label>
-    </div>
-  );
-
   const TasksList = () => (
     <div>
       {projects[projectId].tasks
@@ -72,9 +59,7 @@ export default function ProjectTasks(props) {
               return (
                 <Task
                   key={`pj-${projectId}-task-${id}`}
-                  projectId={projectId}
                   task={projects[projectId].tasks[id]}
-                  showDoneTasks={showDoneTasks}
                 />
               );
             }
@@ -83,36 +68,41 @@ export default function ProjectTasks(props) {
     </div>
   );
 
-  const Task = (props) => (
-    <Card sx={{ marginBottom: "0.5rem" }}>
-      <CardActionArea>
-        <CardContent sx={{ display: "flex", alignItems: "start", gap: "1rem" }}>
-          <Checkbox sx={{ padding: "0" }} />
-          <div style={{ flexGrow: "1" }} onClick={() => {}}>
-            <Typography variant="body1">{props.task.title}</Typography>
-            <Typography variant="body2">{props.task.notes}</Typography>
-            <Typography variant="body2">{props.task.due}</Typography>
-          </div>
-        </CardContent>
-      </CardActionArea>
-    </Card>
-  );
+  const Task = (props) => {
+    const hide = context.hideDoneTasks && props.task.done;
 
-  const TaskDetailsModal = () => {};
+    return (
+      <Card
+        sx={{
+          marginBottom: hide ? "0px" : "0.5rem",
+          height: hide ? "0px" : "auto",
+        }}
+      >
+        <CardActionArea>
+          <CardContent
+            sx={{ display: "flex", alignItems: "start", gap: "1rem" }}
+          >
+            <Checkbox sx={{ padding: "0" }} checked={props.task.done} />
+            <div style={{ flexGrow: "1" }} onClick={() => {}}>
+              <Typography variant="body1">{props.task.title}</Typography>
+              <Typography variant="body2">{props.task.notes}</Typography>
+              <Typography variant="body2">{props.task.due}</Typography>
+            </div>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    );
+  };
+
+  const TaskDetailsModal = () => {
+    return <></>;
+  };
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "0.7rem",
-        }}
-      >
-        <TaskCreateForm />
-        <ShowDoneToggle />
-      </div>
+      <TaskCreateForm />
       <TasksList />
+      <TaskDetailsModal />
     </>
   );
 }
