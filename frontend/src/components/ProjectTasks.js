@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
-import Task from "./Task";
+
+import Typography from "@mui/material/Typography";
+import { Card, CardActionArea, CardContent, Checkbox } from "@mui/material";
 
 export default function ProjectTasks(props) {
   const params = useParams();
+  const context = useOutletContext();
   const [projectId, setProjectId] = useState(Number(params.projectId));
   const { projects, checkProjectTasks, handleTasks } = useProjects();
 
@@ -26,7 +29,11 @@ export default function ProjectTasks(props) {
     return <></>;
   }
 
-  const taskAddForm = (
+  if (!projects[projectId].tasks) {
+    return <div>Loading tasks</div>;
+  }
+
+  const TaskCreateForm = () => (
     <form
       onSubmit={(event) => {
         event.preventDefault();
@@ -45,7 +52,7 @@ export default function ProjectTasks(props) {
     </form>
   );
 
-  const showDoneToggle = (
+  const ShowDoneToggle = () => (
     <div>
       <input
         id={"show-done-toggle"}
@@ -53,38 +60,59 @@ export default function ProjectTasks(props) {
         checked={showDoneTasks}
         onChange={handleShowDoneChange}
       />
-      <label for={"show-done-toggle"}>Show done</label>
+      <label htmlFor={"show-done-toggle"}>Show done</label>
     </div>
   );
 
-  const tasksList = projects[projectId].tasks
-    ? Object.keys(projects[projectId].tasks).map((id) => {
-        if (projects[projectId].tasks?.[id]) {
-          return (
-            <Task
-              key={`pj-${projectId}-task-${id}`}
-              projectId={projectId}
-              task={projects[projectId].tasks[id]}
-              showDoneTasks={showDoneTasks}
-            />
-          );
-        }
-      })
-    : null;
+  const TasksList = () => (
+    <div>
+      {projects[projectId].tasks
+        ? Object.keys(projects[projectId].tasks).map((id) => {
+            if (projects[projectId].tasks?.[id]) {
+              return (
+                <Task
+                  key={`pj-${projectId}-task-${id}`}
+                  projectId={projectId}
+                  task={projects[projectId].tasks[id]}
+                  showDoneTasks={showDoneTasks}
+                />
+              );
+            }
+          })
+        : null}
+    </div>
+  );
+
+  const Task = (props) => (
+    <Card sx={{ marginBottom: "0.5rem" }}>
+      <CardActionArea>
+        <CardContent sx={{ display: "flex", alignItems: "start", gap: "1rem" }}>
+          <Checkbox sx={{ padding: "0" }} />
+          <div style={{ flexGrow: "1" }} onClick={() => {}}>
+            <Typography variant="body1">{props.task.title}</Typography>
+            <Typography variant="body2">{props.task.notes}</Typography>
+            <Typography variant="body2">{props.task.due}</Typography>
+          </div>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+
+  const TaskDetailsModal = () => {};
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        backgroundColor: "lightblue",
-        wordWrap: "anywhere",
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {taskAddForm}
-        {showDoneToggle}
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "0.7rem",
+        }}
+      >
+        <TaskCreateForm />
+        <ShowDoneToggle />
       </div>
-      {tasksList}
-    </div>
+      <TasksList />
+    </>
   );
 }
