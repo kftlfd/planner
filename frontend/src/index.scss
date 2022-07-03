@@ -18,7 +18,7 @@ body {
 #root {
   flex-grow: 1;
   display: flex;
-  padding-top: 2rem;
+  flex-direction: column;
 }
 
 h1 {
@@ -28,16 +28,20 @@ h1 {
 }
 
 .Navbar {
+  height: 2rem;
+  width: 100%;
+}
+
+.NavbarContent {
+  height: inherit;
+  width: inherit;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding: 0.5rem;
-  height: 2rem;
-  width: 100%;
   position: fixed;
   z-index: 1300;
-  margin-top: -2rem;
   background-color: white;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
