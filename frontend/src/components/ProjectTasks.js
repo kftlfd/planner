@@ -27,14 +27,6 @@ export default function ProjectTasks(props) {
     setProjectId(Number(params.projectId));
   }, [params.projectId]);
 
-  if (!projects[projectId]) {
-    return <></>;
-  }
-
-  if (!projects[projectId].tasks) {
-    return <div>Loading tasks</div>;
-  }
-
   const TaskCreateForm = () => {
     const [taskCreateTitle, setTaskCreateTitle] = useState("");
     const handleTaskCreateTitleChange = (e) =>
@@ -119,9 +111,19 @@ export default function ProjectTasks(props) {
 
   return (
     <>
-      <TaskCreateForm />
-      <TasksList />
-      <TaskDetailsModal />
+      {projects[projectId] ? (
+        projects[projectId].tasks ? (
+          <>
+            <TaskCreateForm />
+            <TasksList />
+            <TaskDetailsModal />
+          </>
+        ) : (
+          <div>Loading tasks</div>
+        )
+      ) : (
+        <></>
+      )}
     </>
   );
 }
