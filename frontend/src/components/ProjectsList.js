@@ -18,80 +18,94 @@ import {
 import ListIcon from "@mui/icons-material/List";
 import AddIcon from "@mui/icons-material/Add";
 
-export default function ProjectsList(props) {
-  const { projects, handleProjects } = useProjects();
+const ProjectsList = (props) => (
+  <List subheader={<ListSubheader component="div">Projects</ListSubheader>}>
+    <ProjectsButtons />
+    <ProjectCreateButton />
+  </List>
+);
+
+const ProjectsButtons = (props) => {
+  const { projectId } = useParams();
+  const { projects } = useProjects();
   const navigate = useNavigate();
-  const params = useParams();
-
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
-
-  const ProjectCreateDialog = () => {
-    const handleClose = () => toggleCreateDialog();
-
-    const [nameValue, setNameValue] = useState("");
-    const handleNameChange = (e) => setNameValue(e.target.value);
-
-    const handleCreate = async (event) => {
-      event.preventDefault();
-      await handleProjects.create(nameValue);
-      handleClose();
-    };
-
-    return (
-      <Dialog open={createDialogOpen} onClose={handleClose}>
-        <DialogTitle>Create new project</DialogTitle>
-        <form onSubmit={handleCreate}>
-          <DialogContent>
-            <TextField
-              autoFocus
-              fullWidth
-              type="text"
-              name="name"
-              placeholder="Project Name"
-              value={nameValue}
-              onChange={handleNameChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button type="submit" disabled={!nameValue}>
-              Create
-            </Button>
-            <Button onClick={handleClose}>Cancel</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-    );
-  };
 
   return (
     <>
-      <List subheader={<ListSubheader component="div">Projects</ListSubheader>}>
-        {Object.keys(projects).map((id) => (
-          <ListItemButton
-            key={"pj-" + id}
-            onClick={() => navigate(`project/${id}`)}
-            selected={params.projectId === id}
-          >
-            <ListItemIcon>
-              <ListIcon />
-            </ListItemIcon>
-            <ListItemText>{projects[id].name}</ListItemText>
-          </ListItemButton>
-        ))}
-
+      {Object.keys(projects).map((id) => (
         <ListItemButton
-          onClick={toggleCreateDialog}
-          sx={{ marginTop: "0.5rem" }}
+          key={"pj-" + id}
+          selected={projectId === id}
+          onClick={projectId === id ? null : () => navigate(`project/${id}`)}
         >
           <ListItemIcon>
-            <AddIcon />
+            <ListIcon />
           </ListItemIcon>
-          <ListItemText>Create new project</ListItemText>
+          <ListItemText primary={projects[id].name} />
         </ListItemButton>
-      </List>
-
-      <ProjectCreateDialog />
+      ))}
     </>
   );
-}
+};
+
+const ProjectCreateButton = (props) => {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
+
+  return (
+    <>
+      <ListItemButton onClick={toggleCreateDialog} sx={{ marginTop: "0.5rem" }}>
+        <ListItemIcon>
+          <AddIcon />
+        </ListItemIcon>
+        <ListItemText>Create new project</ListItemText>
+      </ListItemButton>
+
+      <ProjectCreateDialog
+        open={createDialogOpen}
+        toggle={toggleCreateDialog}
+      />
+    </>
+  );
+};
+
+const ProjectCreateDialog = (props) => {
+  const { handleProjects } = useProjects();
+  const handleClose = () => props.toggle();
+
+  const [nameValue, setNameValue] = useState("");
+  const handleNameChange = (e) => setNameValue(e.target.value);
+
+  const handleCreate = async (event) => {
+    event.preventDefault();
+    await handleProjects.create(nameValue);
+    handleClose();
+  };
+
+  return (
+    <Dialog open={props.open} onClose={handleClose}>
+      <DialogTitle>Create new project</DialogTitle>
+      <form onSubmit={handleCreate}>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            type="text"
+            name="name"
+            placeholder="Project Name"
+            value={nameValue}
+            onChange={handleNameChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button type="submit" disabled={!nameValue}>
+            Create
+          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+export default ProjectsList;
