@@ -4,7 +4,7 @@ import { useProjects } from "../ProjectsContext";
 
 import {
   List,
-  ListItem,
+  ListSubheader,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -14,7 +14,6 @@ import {
   DialogActions,
   Button,
   TextField,
-  IconButton,
 } from "@mui/material";
 import ListIcon from "@mui/icons-material/List";
 import AddIcon from "@mui/icons-material/Add";
@@ -26,36 +25,6 @@ export default function ProjectsList(props) {
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
-
-  const ProjectButtons = () => (
-    <List>
-      {Object.keys(projects).map((id) => (
-        <ListItem
-          key={"pj-" + id}
-          onClick={() => navigate(`project/${id}`)}
-          selected={Number(params.projectId) === id}
-          disablePadding
-        >
-          <ListItemButton>
-            <ListItemIcon>
-              <ListIcon />
-            </ListItemIcon>
-            <ListItemText>{projects[id].name}</ListItemText>
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
-  );
-
-  const ProjectCreateButton = () => (
-    <IconButton
-      onClick={toggleCreateDialog}
-      size={"large"}
-      sx={{ alignSelf: "center" }}
-    >
-      <AddIcon />
-    </IconButton>
-  );
 
   const ProjectCreateDialog = () => {
     const handleClose = () => toggleCreateDialog();
@@ -71,7 +40,7 @@ export default function ProjectsList(props) {
 
     return (
       <Dialog open={createDialogOpen} onClose={handleClose}>
-        <DialogTitle>Add new project</DialogTitle>
+        <DialogTitle>Create new project</DialogTitle>
         <form onSubmit={handleCreate}>
           <DialogContent>
             <TextField
@@ -97,8 +66,31 @@ export default function ProjectsList(props) {
 
   return (
     <>
-      <ProjectButtons />
-      <ProjectCreateButton />
+      <List subheader={<ListSubheader component="div">Projects</ListSubheader>}>
+        {Object.keys(projects).map((id) => (
+          <ListItemButton
+            key={"pj-" + id}
+            onClick={() => navigate(`project/${id}`)}
+            selected={params.projectId === id}
+          >
+            <ListItemIcon>
+              <ListIcon />
+            </ListItemIcon>
+            <ListItemText>{projects[id].name}</ListItemText>
+          </ListItemButton>
+        ))}
+
+        <ListItemButton
+          onClick={toggleCreateDialog}
+          sx={{ marginTop: "0.5rem" }}
+        >
+          <ListItemIcon>
+            <AddIcon />
+          </ListItemIcon>
+          <ListItemText>Create new project</ListItemText>
+        </ListItemButton>
+      </List>
+
       <ProjectCreateDialog />
     </>
   );
