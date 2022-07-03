@@ -3,16 +3,21 @@ import { useParams, useOutletContext } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
 
 import Typography from "@mui/material/Typography";
-import { Card, CardActionArea, CardContent, Checkbox } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Checkbox,
+  Paper,
+  InputBase,
+} from "@mui/material";
 
 export default function ProjectTasks(props) {
   const params = useParams();
   const context = useOutletContext();
   const [projectId, setProjectId] = useState(Number(params.projectId));
   const { projects, checkProjectTasks, handleTasks } = useProjects();
-
-  const [taskAddTitle, setTaskAddTitle] = useState("");
-  const handleTaskAddTitleChange = (e) => setTaskAddTitle(e.target.value);
 
   useEffect(() => {
     checkProjectTasks(projectId);
@@ -30,26 +35,40 @@ export default function ProjectTasks(props) {
     return <div>Loading tasks</div>;
   }
 
-  const TaskCreateForm = () => (
-    <form
-      style={{ display: "flex", marginBottom: "0.7rem" }}
-      onSubmit={(event) => {
-        event.preventDefault();
-        handleTasks.create(projectId, taskAddTitle);
-      }}
-    >
-      <input
-        style={{ flexGrow: "1" }}
-        type={"text"}
-        placeholder={"New task"}
-        value={taskAddTitle}
-        onChange={handleTaskAddTitleChange}
-      />
-      <button type={"submit"} disabled={!taskAddTitle}>
-        + Add task
-      </button>
-    </form>
-  );
+  const TaskCreateForm = () => {
+    const [taskCreateTitle, setTaskCreateTitle] = useState("");
+    const handleTaskCreateTitleChange = (e) =>
+      setTaskCreateTitle(e.target.value);
+
+    const handleCreateTask = (event) => {
+      event.preventDefault();
+      handleTasks.create(projectId, taskCreateTitle);
+      setTaskCreateTitle("");
+    };
+
+    return (
+      <Paper
+        component="form"
+        onSubmit={handleCreateTask}
+        sx={{ display: "flex", marginBlock: "1rem", padding: "0.3rem 1rem" }}
+      >
+        <InputBase
+          type={"text"}
+          value={taskCreateTitle}
+          onChange={handleTaskCreateTitleChange}
+          placeholder={"New task"}
+          size={"small"}
+          sx={{ flexGrow: "1" }}
+          componentsProps={{
+            input: { sx: { padding: "0" } },
+          }}
+        />
+        <Button type={"submit"} disabled={!taskCreateTitle} size={"small"}>
+          + Add task
+        </Button>
+      </Paper>
+    );
+  };
 
   const TasksList = () => (
     <div>
