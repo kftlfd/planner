@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
+import { MainHeader, MainBody } from "./Main";
 
-import Typography from "@mui/material/Typography";
 import {
   Button,
   IconButton,
@@ -25,6 +25,7 @@ import CloseIcon from "@mui/icons-material/Close";
 export default function Project(props) {
   const { projects, handleProjects } = useProjects();
   const { projectId } = useParams();
+  const validProject = projectId && projects[projectId];
   const navigate = useNavigate();
 
   const [hideDoneTasks, setHideDoneTasks] = useState(false);
@@ -34,17 +35,6 @@ export default function Project(props) {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const toggleDeleteDialog = () => setDeleteDialogOpen(!deleteDialogOpen);
-
-  const Header = (props) => (
-    <Typography
-      variant="h4"
-      component="div"
-      gutterBottom
-      sx={{ display: "flex", width: "100%", justifyContent: "space-between" }}
-    >
-      {props.children}
-    </Typography>
-  );
 
   const ProjectOptionsMenu = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -167,29 +157,27 @@ export default function Project(props) {
   };
 
   return (
-    <div
-      style={{
-        flexGrow: "1",
-        padding: "1rem",
-      }}
-    >
-      {projectId ? (
-        projects[Number(projectId)] ? (
+    <>
+      <MainHeader title={validProject ? projects[projectId].name : ""}>
+        {validProject ? (
           <>
-            <Header>
-              {projects[Number(projectId)].name}
-              <ProjectOptionsMenu />
-            </Header>
+            <ProjectOptionsMenu />
             <ProjectRenameModal project={projects[Number(projectId)]} />
             <ProjectDeleteModal project={projects[Number(projectId)]} />
           </>
+        ) : null}
+      </MainHeader>
+
+      <MainBody>
+        {projectId ? (
+          projects[projectId] ? null : (
+            <div>Project not found</div>
+          )
         ) : (
-          <Header>Project not found</Header>
-        )
-      ) : (
-        <Header>Select a project</Header>
-      )}
-      <Outlet context={{ hideDoneTasks }} />
-    </div>
+          <div>Select a project</div>
+        )}
+        <Outlet context={{ hideDoneTasks }} />
+      </MainBody>
+    </>
   );
 }

@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import ProvideProjects from "./ProjectsContext";
 import Main from "./components/Main";
-import ProjectHeader from "./components/ProjectHeader";
+import Project from "./components/Project";
 import ProjectTasks from "./components/ProjectTasks";
 import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
@@ -23,7 +23,7 @@ export default function App() {
         <ProvideProjects>
           <Routes>
             <Route path="/" element={<Main />}>
-              <Route path="project" element={<ProjectHeader />}>
+              <Route path="project" element={<Project />}>
                 <Route path=":projectId" element={<ProjectTasks />} />
               </Route>
             </Route>
