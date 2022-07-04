@@ -28,6 +28,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+import LoadingApp from "./Loading";
 
 export default function Main(props) {
   const auth = useAuth();
@@ -163,7 +164,7 @@ export default function Main(props) {
       <>
         {auth.user ? (
           loading ? (
-            <div>Loading projects</div>
+            <LoadingApp message={"Loading projects"} />
           ) : (
             <MainContent />
           )

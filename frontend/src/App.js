@@ -10,29 +10,30 @@ import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
 import NotFoundError from "./components/NotFoundError";
 import ProvideTheme from "./Theme";
+import LoadingApp from "./components/Loading";
 
 export default function App() {
   const auth = useAuth();
 
-  if (auth.loading) {
-    return <div>Loading app</div>;
-  }
-
   return (
     <ProvideTheme>
-      <ProvideProjects>
-        <Routes>
-          <Route path="/" element={<Main />}>
-            <Route path="project" element={<ProjectHeader />}>
-              <Route path=":projectId" element={<ProjectTasks />} />
+      {auth.loading ? (
+        <LoadingApp />
+      ) : (
+        <ProvideProjects>
+          <Routes>
+            <Route path="/" element={<Main />}>
+              <Route path="project" element={<ProjectHeader />}>
+                <Route path=":projectId" element={<ProjectTasks />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/*" element={<NotFoundError />} />
-        </Routes>
-      </ProvideProjects>
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/*" element={<NotFoundError />} />
+          </Routes>
+        </ProvideProjects>
+      )}
     </ProvideTheme>
   );
 }
