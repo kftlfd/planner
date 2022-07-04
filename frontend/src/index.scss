@@ -1,7 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-$bg: aliceblue;
-
 * {
   box-sizing: border-box;
 }
@@ -12,7 +10,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: $bg;
 }
 
 #root {

@@ -25,6 +25,9 @@ export default function ProvideTheme({ children }) {
       createTheme({
         palette: {
           mode,
+          background: {
+            light: "aliceblue",
+          },
         },
       }),
     [mode]

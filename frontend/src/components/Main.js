@@ -114,8 +114,19 @@ export default function Main(props) {
   };
 
   const MainContent = () => {
+    const colorMode = useColorMode();
+
     return (
-      <Box sx={{ flexGrow: 1, display: "flex" }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          backgroundColor:
+            colorMode.mode === "light"
+              ? "background.light"
+              : "background.default",
+        }}
+      >
         <AppBar color="background">
           <Toolbar sx={{ marginLeft: `${drawerWidth}px` }}>
             <IconButton>
