@@ -1,5 +1,6 @@
 import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+
 import { useAuth } from "./AuthContext";
 import ProvideProjects from "./ProjectsContext";
 import Main from "./components/Main";
@@ -8,6 +9,7 @@ import ProjectTasks from "./components/ProjectTasks";
 import Welcome from "./components/Welcome";
 import { Register, Login } from "./components/LoginRegister";
 import NotFoundError from "./components/NotFoundError";
+import ProvideTheme from "./Theme";
 
 export default function App() {
   const auth = useAuth();
@@ -17,18 +19,20 @@ export default function App() {
   }
 
   return (
-    <ProvideProjects>
-      <Routes>
-        <Route path="/" element={<Main />}>
-          <Route path="project" element={<ProjectHeader />}>
-            <Route path=":projectId" element={<ProjectTasks />} />
+    <ProvideTheme>
+      <ProvideProjects>
+        <Routes>
+          <Route path="/" element={<Main />}>
+            <Route path="project" element={<ProjectHeader />}>
+              <Route path=":projectId" element={<ProjectTasks />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={<NotFoundError />} />
-      </Routes>
-    </ProvideProjects>
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/*" element={<NotFoundError />} />
+        </Routes>
+      </ProvideProjects>
+    </ProvideTheme>
   );
 }
