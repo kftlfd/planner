@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { useProjects } from "../ProjectsContext";
@@ -85,34 +85,43 @@ export default function Main(props) {
     );
   };
 
-  return (
-    <>
-      {auth.user ? (
-        loading ? (
-          <div>Loading projects</div>
+  const MainContent = () => {
+    return (
+      <Box sx={{ flexGrow: 1, display: "flex" }}>
+        <AppBar>
+          <Toolbar />
+        </AppBar>
+
+        <NavDrawer>
+          <Toolbar />
+          <Divider />
+          <UserButtons />
+          <Divider />
+          <ProjectsList />
+        </NavDrawer>
+
+        <Box sx={{ flexGrow: 1 }}>
+          <Toolbar />
+          <Outlet />
+        </Box>
+      </Box>
+    );
+  };
+
+  return useMemo(
+    () => (
+      <>
+        {auth.user ? (
+          loading ? (
+            <div>Loading projects</div>
+          ) : (
+            <MainContent />
+          )
         ) : (
-          <Box sx={{ flexGrow: 1, display: "flex" }}>
-            <AppBar>
-              <Toolbar />
-            </AppBar>
-
-            <NavDrawer>
-              <Toolbar />
-              <Divider />
-              <UserButtons />
-              <Divider />
-              <ProjectsList />
-            </NavDrawer>
-
-            <Box sx={{ flexGrow: 1 }}>
-              <Toolbar />
-              <Outlet />
-            </Box>
-          </Box>
-        )
-      ) : (
-        <Navigate to="/welcome" />
-      )}
-    </>
+          <Navigate to="/welcome" />
+        )}
+      </>
+    ),
+    [auth.user, loading]
   );
 }
