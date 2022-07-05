@@ -12,6 +12,7 @@ import {
   Paper,
   InputBase,
   Skeleton,
+  Container,
 } from "@mui/material";
 
 export default function ProjectTasks(props) {
@@ -43,7 +44,7 @@ export default function ProjectTasks(props) {
       <Paper
         component="form"
         onSubmit={handleCreateTask}
-        sx={{ display: "flex", marginBlock: "1rem", padding: "0.3rem 1rem" }}
+        sx={{ display: "flex", marginBottom: "1.5rem", padding: "0.3rem 1rem" }}
       >
         <InputBase
           type={"text"}
@@ -111,7 +112,7 @@ export default function ProjectTasks(props) {
   };
 
   return (
-    <>
+    <Container maxWidth="md" sx={{ paddingTop: "1rem", paddingBottom: "3rem" }}>
       {projects[projectId] ? (
         projects[projectId].tasks ? (
           <>
@@ -129,6 +130,6 @@ export default function ProjectTasks(props) {
       ) : (
         <></>
       )}
-    </>
+    </Container>
   );
 }
