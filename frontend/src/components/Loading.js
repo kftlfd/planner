@@ -21,22 +21,34 @@ export default function LoadingApp(props) {
     >
       <Card
         sx={{
-          margin: "3rem",
           flexGrow: 1,
+          margin: { xs: "1rem", sm: "2rem", md: "3rem" },
           display: "grid",
           placeContent: "center",
-          gap: "1rem",
+          gap: "1.5rem",
         }}
       >
-        <img src="/favicon-192x192.png" alt="Loading" />
+        <Box
+          sx={{
+            textAlign: "center",
+            fontSize: { xs: "5em", sm: "8em", md: "10em" },
+          }}
+        >
+          📝
+        </Box>
+
         <Typography
-          variant="h5"
           component="div"
-          sx={{ textAlign: "center", height: "2rem" }}
+          sx={{
+            height: "2rem",
+            textAlign: "center",
+            fontSize: { xs: "1em", sm: "1.15em", md: "1.25em" },
+          }}
         >
           {props.message}
         </Typography>
-        <LinearProgress />
+
+        <LinearProgress sx={{ width: { xs: "8em", sm: "9em", md: "10em" } }} />
       </Card>
     </Box>
   );
