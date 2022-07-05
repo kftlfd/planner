@@ -11,6 +11,7 @@ import {
   Checkbox,
   Paper,
   InputBase,
+  Skeleton,
 } from "@mui/material";
 
 export default function ProjectTasks(props) {
@@ -119,7 +120,11 @@ export default function ProjectTasks(props) {
             <TaskDetailsModal />
           </>
         ) : (
-          <div>Loading tasks</div>
+          <>
+            {[...Array(4).keys()].map((x) => (
+              <Skeleton key={x} height={50} animation="wave" />
+            ))}
+          </>
         )
       ) : (
         <></>
