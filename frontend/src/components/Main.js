@@ -7,6 +7,8 @@ import { useProjects } from "../ProjectsContext";
 import LoadingApp from "./Loading";
 import ProjectsList from "./ProjectsList";
 
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Typography,
   AppBar,
@@ -34,43 +36,6 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 export default function Main(props) {
   const auth = useAuth();
   const { loading } = useProjects();
-  const drawerWidth = 240;
-
-  const MainContent = () => {
-    const colorMode = useColorMode();
-
-    return (
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          backgroundColor:
-            colorMode.mode === "light"
-              ? "background.light"
-              : "background.default",
-        }}
-      >
-        <MainDrawer drawerWidth={drawerWidth}>
-          <Toolbar sx={{ justifyContent: "end" }}>
-            <IconButton>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <UserButtons />
-          <Divider />
-          <ProjectsList />
-          <div style={{ flexGrow: 1 }} />
-          <Divider />
-          <ThemeSwitch />
-        </MainDrawer>
-
-        <Box sx={{ flexGrow: 1 }}>
-          <Outlet context={{ drawerWidth }} />
-        </Box>
-      </Box>
-    );
-  };
 
   return useMemo(
     () => (
@@ -90,32 +55,85 @@ export default function Main(props) {
   );
 }
 
-function MainDrawer(props) {
+function MainContent(props) {
+  const theme = useTheme();
+  const colorMode = useColorMode();
+  const smallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const drawerWidth = 240;
+  const [drawerOpen, setDrawerOpen] = useState(!smallScreen);
+  const drawerToggle = () => setDrawerOpen((drawerOpen) => !drawerOpen);
+
   return (
-    <Drawer
-      variant="permanent"
-      anchor="left"
+    <Box
       sx={{
-        width: props.drawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          boxSizing: "border-box",
-          width: props.drawerWidth,
-        },
+        flexGrow: 1,
+        display: "flex",
+        backgroundColor:
+          colorMode.mode === "light"
+            ? "background.light"
+            : "background.default",
       }}
     >
-      {props.children}
-    </Drawer>
+      <Drawer
+        variant={smallScreen ? "temporary" : "persistent"}
+        anchor="left"
+        open={drawerOpen}
+        ModalProps={{ keepMounted: true }}
+        SlideProps={{ easing: "ease" }}
+        transitionDuration={300}
+        sx={{
+          transition: "width 0.3s ease",
+          width: drawerOpen ? drawerWidth : 0,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        <Toolbar sx={{ justifyContent: "end" }}>
+          <IconButton onClick={drawerToggle}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </Toolbar>
+        <Divider />
+        <UserButtons />
+        <Divider />
+        <ProjectsList />
+        <div style={{ flexGrow: 1 }} />
+        <Divider />
+        <ThemeSwitch />
+      </Drawer>
+
+      <Outlet context={{ drawerWidth, drawerOpen, drawerToggle }} />
+    </Box>
   );
 }
 
 export function MainHeader(props) {
-  const { drawerWidth } = useOutletContext();
+  const { drawerWidth, drawerOpen, drawerToggle } = useOutletContext();
 
   return (
-    <AppBar color="background">
-      <Toolbar sx={{ marginLeft: `${drawerWidth}px` }}>
-        <IconButton sx={{ marginRight: "1rem" }}>
+    <AppBar
+      color="background"
+      sx={{
+        transition: "all 0.3s ease",
+        width: { md: drawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%" },
+        marginLeft: { md: drawerOpen ? `${drawerWidth}px` : 0 },
+      }}
+    >
+      <Toolbar>
+        <IconButton
+          onClick={drawerToggle}
+          sx={{
+            display: { md: drawerOpen ? "none" : "inline-flex" },
+            marginRight: {
+              xs: "1rem",
+              sm: "1.5rem",
+            },
+          }}
+        >
           <MenuIcon />
         </IconButton>
 
@@ -139,11 +157,21 @@ export function MainHeader(props) {
 }
 
 export function MainBody(props) {
+  const theme = useTheme();
+
   return (
-    <>
-      <Toolbar />
-      <div style={{ padding: "1rem" }}>{props.children}</div>
-    </>
+    <Box
+      sx={{
+        flexGrow: 1,
+        "::before": {
+          ...theme.mixins.toolbar,
+          display: "block",
+          content: "''",
+        },
+      }}
+    >
+      {props.children}
+    </Box>
   );
 }
 
