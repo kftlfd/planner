@@ -41,7 +41,16 @@ const ProjectsButtons = (props) => {
           <ListItemIcon>
             <ListIcon />
           </ListItemIcon>
-          <ListItemText primary={projects[id].name} />
+          <ListItemText
+            primary={projects[id].name}
+            sx={{
+              span: {
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              },
+            }}
+          />
         </ListItemButton>
       ))}
     </>
