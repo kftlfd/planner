@@ -63,7 +63,11 @@ const ProjectCreateButton = (props) => {
 
   return (
     <>
-      <ListItemButton onClick={toggleCreateDialog} sx={{ marginTop: "0.5rem" }}>
+      <ListItemButton
+        id={"create-new-project-button"}
+        onClick={toggleCreateDialog}
+        sx={{ marginTop: "0.5rem" }}
+      >
         <ListItemIcon>
           <AddIcon />
         </ListItemIcon>

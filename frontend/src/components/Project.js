@@ -5,6 +5,7 @@ import { MainHeader, MainBody } from "./Main";
 
 import {
   Typography,
+  Box,
   Button,
   IconButton,
   Menu,
@@ -22,6 +23,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from "@mui/icons-material/Close";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 export default function Project(props) {
   const { projects, handleProjects } = useProjects();
@@ -173,6 +175,54 @@ export default function Project(props) {
     );
   }
 
+  function StarterMessage(props) {
+    return (
+      <>
+        <Message text={"Select a project"} />
+        <Box
+          sx={{
+            marginTop: "5rem",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "2rem",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "fontWeightLight",
+              color: "text.primary",
+            }}
+          >
+            or
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: "fontWeightLight",
+              color: "text.primary",
+            }}
+          >
+            Create New Project
+          </Typography>
+          <IconButton
+            onClick={() =>
+              document.getElementById("create-new-project-button").click()
+            }
+            sx={{
+              svg: {
+                fontSize: "10rem",
+              },
+            }}
+          >
+            <AddCircleIcon />
+          </IconButton>
+        </Box>
+      </>
+    );
+  }
+
   return (
     <>
       <MainHeader title={validProject ? projects[projectId].name : "Project"}>
@@ -187,7 +237,7 @@ export default function Project(props) {
 
       <MainBody>
         {!projectId ? (
-          <Message text={"Select a project"} />
+          <StarterMessage />
         ) : !projects[projectId] ? (
           <Message text={"Project not found"} />
         ) : (
