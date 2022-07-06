@@ -78,17 +78,19 @@ const ProjectCreateButton = (props) => {
   );
 };
 
-const ProjectCreateDialog = (props) => {
+function ProjectCreateDialog(props) {
   const { handleProjects } = useProjects();
   const handleClose = () => props.toggle();
+  const navigate = useNavigate();
 
   const [nameValue, setNameValue] = useState("");
   const handleNameChange = (e) => setNameValue(e.target.value);
 
   const handleCreate = async (event) => {
     event.preventDefault();
-    await handleProjects.create(nameValue);
+    const newProject = await handleProjects.create(nameValue);
     handleClose();
+    navigate(`/project/${newProject.id}`);
   };
 
   return (
@@ -115,6 +117,6 @@ const ProjectCreateDialog = (props) => {
       </form>
     </Dialog>
   );
-};
+}
 
 export default ProjectsList;

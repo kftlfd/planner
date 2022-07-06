@@ -58,7 +58,7 @@ function useProvideProjects() {
 
   const handleProjects = {
     create: (name) => {
-      fetch(API.projectCreate, {
+      return fetch(API.projectCreate, {
         method: "POST",
         headers: {
           "X-CSRFToken": API.csrftoken(),
@@ -73,6 +73,7 @@ function useProvideProjects() {
               ...projects,
               [res.id]: res,
             }));
+            return res;
           },
           (err) => {
             console.log(err);
