@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Navigate, Outlet, useOutletContext } from "react-router-dom";
+import { Navigate, Outlet, useOutletContext, useMatch } from "react-router-dom";
 
 import { useAuth } from "../AuthContext";
 import { useColorMode } from "../Theme";
@@ -36,22 +36,23 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 export default function Main(props) {
   const auth = useAuth();
   const { loading } = useProjects();
+  const rootPath = useMatch("/");
 
   return useMemo(
     () => (
       <>
-        {auth.user ? (
-          loading ? (
-            <LoadingApp message={"Loading projects"} />
-          ) : (
-            <MainContent />
-          )
-        ) : (
+        {!auth.user ? (
           <Navigate to="/welcome" />
+        ) : loading ? (
+          <LoadingApp message={"Loading projects"} />
+        ) : rootPath ? (
+          <Navigate to="/project/" />
+        ) : (
+          <MainContent />
         )}
       </>
     ),
-    [auth.user, loading]
+    [auth.user, loading, rootPath]
   );
 }
 
