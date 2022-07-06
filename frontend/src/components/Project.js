@@ -4,6 +4,7 @@ import { useProjects } from "../ProjectsContext";
 import { MainHeader, MainBody } from "./Main";
 
 import {
+  Typography,
   Button,
   IconButton,
   Menu,
@@ -156,9 +157,25 @@ export default function Project(props) {
     );
   };
 
+  function Message({ text }) {
+    return (
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{
+          marginTop: "3rem",
+          fontWeight: "fontWeightLight",
+          color: "text.primary",
+        }}
+      >
+        {text}
+      </Typography>
+    );
+  }
+
   return (
     <>
-      <MainHeader title={validProject ? projects[projectId].name : ""}>
+      <MainHeader title={validProject ? projects[projectId].name : "Project"}>
         {validProject ? (
           <>
             <ProjectOptionsMenu />
@@ -169,14 +186,13 @@ export default function Project(props) {
       </MainHeader>
 
       <MainBody>
-        {projectId ? (
-          projects[projectId] ? null : (
-            <div>Project not found</div>
-          )
+        {!projectId ? (
+          <Message text={"Select a project"} />
+        ) : !projects[projectId] ? (
+          <Message text={"Project not found"} />
         ) : (
-          <div>Select a project</div>
+          <Outlet context={{ hideDoneTasks }} />
         )}
-        <Outlet context={{ hideDoneTasks }} />
       </MainBody>
     </>
   );
