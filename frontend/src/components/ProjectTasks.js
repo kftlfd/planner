@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
+import { MainSidebar } from "./Main";
 
 import {
   Typography,
+  Box,
   Button,
   Card,
   CardActionArea,
-  CardContent,
   Checkbox,
+  Collapse,
   Paper,
   InputBase,
   Skeleton,
@@ -20,6 +22,9 @@ export default function ProjectTasks(props) {
   const { projectId } = useParams();
   const { hideDoneTasks } = useOutletContext();
   const { projects, checkProjectTasks } = useProjects();
+
+  const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
+  const taskDetailToggle = () => setTaskDetailsOpen((x) => !x);
 
   useEffect(() => {
     checkProjectTasks(projectId);
@@ -42,12 +47,23 @@ export default function ProjectTasks(props) {
           <TaskCreateForm projectId={projectId} />
 
           {Object.keys(projects[projectId].tasks).map((id) => (
-            <Task
+            <Collapse
               key={`pj-${projectId}-task-${id}`}
-              task={projects[projectId].tasks[id]}
-              hide={hideDoneTasks && projects[projectId].tasks[id].done}
-            />
+              in={!(hideDoneTasks && projects[projectId].tasks[id].done)}
+            >
+              <Task
+                task={projects[projectId].tasks[id]}
+                deatailsToggle={taskDetailToggle}
+              />
+            </Collapse>
           ))}
+
+          <MainSidebar
+            open={taskDetailsOpen}
+            toggle={taskDetailToggle}
+            title={"Task details"}
+            children={null}
+          />
         </>
       )}
     </Container>
@@ -90,22 +106,39 @@ function TaskCreateForm(props) {
 }
 
 function Task(props) {
+  const { handleTasks } = useProjects();
+  const { projectId } = useParams();
+  const [doneValue, setDoneValue] = useState(props.task.done);
+  const doneToggle = () => {
+    handleTasks.update(projectId, props.task.id, { done: !doneValue });
+    setDoneValue((x) => !x);
+  };
+
   return (
-    <Card
-      sx={{
-        marginBottom: props.hide ? "0" : "0.5rem",
-        height: props.hide ? "0px" : "auto",
-      }}
-    >
-      <CardActionArea>
-        <CardContent sx={{ display: "flex", alignItems: "start", gap: "1rem" }}>
-          <Checkbox sx={{ padding: "0" }} checked={props.task.done} />
-          <div style={{ flexGrow: "1" }} onClick={() => {}}>
-            <Typography variant="body1">{props.task.title}</Typography>
-            <Typography variant="body2">{props.task.notes}</Typography>
-            <Typography variant="body2">{props.task.due}</Typography>
-          </div>
-        </CardContent>
+    <Card sx={{ marginBottom: "0.5rem" }}>
+      <CardActionArea
+        sx={{
+          display: "flex",
+          justifyContent: "start",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box sx={{ padding: "0.5rem" }}>
+          <Checkbox
+            sx={{ padding: "0.5rem" }}
+            checked={doneValue}
+            onChange={doneToggle}
+          />
+        </Box>
+
+        <Box
+          onClick={props.deatailsToggle}
+          sx={{ flexGrow: 1, padding: "1rem", paddingLeft: 0 }}
+        >
+          <Typography variant="body1">{props.task.title}</Typography>
+          <Typography variant="body2">{props.task.notes}</Typography>
+          <Typography variant="body2">{props.task.due}</Typography>
+        </Box>
       </CardActionArea>
     </Card>
   );
