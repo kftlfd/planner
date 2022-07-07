@@ -16,6 +16,8 @@ import {
   Skeleton,
   Container,
   Toolbar,
+  TextField,
+  FormControlLabel,
 } from "@mui/material";
 
 export default function ProjectTasks(props) {
@@ -24,11 +26,25 @@ export default function ProjectTasks(props) {
   const { projects, checkProjectTasks } = useProjects();
 
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
-  const taskDetailToggle = () => setTaskDetailsOpen((x) => !x);
+  function taskDetailsToggle() {
+    setTaskDetailsOpen((x) => !x);
+  }
+
+  const [taskSelected, setTaskSelected] = useState(null);
+
+  function taskDetailsClose() {
+    taskDetailsToggle();
+    setTaskSelected(null);
+  }
 
   useEffect(() => {
     checkProjectTasks(projectId);
-  }, [[], projectId]);
+  }, []);
+
+  useEffect(() => {
+    setTaskSelected(null);
+    checkProjectTasks(projectId);
+  }, [projectId]);
 
   return (
     <Container
@@ -46,24 +62,39 @@ export default function ProjectTasks(props) {
         <>
           <TaskCreateForm projectId={projectId} />
 
-          {Object.keys(projects[projectId].tasks).map((id) => (
+          {Object.keys(projects[projectId].tasks).map((taskId) => (
             <Collapse
-              key={`pj-${projectId}-task-${id}`}
-              in={!(hideDoneTasks && projects[projectId].tasks[id].done)}
+              key={`pj-${projectId}-task-${taskId}`}
+              in={!(hideDoneTasks && projects[projectId].tasks[taskId].done)}
             >
               <Task
-                task={projects[projectId].tasks[id]}
-                deatailsToggle={taskDetailToggle}
+                projectId={projectId}
+                taskId={taskId}
+                done={projects[projectId].tasks[taskId].done}
+                title={projects[projectId].tasks[taskId].title}
+                notes={projects[projectId].tasks[taskId].notes}
+                due={projects[projectId].tasks[taskId].due}
+                setTaskSelected={setTaskSelected}
+                taskDetailsToggle={taskDetailsToggle}
               />
             </Collapse>
           ))}
 
           <MainSidebar
             open={taskDetailsOpen}
-            toggle={taskDetailToggle}
+            toggle={taskDetailsToggle}
             title={"Task details"}
-            children={null}
-          />
+            update={taskSelected}
+          >
+            {taskSelected ? (
+              <TaskDetails
+                projectId={projectId}
+                taskSelected={taskSelected}
+                task={projects[projectId].tasks[taskSelected]}
+                closeDetails={taskDetailsToggle}
+              />
+            ) : null}
+          </MainSidebar>
         </>
       )}
     </Container>
@@ -107,11 +138,17 @@ function TaskCreateForm(props) {
 
 function Task(props) {
   const { handleTasks } = useProjects();
-  const { projectId } = useParams();
-  const [doneValue, setDoneValue] = useState(props.task.done);
-  const doneToggle = () => {
-    handleTasks.update(projectId, props.task.id, { done: !doneValue });
-    setDoneValue((x) => !x);
+
+  const [doneValue, setDoneValue] = useState(props.done);
+  const toggleDone = () => {
+    let newDoneValue = !doneValue;
+    setDoneValue(newDoneValue);
+    handleTasks.update(props.projectId, props.taskId, { done: newDoneValue });
+  };
+
+  const openTaskDetails = () => {
+    props.setTaskSelected(props.taskId);
+    props.taskDetailsToggle();
   };
 
   return (
@@ -127,19 +164,97 @@ function Task(props) {
           <Checkbox
             sx={{ padding: "0.5rem" }}
             checked={doneValue}
-            onChange={doneToggle}
+            onChange={toggleDone}
           />
         </Box>
 
         <Box
-          onClick={props.deatailsToggle}
+          onClick={openTaskDetails}
           sx={{ flexGrow: 1, padding: "1rem", paddingLeft: 0 }}
         >
-          <Typography variant="body1">{props.task.title}</Typography>
-          <Typography variant="body2">{props.task.notes}</Typography>
-          <Typography variant="body2">{props.task.due}</Typography>
+          <Typography variant="body1">{props.title}</Typography>
+          <Typography variant="body2">{props.notes}</Typography>
+          <Typography variant="body2">{props.due}</Typography>
         </Box>
       </CardActionArea>
     </Card>
+  );
+}
+
+function TaskDetails(props) {
+  const { projectId, task, closeDetails } = props;
+  const { handleTasks } = useProjects();
+
+  const [doneValue, setDoneValue] = useState(task.done);
+  const handleDoneValueChange = () => setDoneValue((x) => !x);
+
+  const [titleValue, setTitleValue] = useState(task.title);
+  const handleTitleValueChange = (e) => setTitleValue(e.target.value);
+
+  const [notesValue, setNotesValue] = useState(task.notes || "");
+  const handleNotesValueChange = (e) => setNotesValue(e.target.value);
+
+  useEffect(() => {
+    setDoneValue(task.done);
+    setTitleValue(task.title);
+    setNotesValue(task.notes || "");
+  }, [props.taskSelected]);
+
+  const handleUpdate = () => {
+    handleTasks.update(projectId, task.id, {
+      title: titleValue,
+      done: doneValue,
+      notes: notesValue,
+    });
+    closeDetails();
+  };
+
+  return (
+    <>
+      {!task ? null : (
+        <Box
+          sx={{
+            padding: "2rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <Button
+            disabled={
+              task.done === doneValue &&
+              task.title === titleValue &&
+              task.notes === notesValue
+            }
+            onClick={handleUpdate}
+          >
+            Save
+          </Button>
+
+          <FormControlLabel
+            label="Done"
+            labelPlacement="start"
+            control={
+              <Checkbox checked={doneValue} onChange={handleDoneValueChange} />
+            }
+          />
+
+          <TextField
+            label={"Title"}
+            value={titleValue}
+            onChange={handleTitleValueChange}
+          />
+
+          <TextField
+            label={"Notes"}
+            value={notesValue}
+            onChange={handleNotesValueChange}
+          />
+
+          <div>Last modified: {task.modified}</div>
+          <div>Created: {task.created}</div>
+        </Box>
+      )}
+    </>
   );
 }
