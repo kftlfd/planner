@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
-import { MainHeader, MainBody } from "./Main";
+import { MainHeader, MainBody, MainSidebar } from "./Main";
 
 import {
   Typography,
@@ -129,9 +129,9 @@ function ProjectOptionsMenu(props) {
     closeOptionsMenu();
   };
 
-  const [sidePaneOpne, setSidePaneOpen] = useState(false);
-  const toggleSidePane = () => {
-    setSidePaneOpen((x) => !x);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setSidebarOpen((x) => !x);
     closeOptionsMenu();
   };
 
@@ -156,8 +156,6 @@ function ProjectOptionsMenu(props) {
           "aria-labelledby": "project-options-button",
         }}
       >
-        <MenuItem onClick={toggleSidePane}>Info</MenuItem>
-        <Divider />
         <MenuItem onClick={props.hideDoneToggle}>
           <Box
             sx={{
@@ -171,11 +169,19 @@ function ProjectOptionsMenu(props) {
           </Box>
         </MenuItem>
         <Divider />
+        <MenuItem onClick={toggleSidebar}>Share</MenuItem>
+        <Divider />
         <MenuItem onClick={toggleRenameDialog}>Rename</MenuItem>
         <Divider />
         <MenuItem onClick={toggleDeleteDialog}>Delete</MenuItem>
       </Menu>
 
+      <MainSidebar
+        open={sidebarOpen}
+        toggle={toggleSidebar}
+        title={"Project sharing"}
+        children={<ProjectSharing />}
+      />
       <ProjectRenameModal
         open={renameDialogOpen}
         toggle={toggleRenameDialog}
@@ -281,5 +287,14 @@ function Message({ text }) {
     >
       {text}
     </Typography>
+  );
+}
+
+function ProjectSharing(props) {
+  return (
+    <Box>
+      <Typography>sharing Off</Typography>
+      <Button>turn sharing on</Button>
+    </Box>
   );
 }
