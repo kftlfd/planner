@@ -24,6 +24,7 @@ import {
   Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -80,6 +81,7 @@ function MainContent(props) {
         variant={smallScreen ? "temporary" : "persistent"}
         anchor="left"
         open={drawerOpen}
+        onClose={drawerToggle}
         ModalProps={{ keepMounted: true }}
         SlideProps={{ easing: "ease" }}
         transitionDuration={300}
@@ -95,7 +97,7 @@ function MainContent(props) {
       >
         <Toolbar sx={{ justifyContent: "end" }}>
           <IconButton onClick={drawerToggle}>
-            <ChevronLeftIcon />
+            {smallScreen ? <CloseIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </Toolbar>
         <Divider />
@@ -158,9 +160,56 @@ export function MainHeader(props) {
 }
 
 export function MainBody(props) {
-  const theme = useTheme();
-
   return <Box sx={{ flexGrow: 1 }}>{props.children}</Box>;
+}
+
+export function MainSidebar(props) {
+  const theme = useTheme();
+  const { open, toggle } = props;
+
+  return (
+    <Drawer
+      anchor="right"
+      variant="temporary"
+      open={open}
+      onClose={toggle}
+      ModalProps={{ keepMounted: true }}
+      sx={{
+        width: { xs: "100%", md: theme.breakpoints.values.sm },
+        "& .MuiDrawer-paper": {
+          width: { xs: "100%", md: theme.breakpoints.values.sm },
+          boxSizing: "border-box",
+        },
+      }}
+    >
+      <Toolbar>
+        <IconButton
+          onClick={toggle}
+          sx={{
+            marginRight: {
+              xs: "1rem",
+              sm: "1.5rem",
+            },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {props.title}
+        </Typography>
+      </Toolbar>
+      {props.children}
+    </Drawer>
+  );
 }
 
 function UserButtons(props) {
