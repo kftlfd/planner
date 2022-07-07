@@ -13,6 +13,7 @@ import {
   InputBase,
   Skeleton,
   Container,
+  Toolbar,
 } from "@mui/material";
 
 export default function ProjectTasks(props) {
@@ -29,6 +30,7 @@ export default function ProjectTasks(props) {
       maxWidth="md"
       sx={{ paddingTop: { xs: "1rem", sm: "1.5rem" }, paddingBottom: "3rem" }}
     >
+      <Toolbar />
       {!projects[projectId] ? null : !projects[projectId].tasks ? (
         <>
           {[...Array(4).keys()].map((x) => (

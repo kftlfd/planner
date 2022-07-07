@@ -18,6 +18,7 @@ import {
   DialogContentText,
   DialogActions,
   TextField,
+  Toolbar,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from "@mui/icons-material/Close";
@@ -33,6 +34,7 @@ export default function Project(props) {
 
   const starterMessage = (
     <>
+      <Toolbar />
       <Message text={"Select a project"} />
       <Box
         sx={{
@@ -77,7 +79,12 @@ export default function Project(props) {
     </>
   );
 
-  const errorMessage = <Message text={"Project not found"} />;
+  const errorMessage = (
+    <>
+      <Toolbar />
+      <Message text={"Project not found"} />
+    </>
+  );
 
   return (
     <>
@@ -93,9 +100,9 @@ export default function Project(props) {
 
       <MainBody>
         {!projectId ? (
-          { starterMessage }
+          <>{starterMessage}</>
         ) : !projects[projectId] ? (
-          { errorMessage }
+          <>{errorMessage}</>
         ) : (
           <Outlet context={{ hideDoneTasks }} />
         )}
@@ -122,6 +129,12 @@ function ProjectOptionsMenu(props) {
     closeOptionsMenu();
   };
 
+  const [sidePaneOpne, setSidePaneOpen] = useState(false);
+  const toggleSidePane = () => {
+    setSidePaneOpen((x) => !x);
+    closeOptionsMenu();
+  };
+
   return (
     <>
       <IconButton
@@ -143,6 +156,8 @@ function ProjectOptionsMenu(props) {
           "aria-labelledby": "project-options-button",
         }}
       >
+        <MenuItem onClick={toggleSidePane}>Info</MenuItem>
+        <Divider />
         <MenuItem onClick={props.hideDoneToggle}>
           <Box
             sx={{

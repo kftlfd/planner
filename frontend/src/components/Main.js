@@ -160,20 +160,7 @@ export function MainHeader(props) {
 export function MainBody(props) {
   const theme = useTheme();
 
-  return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        "::before": {
-          ...theme.mixins.toolbar,
-          display: "block",
-          content: "''",
-        },
-      }}
-    >
-      {props.children}
-    </Box>
-  );
+  return <Box sx={{ flexGrow: 1 }}>{props.children}</Box>;
 }
 
 function UserButtons(props) {
