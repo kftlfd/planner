@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
-import { MainHeader, MainBody, MainSidebar } from "./Main";
+import { MainHeader, MainBody, MainSidebar, MainSidebarHeader } from "./Main";
 
 import {
   Typography,
@@ -292,9 +292,48 @@ function Message({ text }) {
 
 function ProjectSharing(props) {
   return (
-    <Box>
-      <Typography>sharing Off</Typography>
-      <Button>turn sharing on</Button>
-    </Box>
+    <>
+      <MainSidebarHeader title="Project sharing">
+        <Switch
+          sx={{
+            padding: 0,
+            "& .MuiSwitch-thumb": {
+              fontFamily: "Roboto, sans-serif",
+              fontSize: "0.9rem",
+              borderRadius: "7px",
+              height: "32px",
+              width: "32px",
+              display: "grid",
+              placeContent: "center",
+              "&:before": {
+                content: "'Off'",
+                color: "black",
+              },
+            },
+            "& .MuiSwitch-switchBase": {
+              padding: "3px",
+              "&.Mui-checked": {
+                "& .MuiSwitch-thumb:before": {
+                  content: "'On'",
+                  color: "white",
+                },
+              },
+            },
+          }}
+        />
+      </MainSidebarHeader>
+
+      <Toolbar />
+
+      <Box sx={{ padding: "2rem" }}>
+        <Typography
+          variant="h5"
+          align="center"
+          sx={{ marginTop: "1rem", fontWeight: "fontWeightLight" }}
+        >
+          Sharing is Off
+        </Typography>
+      </Box>
+    </>
   );
 }
