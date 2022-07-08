@@ -15,7 +15,7 @@ class Task(models.Model):
         Project, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=150)
     done = models.BooleanField(default=False)
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField(default="")
     due = models.DateTimeField(blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
