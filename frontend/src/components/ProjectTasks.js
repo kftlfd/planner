@@ -180,30 +180,28 @@ function TaskDetails(props) {
   const { sidebarToggle, projectId, taskId } = props;
   let task = projects[projectId].tasks[taskId];
 
-  const [doneValue, setDoneValue] = useState(task.done);
-  const handleDoneValueChange = () => setDoneValue((x) => !x);
+  const [taskState, setTaskState] = useState({ ...task });
 
-  const [titleValue, setTitleValue] = useState(task.title);
-  const handleTitleValueChange = (e) => {
-    if (e.target.value.length <= 150) {
-      setTitleValue(e.target.value);
+  const updateTaskState = (e) => {
+    let { name, value } = e.target;
+    if (name === "done") {
+      value = !taskState.done;
     }
+    setTaskState((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const [notesValue, setNotesValue] = useState(task.notes || "");
-  const handleNotesValueChange = (e) => setNotesValue(e.target.value);
-
   useEffect(() => {
-    setDoneValue(task.done);
-    setTitleValue(task.title);
-    setNotesValue(task.notes);
+    setTaskState({ ...task });
   }, [taskId]);
 
   const handleUpdate = () => {
     handleTasks.update(projectId, task.id, {
-      title: titleValue,
-      done: doneValue,
-      notes: notesValue,
+      done: taskState.done,
+      title: taskState.title,
+      notes: taskState.notes,
     });
     sidebarToggle();
   };
@@ -215,14 +213,14 @@ function TaskDetails(props) {
           <MainSidebarHeader title="Task details" toggle={sidebarToggle}>
             <Button
               disabled={
-                task.done === doneValue &&
-                task.title === titleValue &&
-                task.notes === notesValue
+                task.done === taskState.done &&
+                task.title === taskState.title &&
+                task.notes === taskState.notes
               }
               onClick={handleUpdate}
+              endIcon={<SaveIcon />}
             >
               Save
-              <SaveIcon />
             </Button>
           </MainSidebarHeader>
 
@@ -241,23 +239,26 @@ function TaskDetails(props) {
               labelPlacement="start"
               control={
                 <Checkbox
-                  checked={doneValue}
-                  onChange={handleDoneValueChange}
+                  name="done"
+                  checked={taskState.done}
+                  onChange={updateTaskState}
                 />
               }
             />
 
             <TextField
+              name="title"
               label={"Title"}
               inputProps={{ maxlenth: 150 }}
-              value={titleValue}
-              onChange={handleTitleValueChange}
+              value={taskState.title}
+              onChange={updateTaskState}
             />
 
             <TextField
+              name="notes"
               label={"Notes"}
-              value={notesValue}
-              onChange={handleNotesValueChange}
+              value={taskState.notes}
+              onChange={updateTaskState}
             />
 
             <div>Last modified: {task.modified}</div>
