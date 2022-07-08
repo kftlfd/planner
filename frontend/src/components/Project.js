@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem,
   Switch,
+  Checkbox,
   Divider,
   Dialog,
   DialogTitle,
@@ -28,6 +29,9 @@ export default function Project(props) {
   const { projects } = useProjects();
   const { projectId } = useParams();
   const validProject = projectId && projects[projectId];
+
+  const [projectSharing, setProjectSharing] = useState(false);
+  const projectSharingToggle = () => setProjectSharing((x) => !x);
 
   const [hideDoneTasks, setHideDoneTasks] = useState(false);
   const toggleHideDoneTasks = () => setHideDoneTasks((x) => !x);
@@ -92,6 +96,8 @@ export default function Project(props) {
         {validProject ? (
           <ProjectOptionsMenu
             project={projects[projectId]}
+            projectSharing={projectSharing}
+            projectSharingToggle={projectSharingToggle}
             hideDoneValue={hideDoneTasks}
             hideDoneToggle={toggleHideDoneTasks}
           />
@@ -156,7 +162,10 @@ function ProjectOptionsMenu(props) {
           "aria-labelledby": "project-options-button",
         }}
       >
-        <MenuItem onClick={props.hideDoneToggle}>
+        <MenuItem
+          onClick={props.hideDoneToggle}
+          sx={{ justifyContent: "space-between" }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -164,12 +173,18 @@ function ProjectOptionsMenu(props) {
               alignItems: "center",
             }}
           >
-            Hide done
+            Hide done tasks
             <Switch checked={props.hideDoneValue} />
           </Box>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={toggleSidebar}>Share</MenuItem>
+        <MenuItem
+          onClick={toggleSidebar}
+          sx={{ justifyContent: "space-between" }}
+        >
+          Project sharing
+          <Checkbox color="success" checked={props.projectSharing} />
+        </MenuItem>
         <Divider />
         <MenuItem onClick={toggleRenameDialog}>Rename</MenuItem>
         <Divider />
@@ -180,7 +195,13 @@ function ProjectOptionsMenu(props) {
         open={sidebarOpen}
         toggle={toggleSidebar}
         title={"Project sharing"}
-        children={<ProjectSharing />}
+        children={
+          <ProjectSharing
+            projectSharing={props.projectSharing}
+            projectSharingToggle={props.projectSharingToggle}
+            toggleSidebar={toggleSidebar}
+          />
+        }
       />
       <ProjectRenameModal
         open={renameDialogOpen}
@@ -291,10 +312,42 @@ function Message({ text }) {
 }
 
 function ProjectSharing(props) {
+  const { projectSharing, projectSharingToggle } = props;
+
+  const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
+  const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
+
+  function StopSharingDialog(props) {
+    function handleConfirm() {
+      props.onConfirm();
+      props.onClose();
+    }
+    return (
+      <Dialog open={props.open} onClose={props.onClose}>
+        <DialogTitle>Stop sharing project?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            It will do something unreversible.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirm} color="error">
+            Stop sharing
+          </Button>
+          <Button onClick={props.onClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
   return (
     <>
-      <MainSidebarHeader title="Project sharing">
+      <MainSidebarHeader title="Project sharing" toggle={props.toggleSidebar}>
         <Switch
+          checked={projectSharing}
+          onChange={
+            projectSharing ? stopSharingDialogToggle : projectSharingToggle
+          }
           sx={{
             padding: 0,
             "& .MuiSwitch-thumb": {
@@ -326,14 +379,24 @@ function ProjectSharing(props) {
       <Toolbar />
 
       <Box sx={{ padding: "2rem" }}>
-        <Typography
-          variant="h5"
-          align="center"
-          sx={{ marginTop: "1rem", fontWeight: "fontWeightLight" }}
-        >
-          Sharing is Off
-        </Typography>
+        {!projectSharing ? (
+          <Typography
+            variant="h5"
+            align="center"
+            sx={{ marginTop: "1rem", fontWeight: "fontWeightLight" }}
+          >
+            Sharing is Off
+          </Typography>
+        ) : (
+          <Typography>Sharing is on</Typography>
+        )}
       </Box>
+
+      <StopSharingDialog
+        open={stopSharingDialogOpen}
+        onClose={stopSharingDialogToggle}
+        onConfirm={projectSharingToggle}
+      />
     </>
   );
 }
