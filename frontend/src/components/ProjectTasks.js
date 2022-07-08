@@ -241,17 +241,18 @@ function TaskDetails(props) {
               gap: "1rem",
             }}
           >
-            <FormControlLabel
-              label="Done"
-              labelPlacement="start"
-              control={
-                <Checkbox
-                  name="done"
-                  checked={taskState.done}
-                  onChange={updateTaskState}
-                />
-              }
-            />
+            <Box>
+              <FormControlLabel
+                label="Done"
+                control={
+                  <Checkbox
+                    name="done"
+                    checked={taskState.done}
+                    onChange={updateTaskState}
+                  />
+                }
+              />
+            </Box>
 
             <TextField
               name="title"
@@ -266,20 +267,21 @@ function TaskDetails(props) {
               label={"Notes"}
               value={taskState.notes}
               onChange={updateTaskState}
+              multiline
+              rows={4}
             />
 
-            <div>Last modified: {task.modified}</div>
-            <div>Created: {task.created}</div>
-
-            <div>
+            <Box
+              sx={{ display: "flex", justifyContent: "end", marginTop: "2rem" }}
+            >
               <Button
                 variant="contained"
                 color="error"
                 onClick={handleTaskDelete}
               >
-                Delete
+                Delete task
               </Button>
-            </div>
+            </Box>
           </Box>
         </>
       )}
