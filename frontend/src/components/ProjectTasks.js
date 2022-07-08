@@ -77,6 +77,7 @@ export default function ProjectTasks(props) {
                 sidebarToggle={taskDetailsToggle}
                 projectId={projectId}
                 taskId={taskSelected}
+                setTaskSelected={setTaskSelected}
               />
             ) : null}
           </MainSidebar>
@@ -177,7 +178,7 @@ function Task(props) {
 
 function TaskDetails(props) {
   const { projects, handleTasks } = useProjects();
-  const { sidebarToggle, projectId, taskId } = props;
+  const { sidebarToggle, projectId, taskId, setTaskSelected } = props;
   let task = projects[projectId].tasks[taskId];
 
   const [taskState, setTaskState] = useState({ ...task });
@@ -197,12 +198,18 @@ function TaskDetails(props) {
     setTaskState({ ...task });
   }, [taskId]);
 
-  const handleUpdate = () => {
+  const handleTaskUpdate = () => {
     handleTasks.update(projectId, task.id, {
       done: taskState.done,
       title: taskState.title,
       notes: taskState.notes,
     });
+    sidebarToggle();
+  };
+
+  const handleTaskDelete = () => {
+    handleTasks.delete(projectId, task.id);
+    setTaskSelected(null);
     sidebarToggle();
   };
 
@@ -217,7 +224,7 @@ function TaskDetails(props) {
                 task.title === taskState.title &&
                 task.notes === taskState.notes
               }
-              onClick={handleUpdate}
+              onClick={handleTaskUpdate}
               endIcon={<SaveIcon />}
             >
               Save
@@ -263,6 +270,16 @@ function TaskDetails(props) {
 
             <div>Last modified: {task.modified}</div>
             <div>Created: {task.created}</div>
+
+            <div>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleTaskDelete}
+              >
+                Delete
+              </Button>
+            </div>
           </Box>
         </>
       )}
