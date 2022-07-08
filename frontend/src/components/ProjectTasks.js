@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
-import { MainSidebar } from "./Main";
+import { MainSidebar, MainSidebarHeader } from "./Main";
 
 import {
   Typography,
@@ -19,6 +19,7 @@ import {
   TextField,
   FormControlLabel,
 } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
 
 export default function ProjectTasks(props) {
   const { projectId } = useParams();
@@ -31,11 +32,6 @@ export default function ProjectTasks(props) {
   }
 
   const [taskSelected, setTaskSelected] = useState(null);
-
-  function taskDetailsClose() {
-    taskDetailsToggle();
-    setTaskSelected(null);
-  }
 
   useEffect(() => {
     checkProjectTasks(projectId);
@@ -68,30 +64,19 @@ export default function ProjectTasks(props) {
               in={!(hideDoneTasks && projects[projectId].tasks[taskId].done)}
             >
               <Task
-                projectId={projectId}
-                taskId={taskId}
-                done={projects[projectId].tasks[taskId].done}
-                title={projects[projectId].tasks[taskId].title}
-                notes={projects[projectId].tasks[taskId].notes}
-                due={projects[projectId].tasks[taskId].due}
+                task={projects[projectId].tasks[taskId]}
                 setTaskSelected={setTaskSelected}
                 taskDetailsToggle={taskDetailsToggle}
               />
             </Collapse>
           ))}
 
-          <MainSidebar
-            open={taskDetailsOpen}
-            toggle={taskDetailsToggle}
-            title={"Task details"}
-            update={taskSelected}
-          >
+          <MainSidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
             {taskSelected ? (
               <TaskDetails
+                sidebarToggle={taskDetailsToggle}
                 projectId={projectId}
-                taskSelected={taskSelected}
-                task={projects[projectId].tasks[taskSelected]}
-                closeDetails={taskDetailsToggle}
+                taskId={taskSelected}
               />
             ) : null}
           </MainSidebar>
@@ -104,7 +89,11 @@ export default function ProjectTasks(props) {
 function TaskCreateForm(props) {
   const { handleTasks } = useProjects();
   const [taskCreateTitle, setTaskCreateTitle] = useState("");
-  const handleTaskCreateTitleChange = (e) => setTaskCreateTitle(e.target.value);
+  const handleTaskCreateTitleChange = (e) => {
+    if (e.target.value.length <= 150) {
+      setTaskCreateTitle(e.target.value);
+    }
+  };
 
   const handleCreateTask = (event) => {
     event.preventDefault();
@@ -138,18 +127,23 @@ function TaskCreateForm(props) {
 
 function Task(props) {
   const { handleTasks } = useProjects();
+  const { task, setTaskSelected, taskDetailsToggle } = props;
 
-  const [doneValue, setDoneValue] = useState(props.done);
+  const [doneValue, setDoneValue] = useState(task.done);
   const toggleDone = () => {
     let newDoneValue = !doneValue;
     setDoneValue(newDoneValue);
-    handleTasks.update(props.projectId, props.taskId, { done: newDoneValue });
+    handleTasks.update(task.project, task.id, { done: newDoneValue });
   };
 
   const openTaskDetails = () => {
-    props.setTaskSelected(props.taskId);
-    props.taskDetailsToggle();
+    setTaskSelected(task.id);
+    taskDetailsToggle();
   };
+
+  useEffect(() => {
+    setDoneValue(task.done);
+  }, [task.done]);
 
   return (
     <Card sx={{ marginBottom: "0.5rem" }}>
@@ -172,9 +166,9 @@ function Task(props) {
           onClick={openTaskDetails}
           sx={{ flexGrow: 1, padding: "1rem", paddingLeft: 0 }}
         >
-          <Typography variant="body1">{props.title}</Typography>
-          <Typography variant="body2">{props.notes}</Typography>
-          <Typography variant="body2">{props.due}</Typography>
+          <Typography variant="body1">{task.title}</Typography>
+          <Typography variant="body2">{task.notes}</Typography>
+          <Typography variant="body2">{task.due}</Typography>
         </Box>
       </CardActionArea>
     </Card>
@@ -182,14 +176,19 @@ function Task(props) {
 }
 
 function TaskDetails(props) {
-  const { projectId, task, closeDetails } = props;
-  const { handleTasks } = useProjects();
+  const { projects, handleTasks } = useProjects();
+  const { sidebarToggle, projectId, taskId } = props;
+  let task = projects[projectId].tasks[taskId];
 
   const [doneValue, setDoneValue] = useState(task.done);
   const handleDoneValueChange = () => setDoneValue((x) => !x);
 
   const [titleValue, setTitleValue] = useState(task.title);
-  const handleTitleValueChange = (e) => setTitleValue(e.target.value);
+  const handleTitleValueChange = (e) => {
+    if (e.target.value.length <= 150) {
+      setTitleValue(e.target.value);
+    }
+  };
 
   const [notesValue, setNotesValue] = useState(task.notes || "");
   const handleNotesValueChange = (e) => setNotesValue(e.target.value);
@@ -197,8 +196,8 @@ function TaskDetails(props) {
   useEffect(() => {
     setDoneValue(task.done);
     setTitleValue(task.title);
-    setNotesValue(task.notes || "");
-  }, [props.taskSelected]);
+    setNotesValue(task.notes);
+  }, [taskId]);
 
   const handleUpdate = () => {
     handleTasks.update(projectId, task.id, {
@@ -206,54 +205,65 @@ function TaskDetails(props) {
       done: doneValue,
       notes: notesValue,
     });
-    closeDetails();
+    sidebarToggle();
   };
 
   return (
     <>
       {!task ? null : (
-        <Box
-          sx={{
-            padding: "2rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
-        >
-          <Button
-            disabled={
-              task.done === doneValue &&
-              task.title === titleValue &&
-              task.notes === notesValue
-            }
-            onClick={handleUpdate}
+        <>
+          <MainSidebarHeader title="Task details" toggle={sidebarToggle}>
+            <Button
+              disabled={
+                task.done === doneValue &&
+                task.title === titleValue &&
+                task.notes === notesValue
+              }
+              onClick={handleUpdate}
+            >
+              Save
+              <SaveIcon />
+            </Button>
+          </MainSidebarHeader>
+
+          <Toolbar />
+
+          <Box
+            sx={{
+              padding: "2rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
           >
-            Save
-          </Button>
+            <FormControlLabel
+              label="Done"
+              labelPlacement="start"
+              control={
+                <Checkbox
+                  checked={doneValue}
+                  onChange={handleDoneValueChange}
+                />
+              }
+            />
 
-          <FormControlLabel
-            label="Done"
-            labelPlacement="start"
-            control={
-              <Checkbox checked={doneValue} onChange={handleDoneValueChange} />
-            }
-          />
+            <TextField
+              label={"Title"}
+              inputProps={{ maxlenth: 150 }}
+              value={titleValue}
+              onChange={handleTitleValueChange}
+            />
 
-          <TextField
-            label={"Title"}
-            value={titleValue}
-            onChange={handleTitleValueChange}
-          />
+            <TextField
+              label={"Notes"}
+              value={notesValue}
+              onChange={handleNotesValueChange}
+            />
 
-          <TextField
-            label={"Notes"}
-            value={notesValue}
-            onChange={handleNotesValueChange}
-          />
-
-          <div>Last modified: {task.modified}</div>
-          <div>Created: {task.created}</div>
-        </Box>
+            <div>Last modified: {task.modified}</div>
+            <div>Created: {task.created}</div>
+          </Box>
+        </>
       )}
     </>
   );

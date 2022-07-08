@@ -175,16 +175,32 @@ export function MainSidebar(props) {
       onClose={toggle}
       ModalProps={{ keepMounted: true }}
       sx={{
-        width: { xs: "100%", md: theme.breakpoints.values.sm },
+        width: { xs: "100%", sm: theme.breakpoints.values.sm },
         "& .MuiDrawer-paper": {
-          width: { xs: "100%", md: theme.breakpoints.values.sm },
+          width: { xs: "100%", sm: theme.breakpoints.values.sm },
           boxSizing: "border-box",
         },
       }}
     >
+      {props.children}
+    </Drawer>
+  );
+}
+
+export function MainSidebarHeader(props) {
+  const theme = useTheme();
+
+  return (
+    <AppBar
+      color="background"
+      sx={{
+        right: 0,
+        width: { xs: "100%", sm: theme.breakpoints.values.sm },
+      }}
+    >
       <Toolbar>
         <IconButton
-          onClick={toggle}
+          onClick={props.toggle}
           sx={{
             marginRight: {
               xs: "1rem",
@@ -194,6 +210,7 @@ export function MainSidebar(props) {
         >
           <CloseIcon />
         </IconButton>
+
         <Typography
           variant="h5"
           component="div"
@@ -206,9 +223,10 @@ export function MainSidebar(props) {
         >
           {props.title}
         </Typography>
+
+        {props.children}
       </Toolbar>
-      {props.children}
-    </Drawer>
+    </AppBar>
   );
 }
 
