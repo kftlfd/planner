@@ -16,7 +16,7 @@ class Task(models.Model):
     title = models.CharField(max_length=150)
     done = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
-    due = models.DateTimeField(blank=True)
+    due = models.DateTimeField(blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
