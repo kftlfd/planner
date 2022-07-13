@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend',
+    'channels',
     'rest_framework',
+    'backend',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'planner.wsgi.application'
+ASGI_APPLICATION = "planner.asgi.application"
 
 
 # Database
