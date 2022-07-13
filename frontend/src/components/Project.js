@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
 import { useProjects } from "../ProjectsContext";
 import { MainHeader, MainBody, MainSidebar, MainSidebarHeader } from "./Main";
@@ -35,6 +35,10 @@ export default function Project(props) {
 
   const [hideDoneTasks, setHideDoneTasks] = useState(false);
   const toggleHideDoneTasks = () => setHideDoneTasks((x) => !x);
+
+  useEffect(() => {
+    const ws = new WebSocket("ws://" + window.location.host + "/ws/test/");
+  }, []);
 
   const starterMessage = (
     <>

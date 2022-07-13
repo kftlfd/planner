@@ -34,6 +34,11 @@ module.exports = merge(common, {
         context: ["/api/", "/auth/"],
         target: "http://localhost:8000",
       },
+      {
+        context: ["/ws/"],
+        target: "ws://localhost:8000",
+        ws: true,
+      },
     ],
     historyApiFallback: true,
   },
