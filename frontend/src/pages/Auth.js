@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link as RouterLink, Navigate, useNavigate } from "react-router-dom";
 
-import { useAuth } from "../AuthContext";
-import { useColorMode } from "../Theme";
-import Navbar from "./Navbar";
+import { useAuth } from "../context/AuthContext";
+import { useColorMode } from "../context/ThemeContext";
+import Navbar from "../layout/Navbar";
 
-import Typography from "@mui/material/Typography";
 import {
+  Typography,
   Box,
   Container,
   Card,

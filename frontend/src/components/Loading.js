@@ -1,11 +1,11 @@
 import React from "react";
 
-import { useColorMode } from "../Theme";
+import { useColorMode } from "../context/ThemeContext";
 
 import Typography from "@mui/material/Typography";
 import { Box, Card, LinearProgress } from "@mui/material";
 
-export default function LoadingApp(props) {
+export function LoadingApp(props) {
   const colorMode = useColorMode();
 
   return (

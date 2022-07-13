@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
-import { useProjects } from "../ProjectsContext";
-import { MainHeader, MainBody, MainSidebar, MainSidebarHeader } from "./Main";
+
+import { useProjects } from "../context/ProjectsContext";
+import { MainHeader, MainBody } from "../layout/Main";
+import { Sidebar, SidebarHeader, SidebarBody } from "../layout/Sidebar";
 
 import {
   Typography,
@@ -42,7 +44,6 @@ export default function Project(props) {
 
   const starterMessage = (
     <>
-      <Toolbar />
       <Message text={"Select a project"} />
       <Box
         sx={{
@@ -89,7 +90,6 @@ export default function Project(props) {
 
   const errorMessage = (
     <>
-      <Toolbar />
       <Message text={"Project not found"} />
     </>
   );
@@ -195,7 +195,7 @@ function ProjectOptionsMenu(props) {
         <MenuItem onClick={toggleDeleteDialog}>Delete</MenuItem>
       </Menu>
 
-      <MainSidebar
+      <Sidebar
         open={sidebarOpen}
         toggle={toggleSidebar}
         title={"Project sharing"}
@@ -346,7 +346,7 @@ function ProjectSharing(props) {
 
   return (
     <>
-      <MainSidebarHeader title="Project sharing" toggle={props.toggleSidebar}>
+      <SidebarHeader title="Project sharing" toggle={props.toggleSidebar}>
         <Switch
           checked={projectSharing}
           onChange={
@@ -378,11 +378,9 @@ function ProjectSharing(props) {
             },
           }}
         />
-      </MainSidebarHeader>
+      </SidebarHeader>
 
-      <Toolbar />
-
-      <Box sx={{ padding: "2rem" }}>
+      <SidebarBody>
         {!projectSharing ? (
           <Typography
             variant="h5"
@@ -394,7 +392,7 @@ function ProjectSharing(props) {
         ) : (
           <Typography>Sharing is on</Typography>
         )}
-      </Box>
+      </SidebarBody>
 
       <StopSharingDialog
         open={stopSharingDialogOpen}

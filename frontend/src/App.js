@@ -1,16 +1,16 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-import { useAuth } from "./AuthContext";
-import ProvideProjects from "./ProjectsContext";
-import Main from "./components/Main";
-import Project from "./components/Project";
-import ProjectTasks from "./components/ProjectTasks";
-import Welcome from "./components/Welcome";
-import { Register, Login } from "./components/LoginRegister";
-import NotFoundError from "./components/NotFoundError";
-import ProvideTheme from "./Theme";
-import LoadingApp from "./components/Loading";
+import { useAuth } from "./context/AuthContext";
+import ProvideTheme from "./context/ThemeContext";
+
+import { LoadingApp } from "./components/Loading";
+import Home from "./pages/Home";
+import Project from "./pages/Project";
+import Tasks from "./pages/Tasks";
+import Welcome from "./pages/Welcome";
+import { Register, Login } from "./pages/Auth";
+import Error from "./pages/Error";
 
 export default function App() {
   const auth = useAuth();
@@ -20,19 +20,17 @@ export default function App() {
       {auth.loading ? (
         <LoadingApp />
       ) : (
-        <ProvideProjects>
-          <Routes>
-            <Route path="/" element={<Main />}>
-              <Route path="project" element={<Project />}>
-                <Route path=":projectId" element={<ProjectTasks />} />
-              </Route>
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route path="project" element={<Project />}>
+              <Route path=":projectId" element={<Tasks />} />
             </Route>
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/*" element={<NotFoundError />} />
-          </Routes>
-        </ProvideProjects>
+          </Route>
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/*" element={<Error />} />
+        </Routes>
       )}
     </ProvideTheme>
   );

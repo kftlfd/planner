@@ -1,7 +1,7 @@
 import React from "react";
-import Navbar from "./Navbar";
+import Navbar from "../layout/Navbar";
 
-export default function NotFoundError(props) {
+export default function Error(props) {
   return (
     <>
       <Navbar />

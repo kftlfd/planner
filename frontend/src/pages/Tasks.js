@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
-import { useProjects } from "../ProjectsContext";
-import { MainSidebar, MainSidebarHeader } from "./Main";
+
+import { useProjects } from "../context/ProjectsContext";
+import { Sidebar, SidebarHeader } from "../layout/Sidebar";
 
 import {
   Typography,
@@ -21,7 +22,11 @@ import {
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 
-export default function ProjectTasks(props) {
+export default function Tasks(props) {
+  return <TasksListView />;
+}
+
+function TasksListView(props) {
   const { projectId } = useParams();
   const { hideDoneTasks } = useOutletContext();
   const { projects, checkProjectTasks } = useProjects();
@@ -47,7 +52,6 @@ export default function ProjectTasks(props) {
       maxWidth="md"
       sx={{ paddingTop: { xs: "1rem", sm: "1.5rem" }, paddingBottom: "3rem" }}
     >
-      <Toolbar />
       {!projects[projectId] ? null : !projects[projectId].tasks ? (
         <>
           {[...Array(4).keys()].map((x) => (
@@ -71,7 +75,7 @@ export default function ProjectTasks(props) {
             </Collapse>
           ))}
 
-          <MainSidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
+          <Sidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
             {taskSelected ? (
               <TaskDetails
                 sidebarToggle={taskDetailsToggle}
@@ -80,7 +84,7 @@ export default function ProjectTasks(props) {
                 setTaskSelected={setTaskSelected}
               />
             ) : null}
-          </MainSidebar>
+          </Sidebar>
         </>
       )}
     </Container>
@@ -217,7 +221,7 @@ function TaskDetails(props) {
     <>
       {!task ? null : (
         <>
-          <MainSidebarHeader title="Task details" toggle={sidebarToggle}>
+          <SidebarHeader title="Task details" toggle={sidebarToggle}>
             <Button
               disabled={
                 task.done === taskState.done &&
@@ -229,7 +233,7 @@ function TaskDetails(props) {
             >
               Save
             </Button>
-          </MainSidebarHeader>
+          </SidebarHeader>
 
           <Toolbar />
 
