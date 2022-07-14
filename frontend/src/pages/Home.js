@@ -80,6 +80,9 @@ function HomeContent(props) {
   const drawerWidth = 240;
   const [drawerOpen, setDrawerOpen] = useState(!smallScreen);
   const drawerToggle = () => setDrawerOpen((drawerOpen) => !drawerOpen);
+  const handleCloseDrawer = () => {
+    if (smallScreen) drawerToggle();
+  };
 
   return (
     <MainWrapper>
@@ -96,7 +99,7 @@ function HomeContent(props) {
         <List
           subheader={<ListSubheader component="div">Projects</ListSubheader>}
         >
-          <ProjectsButtons drawerToggle={drawerToggle} />
+          <ProjectsButtons drawerToggle={handleCloseDrawer} />
           <ProjectCreateButton />
         </List>
 

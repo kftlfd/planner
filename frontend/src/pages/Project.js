@@ -42,57 +42,77 @@ export default function Project(props) {
     const ws = new WebSocket("ws://" + window.location.host + "/ws/test/");
   }, []);
 
-  const starterMessage = (
-    <>
-      <Message text={"Select a project"} />
-      <Box
+  function Message(props) {
+    return (
+      <Typography
+        variant="h4"
+        align="center"
         sx={{
-          marginTop: "5rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "2rem",
+          marginTop: "3rem",
+          fontWeight: "fontWeightLight",
+          color: "text.primary",
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: "fontWeightLight",
-            color: "text.primary",
-          }}
-        >
-          or
-        </Typography>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: "fontWeightLight",
-            color: "text.primary",
-          }}
-        >
-          Create New Project
-        </Typography>
-        <IconButton
-          onClick={() =>
-            document.getElementById("create-new-project-button").click()
-          }
-          sx={{
-            svg: {
-              fontSize: "10rem",
-            },
-          }}
-        >
-          <AddCircleIcon />
-        </IconButton>
-      </Box>
-    </>
-  );
+        {props.text}
+      </Typography>
+    );
+  }
 
-  const errorMessage = (
-    <>
-      <Message text={"Project not found"} />
-    </>
-  );
+  function StarterMessage(props) {
+    return (
+      <>
+        <Message text={"Select a project"} />
+        <Box
+          sx={{
+            marginTop: "5rem",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "2rem",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "fontWeightLight",
+              color: "text.primary",
+            }}
+          >
+            or
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: "fontWeightLight",
+              color: "text.primary",
+            }}
+          >
+            Create New Project
+          </Typography>
+          <IconButton
+            onClick={() =>
+              document.getElementById("create-new-project-button").click()
+            }
+            sx={{
+              svg: {
+                fontSize: "10rem",
+              },
+            }}
+          >
+            <AddCircleIcon />
+          </IconButton>
+        </Box>
+      </>
+    );
+  }
+
+  function ErrorMessage(props) {
+    return (
+      <>
+        <Message text={"Project not found"} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -110,9 +130,9 @@ export default function Project(props) {
 
       <MainBody>
         {!projectId ? (
-          <>{starterMessage}</>
+          <StarterMessage />
         ) : !projects[projectId] ? (
-          <>{errorMessage}</>
+          <ErrorMessage />
         ) : (
           <Outlet context={{ hideDoneTasks }} />
         )}
@@ -221,100 +241,6 @@ function ProjectOptionsMenu(props) {
   );
 }
 
-function ProjectRenameModal(props) {
-  const { handleProjects } = useProjects();
-  const handleClose = () => props.toggle();
-
-  const handleRename = async (e) => {
-    e.preventDefault();
-    await handleProjects.update(props.project.id, { name: renameValue });
-    handleClose();
-  };
-
-  const [renameValue, setRenameValue] = useState(props.project.name);
-  const handleRenameChange = (e) => setRenameValue(e.target.value);
-
-  return (
-    <Dialog open={props.open} onClose={handleClose}>
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        Rename project
-        <IconButton onClick={handleClose}>
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <form onSubmit={handleRename}>
-        <DialogContent>
-          <TextField
-            autoFocus
-            fullWidth
-            type={"text"}
-            value={renameValue}
-            placeholder={"Project name"}
-            onChange={handleRenameChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button type={"submit"} disabled={!renameValue}>
-            Rename
-          </Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-}
-
-function ProjectDeleteModal(props) {
-  const { handleProjects } = useProjects();
-  const handleClose = () => props.toggle();
-  const navigate = useNavigate();
-
-  const handleDelete = async () => {
-    await handleProjects.delete(props.project.id);
-    handleClose();
-    navigate("/project/");
-  };
-
-  return (
-    <Dialog open={props.open} onClose={handleClose}>
-      <DialogTitle>Delete project "{props.project.name}"?</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          This action cannot be undone, all tasks in project will be deleted
-          too.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleDelete} color={"error"}>
-          Delete
-        </Button>
-        <Button onClick={handleClose}>Cancel</Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function Message({ text }) {
-  return (
-    <Typography
-      variant="h4"
-      align="center"
-      sx={{
-        marginTop: "3rem",
-        fontWeight: "fontWeightLight",
-        color: "text.primary",
-      }}
-    >
-      {text}
-    </Typography>
-  );
-}
-
 function ProjectSharing(props) {
   const { projectSharing, projectSharingToggle } = props;
 
@@ -400,5 +326,83 @@ function ProjectSharing(props) {
         onConfirm={projectSharingToggle}
       />
     </>
+  );
+}
+
+function ProjectRenameModal(props) {
+  const { handleProjects } = useProjects();
+  const handleClose = () => props.toggle();
+
+  const [renameValue, setRenameValue] = useState(props.project.name);
+  const handleRenameChange = (e) => setRenameValue(e.target.value);
+
+  const handleRename = async (e) => {
+    e.preventDefault();
+    await handleProjects.update(props.project.id, { name: renameValue });
+    handleClose();
+  };
+
+  return (
+    <Dialog open={props.open} onClose={handleClose}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        Rename project
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={handleRename}>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            type={"text"}
+            value={renameValue}
+            placeholder={"Project name"}
+            onChange={handleRenameChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button type={"submit"} disabled={!renameValue}>
+            Rename
+          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+}
+
+function ProjectDeleteModal(props) {
+  const { handleProjects } = useProjects();
+  const handleClose = () => props.toggle();
+  const navigate = useNavigate();
+
+  const handleDelete = async () => {
+    await handleProjects.delete(props.project.id);
+    handleClose();
+    navigate("/project/");
+  };
+
+  return (
+    <Dialog open={props.open} onClose={handleClose}>
+      <DialogTitle>Delete project "{props.project.name}"?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          This action cannot be undone, all tasks in project will be deleted
+          too.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleDelete} color={"error"}>
+          Delete
+        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
   );
 }
