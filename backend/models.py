@@ -4,8 +4,13 @@ from django.core.exceptions import ValidationError
 
 class Project(models.Model):
     owner = models.ForeignKey(
-        'auth.User', on_delete=models.CASCADE, related_name='projects')
+        'auth.User', on_delete=models.CASCADE, related_name='owned_projects')
     name = models.CharField(max_length=150)
+    sharing = models.BooleanField(default=False)
+    members = models.ManyToManyField(
+        'auth.User', related_name='shared_projects')
+    online = models.ManyToManyField(
+        'auth.User', related_name='online_projects')
 
 
 class Task(models.Model):
