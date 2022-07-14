@@ -74,7 +74,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'planner.wsgi.application'
+
+# Channels
 ASGI_APPLICATION = "planner.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
