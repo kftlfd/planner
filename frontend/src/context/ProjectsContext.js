@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 
-import API from "./api";
+import API from "../api/config";
 import { useAuth } from "./AuthContext";
 
 const ProjectsContext = createContext();
