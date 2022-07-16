@@ -5,7 +5,7 @@ import { useAuth } from "./context/AuthContext";
 import ProvideTheme from "./context/ThemeContext";
 
 import { LoadingApp } from "./components/Loading";
-import Home from "./pages/Home";
+import Home from "./pages/home/Home";
 import Project from "./pages/Project";
 import Tasks from "./pages/Tasks";
 import Welcome from "./pages/Welcome";
