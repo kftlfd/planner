@@ -7,7 +7,7 @@ import ProvideTheme from "./context/ThemeContext";
 import { LoadingApp } from "./components/Loading";
 import Home from "./pages/home/Home";
 import Project from "./pages/project/Project";
-import Tasks from "./pages/Tasks";
+import Tasks from "./pages/tasks/Tasks";
 import Welcome from "./pages/Welcome";
 import { Register, Login } from "./pages/Auth";
 import Error from "./pages/Error";
