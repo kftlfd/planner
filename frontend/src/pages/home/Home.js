@@ -38,7 +38,7 @@ export default function Home(props) {
   };
 
   useEffect(() => {
-    if (projectsStatus === "idle") {
+    if (user && projectsStatus === "idle") {
       dispatch(fetchProjects(user.id)());
     }
   }, [projectsStatus, dispatch]);
