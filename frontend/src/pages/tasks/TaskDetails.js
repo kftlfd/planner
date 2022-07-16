@@ -13,6 +13,11 @@ import {
   Checkbox,
   TextField,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 
@@ -33,6 +38,9 @@ export function TaskDetails(props) {
       [name]: value,
     }));
   };
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const toggleDeleteModal = () => setDeleteModalOpen((x) => !x);
 
   useEffect(() => {
     setTaskState({ ...task });
@@ -66,6 +74,8 @@ export function TaskDetails(props) {
         console.log("Failed to delete task: ", err);
       });
   };
+
+  if (!task) return null;
 
   return (
     <>
@@ -127,13 +137,44 @@ export function TaskDetails(props) {
             <Button
               variant="contained"
               color="error"
-              onClick={handleTaskDelete}
+              onClick={toggleDeleteModal}
             >
               Delete task
             </Button>
+
+            <TaskDeleteModal
+              open={deleteModalOpen}
+              toggle={toggleDeleteModal}
+              handleDelete={handleTaskDelete}
+            />
           </Box>
         </Box>
       </SidebarBody>
     </>
+  );
+}
+
+function TaskDeleteModal(props) {
+  const { open, toggle, handleDelete } = props;
+
+  return (
+    <Dialog open={open} onClose={toggle}>
+      <DialogTitle>Delete task?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>This action cannot be undone.</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            toggle();
+            handleDelete();
+          }}
+          color={"error"}
+        >
+          Delete
+        </Button>
+        <Button onClick={toggle}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
   );
 }

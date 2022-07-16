@@ -23,10 +23,7 @@ const tasksSlice = createSlice({
         ...state.items,
         [task.id]: task,
       };
-      state.idsByProject[projectId] = [
-        ...state.idsByProject[projectId],
-        task.id,
-      ];
+      state.idsByProject[projectId].push(String(task.id));
     },
     updateTask(state, action) {
       const task = action.payload;
@@ -39,7 +36,7 @@ const tasksSlice = createSlice({
       const { projectId, taskId } = action.payload;
       delete state.items[taskId];
       state.idsByProject[projectId] = state.idsByProject[projectId].filter(
-        (t) => t.id !== taskId
+        (id) => id !== taskId
       );
     },
   },
