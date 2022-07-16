@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Navigate,
   Outlet,
@@ -7,9 +7,19 @@ import {
   useMatch,
 } from "react-router-dom";
 
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchProjects,
+  selectProjectIds,
+  selectProjectById,
+  addProject,
+} from "../store/projectsSlice";
+import { loadTasks } from "../store/tasksSlice";
+
+import * as api from "../api/client";
+
 import { useAuth } from "../context/AuthContext";
 import { useColorMode } from "../context/ThemeContext";
-import ProvideProjects, { useProjects } from "../context/ProjectsContext";
 
 import { LoadingApp } from "../components/Loading";
 import { Drawer } from "../layout/Drawer";
@@ -43,34 +53,25 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 export default function Home(props) {
-  return (
-    <ProvideProjects>
-      <HomeWrapper />
-    </ProvideProjects>
-  );
-}
-
-function HomeWrapper(props) {
   const { user } = useAuth();
-  const { loading } = useProjects();
   const rootPath = useMatch("/");
+  const dispatch = useDispatch();
+  const projectsStatus = useSelector((state) => state.projects.status);
+  const loading = projectsStatus === "idle" || projectsStatus === "loading";
 
-  return useMemo(
-    () => (
-      <>
-        {!user ? (
-          <Navigate to="/welcome" />
-        ) : loading ? (
-          <LoadingApp message={"Loading projects"} />
-        ) : rootPath ? (
-          <Navigate to="/project/" />
-        ) : (
-          <HomeContent />
-        )}
-      </>
-    ),
-    [user, loading, rootPath]
-  );
+  useEffect(() => {
+    if (projectsStatus === "idle") {
+      dispatch(fetchProjects(user.id)());
+    }
+  }, [projectsStatus, dispatch]);
+
+  if (!user) return <Navigate to="/welcome" />;
+
+  if (loading) return <LoadingApp message={"Loading projects"} />;
+
+  if (rootPath) return <Navigate to="/project/" />;
+
+  return <HomeContent />;
 }
 
 function HomeContent(props) {
@@ -114,7 +115,7 @@ function HomeContent(props) {
 }
 
 function UserButtons(props) {
-  const auth = useAuth();
+  const { user, logout } = useAuth();
 
   const [nestedListOpen, setNestedListOpen] = useState(false);
   const toggleNestedList = () => setNestedListOpen(!nestedListOpen);
@@ -129,7 +130,7 @@ function UserButtons(props) {
         <ListItemIcon>
           <AccountCircleIcon />
         </ListItemIcon>
-        <ListItemText>{auth.user.username}</ListItemText>
+        <ListItemText>{user.username}</ListItemText>
         {nestedListOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
@@ -142,7 +143,7 @@ function UserButtons(props) {
             <ListItemText>Settings</ListItemText>
           </ListItemButton>
 
-          <ListItemButton key="logout-button" onClick={auth.logout}>
+          <ListItemButton key="logout-button" onClick={logout}>
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
@@ -156,46 +157,58 @@ function UserButtons(props) {
 
 function ProjectsButtons(props) {
   const { projectId } = useParams();
-  const { projects } = useProjects();
-  const navigate = useNavigate();
+  const projectIds = useSelector(selectProjectIds);
 
   return (
     <>
-      {Object.keys(projects).map((id) => (
-        <ListItemButton
-          key={"pj-" + id}
+      {projectIds.map((id) => (
+        <ProjectButton
+          key={"pb-" + id}
+          projectId={id}
           selected={projectId === id}
-          onClick={
-            projectId === id
-              ? () => props.drawerToggle()
-              : () => {
-                  navigate(`project/${id}`);
-                  props.drawerToggle();
-                }
-          }
-        >
-          <ListItemIcon>
-            <ListIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary={projects[id].name}
-            sx={{
-              span: {
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              },
-            }}
-          />
-        </ListItemButton>
+          drawerToggle={props.drawerToggle}
+        />
       ))}
     </>
   );
 }
 
-function ProjectCreateButton(props) {
-  const { handleProjects } = useProjects();
+function ProjectButton({ projectId, selected, drawerToggle }) {
   const navigate = useNavigate();
+  const project = useSelector(selectProjectById(projectId));
+
+  return (
+    <ListItemButton
+      selected={selected}
+      onClick={
+        selected
+          ? () => drawerToggle()
+          : () => {
+              navigate(`project/${project.id}`);
+              drawerToggle();
+            }
+      }
+    >
+      <ListItemIcon>
+        <ListIcon />
+      </ListItemIcon>
+      <ListItemText
+        primary={project.name}
+        sx={{
+          span: {
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          },
+        }}
+      />
+    </ListItemButton>
+  );
+}
+
+function ProjectCreateButton(props) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
@@ -205,9 +218,15 @@ function ProjectCreateButton(props) {
 
   const handleCreateProject = async (event) => {
     event.preventDefault();
-    const newProject = await handleProjects.create(nameValue);
+    try {
+      const newProject = await api.projects.create(nameValue);
+      dispatch(addProject(newProject));
+      dispatch(loadTasks({ tasks: {}, projectId: newProject.id, ids: [] }));
+      navigate(`/project/${newProject.id}`);
+    } catch (error) {
+      console.error(error);
+    }
     toggleCreateDialog();
-    navigate(`/project/${newProject.id}`);
   };
 
   return (

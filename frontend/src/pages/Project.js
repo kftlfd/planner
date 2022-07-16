@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Outlet } from "react-router-dom";
 
-import { useProjects } from "../context/ProjectsContext";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  updateProject,
+  deleteProject,
+  selectProjectById,
+} from "../store/projectsSlice";
+
+import * as api from "../api/client";
+
 import { MainHeader, MainBody } from "../layout/Main";
 import { Sidebar, SidebarHeader, SidebarBody } from "../layout/Sidebar";
 
@@ -28,19 +36,17 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 export default function Project(props) {
-  const { projects } = useProjects();
   const { projectId } = useParams();
-  const validProject = projectId && projects[projectId];
+  const project = useSelector(selectProjectById(projectId));
+
+  console.log(projectId);
+  console.log(project);
 
   const [projectSharing, setProjectSharing] = useState(false);
   const projectSharingToggle = () => setProjectSharing((x) => !x);
 
   const [hideDoneTasks, setHideDoneTasks] = useState(false);
   const toggleHideDoneTasks = () => setHideDoneTasks((x) => !x);
-
-  useEffect(() => {
-    const ws = new WebSocket("ws://" + window.location.host + "/ws/test/");
-  }, []);
 
   function Message(props) {
     return (
@@ -58,68 +64,64 @@ export default function Project(props) {
     );
   }
 
-  function StarterMessage(props) {
-    return (
-      <>
-        <Message text={"Select a project"} />
-        <Box
+  const starterMessage = (
+    <>
+      <Message text={"Select a project"} />
+      <Box
+        sx={{
+          marginTop: "5rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "2rem",
+        }}
+      >
+        <Typography
+          variant="h6"
           sx={{
-            marginTop: "5rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2rem",
+            fontWeight: "fontWeightLight",
+            color: "text.primary",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "fontWeightLight",
-              color: "text.primary",
-            }}
-          >
-            or
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: "fontWeightLight",
-              color: "text.primary",
-            }}
-          >
-            Create New Project
-          </Typography>
-          <IconButton
-            onClick={() =>
-              document.getElementById("create-new-project-button").click()
-            }
-            sx={{
-              svg: {
-                fontSize: "10rem",
-              },
-            }}
-          >
-            <AddCircleIcon />
-          </IconButton>
-        </Box>
-      </>
-    );
-  }
+          or
+        </Typography>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: "fontWeightLight",
+            color: "text.primary",
+          }}
+        >
+          Create New Project
+        </Typography>
+        <IconButton
+          onClick={() =>
+            document.getElementById("create-new-project-button").click()
+          }
+          sx={{
+            svg: {
+              fontSize: "10rem",
+            },
+          }}
+        >
+          <AddCircleIcon />
+        </IconButton>
+      </Box>
+    </>
+  );
 
-  function ErrorMessage(props) {
-    return (
-      <>
-        <Message text={"Project not found"} />
-      </>
-    );
-  }
+  const errorMessage = (
+    <>
+      <Message text={"Project not found"} />
+    </>
+  );
 
   return (
     <>
-      <MainHeader title={validProject ? projects[projectId].name : "Project"}>
-        {validProject ? (
+      <MainHeader title={project ? project.name : null}>
+        {project ? (
           <ProjectOptionsMenu
-            project={projects[projectId]}
+            projectId={projectId}
             projectSharing={projectSharing}
             projectSharingToggle={projectSharingToggle}
             hideDoneValue={hideDoneTasks}
@@ -130,9 +132,9 @@ export default function Project(props) {
 
       <MainBody>
         {!projectId ? (
-          <StarterMessage />
-        ) : !projects[projectId] ? (
-          <ErrorMessage />
+          <>{starterMessage}</>
+        ) : !project ? (
+          <>{errorMessage}</>
         ) : (
           <Outlet context={{ hideDoneTasks }} />
         )}
@@ -142,6 +144,14 @@ export default function Project(props) {
 }
 
 function ProjectOptionsMenu(props) {
+  const {
+    projectId,
+    projectSharing,
+    projectSharingToggle,
+    hideDoneValue,
+    hideDoneToggle,
+  } = props;
+
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const openOptionsMenu = (e) => setAnchorEl(e.currentTarget);
@@ -187,7 +197,7 @@ function ProjectOptionsMenu(props) {
         }}
       >
         <MenuItem
-          onClick={props.hideDoneToggle}
+          onClick={hideDoneToggle}
           sx={{ justifyContent: "space-between" }}
         >
           <Box
@@ -198,81 +208,56 @@ function ProjectOptionsMenu(props) {
             }}
           >
             Hide done tasks
-            <Switch checked={props.hideDoneValue} />
+            <Switch checked={hideDoneValue} />
           </Box>
         </MenuItem>
+
         <Divider />
         <MenuItem
           onClick={toggleSidebar}
           sx={{ justifyContent: "space-between" }}
         >
           Project sharing
-          <Checkbox color="success" checked={props.projectSharing} />
+          <Checkbox color="success" checked={projectSharing} />
         </MenuItem>
+
         <Divider />
         <MenuItem onClick={toggleRenameDialog}>Rename</MenuItem>
+
         <Divider />
         <MenuItem onClick={toggleDeleteDialog}>Delete</MenuItem>
       </Menu>
 
-      <Sidebar
-        open={sidebarOpen}
-        toggle={toggleSidebar}
-        title={"Project sharing"}
-        children={
-          <ProjectSharing
-            projectSharing={props.projectSharing}
-            projectSharingToggle={props.projectSharingToggle}
-            toggleSidebar={toggleSidebar}
-          />
-        }
-      />
+      <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
+        <ProjectSharing
+          projectSharing={projectSharing}
+          projectSharingToggle={projectSharingToggle}
+          toggleSidebar={toggleSidebar}
+        />
+      </Sidebar>
       <ProjectRenameModal
         open={renameDialogOpen}
         toggle={toggleRenameDialog}
-        project={props.project}
+        projectId={projectId}
       />
       <ProjectDeleteModal
         open={deleteDialogOpen}
         toggle={toggleDeleteDialog}
-        project={props.project}
+        projectId={projectId}
       />
     </>
   );
 }
 
 function ProjectSharing(props) {
-  const { projectSharing, projectSharingToggle } = props;
+  const { projectSharing, projectSharingToggle, toggleSidebar } = props;
 
   const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
   const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
 
-  function StopSharingDialog(props) {
-    function handleConfirm() {
-      props.onConfirm();
-      props.onClose();
-    }
-    return (
-      <Dialog open={props.open} onClose={props.onClose}>
-        <DialogTitle>Stop sharing project?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            It will do something unreversible.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleConfirm} color="error">
-            Stop sharing
-          </Button>
-          <Button onClick={props.onClose}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
-
   return (
     <>
-      <SidebarHeader title="Project sharing" toggle={props.toggleSidebar}>
+      <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
         <Switch
           checked={projectSharing}
           onChange={
@@ -329,21 +314,59 @@ function ProjectSharing(props) {
   );
 }
 
-function ProjectRenameModal(props) {
-  const { handleProjects } = useProjects();
-  const handleClose = () => props.toggle();
+function StopSharingDialog(props) {
+  const { open, onClose, onConfirm } = props;
 
-  const [renameValue, setRenameValue] = useState(props.project.name);
-  const handleRenameChange = (e) => setRenameValue(e.target.value);
-
-  const handleRename = async (e) => {
-    e.preventDefault();
-    await handleProjects.update(props.project.id, { name: renameValue });
-    handleClose();
-  };
+  function handleConfirm() {
+    onConfirm();
+    onClose();
+  }
 
   return (
-    <Dialog open={props.open} onClose={handleClose}>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Stop sharing project?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          It will do something unreversible.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleConfirm} color="error">
+          Stop sharing
+        </Button>
+        <Button onClick={onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function ProjectRenameModal(props) {
+  const { open, toggle, projectId } = props;
+  const handleClose = () => toggle();
+
+  const project = useSelector(selectProjectById(projectId));
+  const dispatch = useDispatch();
+
+  const [renameValue, setRenameValue] = useState(project.name);
+  const handleRenameChange = (e) => setRenameValue(e.target.value);
+
+  useEffect(() => {
+    setRenameValue(project.name);
+  }, [projectId]);
+
+  function handleRename(e) {
+    e.preventDefault();
+    api.projects
+      .update(projectId, { name: renameValue })
+      .then((res) => {
+        dispatch(updateProject(res));
+        handleClose();
+      })
+      .catch((err) => console.log("Failed to rename project: ", err));
+  }
+
+  return (
+    <Dialog open={open} onClose={handleClose}>
       <DialogTitle
         sx={{
           display: "flex",
@@ -378,19 +401,30 @@ function ProjectRenameModal(props) {
 }
 
 function ProjectDeleteModal(props) {
-  const { handleProjects } = useProjects();
-  const handleClose = () => props.toggle();
+  const { open, toggle, projectId } = props;
+  const handleClose = () => toggle();
   const navigate = useNavigate();
 
-  const handleDelete = async () => {
-    await handleProjects.delete(props.project.id);
-    handleClose();
-    navigate("/project/");
-  };
+  const project = useSelector(selectProjectById(projectId));
+  const dispatch = useDispatch();
+
+  // const { handleProjects } = useProjects();
+
+  function handleDelete() {
+    api.projects
+      .delete(projectId)
+      .then((res) => {
+        handleClose();
+        navigate("/project/");
+        dispatch(deleteProject(projectId));
+        // setTimeout(() => dispatch(deleteProject(projectId)), 500); -- Redux updates quicker than ReactRouter
+      })
+      .catch((err) => console.log("Failed to delete project: ", err));
+  }
 
   return (
-    <Dialog open={props.open} onClose={handleClose}>
-      <DialogTitle>Delete project "{props.project.name}"?</DialogTitle>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Delete project "{project.name}"?</DialogTitle>
       <DialogContent>
         <DialogContentText>
           This action cannot be undone, all tasks in project will be deleted
