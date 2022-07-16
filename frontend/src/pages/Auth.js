@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { Link as RouterLink, Navigate, useNavigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
-import { useColorMode } from "../context/ThemeContext";
+import { CenterCard } from "../layout/CenterCard";
 
 import {
   Typography,
-  Box,
-  Container,
-  Card,
   TextField,
   Button,
   Link,
@@ -17,38 +19,18 @@ import {
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 
-function AuthFormWrapper({ children }) {
-  const colorMode = useColorMode();
-
-  return (
-    <>
-      <Box
-        sx={{
-          flexGrow: 1,
-          paddingTop: "3rem",
-          backgroundColor:
-            colorMode.mode === "light"
-              ? "background.light"
-              : "background.default",
-        }}
-      >
-        <Container maxWidth="xs">
-          <Card sx={{ padding: "3rem" }}>{children}</Card>
-        </Container>
-      </Box>
-    </>
-  );
-}
-
 export function Register() {
   const auth = useAuth();
   const [formResponse, setFormResponse] = useState(null);
-  const redirect = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const loggedIn = auth.user ? true : false;
-  if (loggedIn) {
-    return <Navigate to="/" />;
-  }
+  React.useEffect(() => {
+    if (auth.user) {
+      navigate(searchParams.get("next") || "/");
+    }
+  }, []);
 
   function sendRegisterForm(event) {
     event.preventDefault();
@@ -57,7 +39,7 @@ export function Register() {
       setFormResponse(res);
       if (res.success) {
         setTimeout(() => {
-          redirect("/");
+          navigate(searchParams.get("next") || "/");
         }, 2000);
       } else {
         console.error("sendRegisterForm", res);
@@ -66,7 +48,7 @@ export function Register() {
   }
 
   return (
-    <AuthFormWrapper>
+    <CenterCard>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
         Sign Up
       </Typography>
@@ -124,22 +106,31 @@ export function Register() {
           </Alert>
         )}
 
-        <Link component={RouterLink} underline="hover" to="/login">
+        <Link
+          component={RouterLink}
+          variant="subtitle1"
+          underline="hover"
+          to={"/login" + location.search}
+        >
           Already have an account? Log In
         </Link>
       </form>
-    </AuthFormWrapper>
+    </CenterCard>
   );
 }
 
 export function Login() {
   const auth = useAuth();
   const [formResponse, setFormResponse] = useState(null);
-  const redirect = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  if (auth.user) {
-    return <Navigate to="/" />;
-  }
+  React.useEffect(() => {
+    if (auth.user) {
+      navigate(searchParams.get("next") || "/");
+    }
+  }, []);
 
   function sendLoginForm(event) {
     event.preventDefault();
@@ -148,7 +139,7 @@ export function Login() {
       setFormResponse(res);
       if (res.success) {
         setTimeout(() => {
-          redirect("/");
+          navigate(searchParams.get("next") || "/");
         }, 1000);
       } else {
         console.error("sendLoginForm", res);
@@ -157,7 +148,7 @@ export function Login() {
   }
 
   return (
-    <AuthFormWrapper>
+    <CenterCard>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
         Log In
       </Typography>
@@ -200,10 +191,15 @@ export function Login() {
           </Alert>
         )}
 
-        <Link component={RouterLink} underline="hover" to={"/register"}>
+        <Link
+          component={RouterLink}
+          variant="subtitle1"
+          underline="hover"
+          to={"/register" + location.search}
+        >
           Don't have an account? Sign Up
         </Link>
       </form>
-    </AuthFormWrapper>
+    </CenterCard>
   );
 }
