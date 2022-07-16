@@ -3,7 +3,6 @@ import { Link as RouterLink, Navigate, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import { useColorMode } from "../context/ThemeContext";
-import Navbar from "../layout/Navbar";
 
 import {
   Typography,
@@ -23,7 +22,6 @@ function AuthFormWrapper({ children }) {
 
   return (
     <>
-      <Navbar />
       <Box
         sx={{
           flexGrow: 1,
