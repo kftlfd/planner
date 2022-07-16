@@ -1,31 +1,33 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { projects } from "../api/client";
 
-//
-// slice definition
-//
-
 const projectsSlice = createSlice({
   name: "projects",
 
   initialState: {
-    items: [],
+    items: {},
+    ids: [],
     status: "idle", // 'idle' | 'loading' | 'complete' | 'failed'
     error: null, // string | null
   },
 
   reducers: {
     addProject(state, action) {
-      state.items.push(action.payload);
+      const project = action.payload;
+      state.items[project.id] = project;
+      state.ids.push(String(project.id));
     },
     updateProject(state, action) {
-      const { id } = action.payload;
-      const p = state.items.find((p) => p.id === id);
-      const idx = state.items.indexOf(p);
-      state.items[idx] = action.payload;
+      const project = action.payload;
+      state.items[project.id] = {
+        ...state.items[project.id],
+        ...project,
+      };
     },
     deleteProject(state, action) {
-      state.items = state.items.filter((p) => p.id !== action.payload);
+      const projectId = action.payload;
+      delete state.items[projectId];
+      state.ids = state.ids.filter((id) => id !== projectId);
     },
   },
 
@@ -35,8 +37,9 @@ const projectsSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchProjects().fulfilled, (state, action) => {
-        state.status = "completed";
+        state.status = "complete";
         state.items = action.payload;
+        state.ids = Object.keys(action.payload);
       })
       .addCase(fetchProjects().rejected, (state, action) => {
         state.status = "failed";
@@ -44,6 +47,11 @@ const projectsSlice = createSlice({
       });
   },
 });
+
+export const fetchProjects = (userId) =>
+  createAsyncThunk("projects/fetchProjects", async () => {
+    return await projects.load(userId);
+  });
 
 export const { addProject, updateProject, deleteProject } =
   projectsSlice.actions;
@@ -56,14 +64,7 @@ export default projectsSlice.reducer;
 
 export const selectAllProjects = (state) => state.projects.items;
 
+export const selectProjectIds = (state) => state.projects.ids;
+
 export const selectProjectById = (projectId) => (state) =>
-  state.projects.items.find((p) => p.id === projectId);
-
-//
-// api logic
-//
-
-export const fetchProjects = (userId) =>
-  createAsyncThunk("projects/fetchProjects", async () => {
-    return await projects.getAll(userId);
-  });
+  state.projects.items[projectId];
