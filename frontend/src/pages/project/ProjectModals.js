@@ -90,16 +90,15 @@ export function ProjectDeleteModal(props) {
   const project = useSelector(selectProjectById(projectId));
   const dispatch = useDispatch();
 
-  // const { handleProjects } = useProjects();
-
   function handleDelete() {
     api.projects
       .delete(projectId)
       .then((res) => {
         handleClose();
         navigate("/project/");
-        dispatch(deleteProject(projectId));
-        // setTimeout(() => dispatch(deleteProject(projectId)), 500); -- Redux updates quicker than ReactRouter
+        // setting delay to prevent flashing 'Project not found message',
+        // since project gets deleted before app navigates to "/project/"
+        setTimeout(() => dispatch(deleteProject(projectId)), 200);
       })
       .catch((err) => console.log("Failed to delete project: ", err));
   }
