@@ -13,6 +13,7 @@ import Project from "./pages/project/Project";
 import Tasks from "./pages/tasks/Tasks";
 
 import Navbar from "./layout/Navbar";
+import Invite from "./pages/Invite";
 import Welcome from "./pages/Welcome";
 import { Register, Login } from "./pages/Auth";
 import Error from "./pages/Error";
@@ -41,6 +42,7 @@ export default function App() {
             </Route>
           </Route>
           <Route path="/" element={<Navbar />}>
+            <Route path="invite/:inviteCode" element={<Invite />} />
             <Route path="welcome" element={<Welcome />} />
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
