@@ -1,6 +1,9 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProjects } from "./store/projectsSlice";
+
 import { useAuth } from "./context/AuthContext";
 import ProvideTheme from "./context/ThemeContext";
 
@@ -16,6 +19,15 @@ import Error from "./pages/Error";
 
 export default function App() {
   const auth = useAuth();
+
+  const dispatch = useDispatch();
+  const projectsStatus = useSelector((state) => state.projects.status);
+
+  React.useEffect(() => {
+    if (auth.user && projectsStatus === "idle") {
+      dispatch(fetchProjects(auth.user.id)());
+    }
+  }, [auth.user]);
 
   return (
     <ProvideTheme>
