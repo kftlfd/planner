@@ -14,6 +14,10 @@ urlpatterns = [
     path('project/', views.Project_Create.as_view(), name='project-create'),
     path('project/<int:pk>/', views.Project_Detail.as_view(), name='project-detail'),
     path('project/<int:pk>/tasks/', views.project_tasks, name='project-tasks'),
+    path('project/<int:pk>/sharing/',
+         views.project_sharing, name='project-sharing'),
+
+    path('invite/<str:invite_code>/', views.invite_details, name='invite-details'),
 
     path('task/', views.Task_Create.as_view(), name='task-Create'),
     path('task/<int:pk>/', views.Task_Detail.as_view(), name='task-detail'),

@@ -7,6 +7,8 @@ class Project(models.Model):
         'auth.User', on_delete=models.CASCADE, related_name='owned_projects')
     name = models.CharField(max_length=150)
     sharing = models.BooleanField(default=False)
+    invite = models.CharField(
+        max_length=10, blank=True, null=True, unique=True)
     members = models.ManyToManyField(
         'auth.User', related_name='shared_projects')
     online = models.ManyToManyField(
@@ -29,3 +31,11 @@ class Task(models.Model):
         if self.user != self.project.owner:
             raise ValidationError(
                 {"project": "User can add tasks only to projects that they own."})
+
+
+class ChatMessage(models.Model):
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='chat_messages')
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    text = models.TextField()
+    time = models.DateTimeField(auto_now_add=True)
