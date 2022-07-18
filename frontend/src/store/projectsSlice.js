@@ -6,7 +6,8 @@ const projectsSlice = createSlice({
 
   initialState: {
     items: {},
-    ids: [],
+    ownedIds: [],
+    sharedIds: [],
     status: "idle", // 'idle' | 'loading' | 'complete' | 'failed'
     error: null, // string | null
   },
@@ -15,7 +16,7 @@ const projectsSlice = createSlice({
     addProject(state, action) {
       const project = action.payload;
       state.items[project.id] = project;
-      state.ids.push(String(project.id));
+      state.ownedIds.push(project.id);
     },
     updateProject(state, action) {
       const project = action.payload;
@@ -27,7 +28,7 @@ const projectsSlice = createSlice({
     deleteProject(state, action) {
       const projectId = action.payload;
       delete state.items[projectId];
-      state.ids = state.ids.filter((id) => id !== projectId);
+      state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
     },
   },
 
@@ -37,9 +38,11 @@ const projectsSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchProjects().fulfilled, (state, action) => {
+        const { projects, ownedIds, sharedIds } = action.payload;
         state.status = "complete";
-        state.items = action.payload;
-        state.ids = Object.keys(action.payload);
+        state.items = projects;
+        state.ownedIds = ownedIds;
+        state.sharedIds = sharedIds;
       })
       .addCase(fetchProjects().rejected, (state, action) => {
         state.status = "failed";
@@ -64,7 +67,7 @@ export default projectsSlice.reducer;
 
 export const selectAllProjects = (state) => state.projects.items;
 
-export const selectProjectIds = (state) => state.projects.ids;
+export const selectProjectIds = (state) => state.projects.ownedIds;
 
 export const selectProjectById = (projectId) => (state) =>
   state.projects.items[projectId];

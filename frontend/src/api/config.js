@@ -27,8 +27,30 @@ const API = {
   projectCreate: "/api/project/",
   projectDetail: (n) => `/api/project/${n}/`,
   projectTasks: (n) => `/api/project/${n}/tasks/`,
+  projectSharing: (n) => `/api/project/${n}/sharing/`,
   taskCreate: "/api/task/",
   taskDetail: (n) => `/api/task/${n}/`,
+  invite: (s) => `/api/invite/${s}/`,
 };
-
 export default API;
+
+export const csrftoken = () => getCookie("csrftoken");
+
+export const urls = {
+  register: "/auth/register",
+  login: "/auth/login",
+  logout: "/auth/logout",
+
+  userDetails: (n) => `/api/user/${n}/`,
+  userProjects: (n) => `/api/user/${n}/projects/`,
+
+  projectCreate: "/api/project/",
+  projectDetails: (n) => `/api/project/${n}/`,
+  projectTasks: (n) => `/api/project/${n}/tasks/`,
+  projectSharing: (n) => `/api/project/${n}/sharing/`,
+
+  invite: (s) => `/api/invite/${s}/`,
+
+  taskCreate: "/api/task/",
+  taskDetails: (n) => `/api/task/${n}/`,
+};

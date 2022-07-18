@@ -1,4 +1,4 @@
-import API from "./config";
+import { urls, csrftoken } from "./config";
 
 function queryConstructor(url = "", options = {}) {
   return async () => {
@@ -13,15 +13,15 @@ function queryConstructor(url = "", options = {}) {
 
 export const projects = {
   async load(userId) {
-    const q = queryConstructor(API.userProjects(userId));
+    const q = queryConstructor(urls.userProjects(userId));
     return q();
   },
 
   async create(projectName) {
-    const q = queryConstructor(API.projectCreate, {
+    const q = queryConstructor(urls.projectCreate, {
       method: "POST",
       headers: {
-        "X-CSRFToken": API.csrftoken(),
+        "X-CSRFToken": csrftoken(),
         "content-type": "application/json",
       },
       body: JSON.stringify({ name: projectName }),
@@ -30,10 +30,10 @@ export const projects = {
   },
 
   async update(projectId, projectUpdate) {
-    const q = queryConstructor(API.projectDetail(projectId), {
+    const q = queryConstructor(urls.projectDetails(projectId), {
       method: "PATCH",
       headers: {
-        "X-CSRFToken": API.csrftoken(),
+        "X-CSRFToken": csrftoken(),
         "content-type": "application/json",
       },
       body: JSON.stringify(projectUpdate),
@@ -42,9 +42,9 @@ export const projects = {
   },
 
   async delete(projectId) {
-    let response = await fetch(API.projectDetail(projectId), {
+    let response = await fetch(urls.projectDetails(projectId), {
       method: "DELETE",
-      headers: { "X-CSRFToken": API.csrftoken() },
+      headers: { "X-CSRFToken": csrftoken() },
     });
     if (response.ok) {
       return;
@@ -56,15 +56,15 @@ export const projects = {
 
 export const tasks = {
   async load(projectId) {
-    const q = queryConstructor(API.projectTasks(projectId));
+    const q = queryConstructor(urls.projectTasks(projectId));
     return q();
   },
 
   async create(projectId, taskTitle) {
-    const q = queryConstructor(API.taskCreate, {
+    const q = queryConstructor(urls.taskCreate, {
       method: "POST",
       headers: {
-        "X-CSRFToken": API.csrftoken(),
+        "X-CSRFToken": csrftoken(),
         "content-type": "application/json",
       },
       body: JSON.stringify({ project: projectId, title: taskTitle }),
@@ -73,10 +73,10 @@ export const tasks = {
   },
 
   async update(projectId, taskId, taskUpdate) {
-    const q = queryConstructor(API.taskDetail(taskId), {
+    const q = queryConstructor(urls.taskDetails(taskId), {
       method: "PATCH",
       headers: {
-        "X-CSRFToken": API.csrftoken(),
+        "X-CSRFToken": csrftoken(),
         "content-type": "application/json",
       },
       body: JSON.stringify(taskUpdate),
@@ -85,9 +85,9 @@ export const tasks = {
   },
 
   async delete(projectId, taskId) {
-    let response = await fetch(API.taskDetail(taskId), {
+    let response = await fetch(urls.taskDetails(taskId), {
       method: "DELETE",
-      headers: { "X-CSRFToken": API.csrftoken() },
+      headers: { "X-CSRFToken": csrftoken() },
     });
     if (response.ok) {
       return;
