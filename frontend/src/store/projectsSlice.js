@@ -18,6 +18,11 @@ const projectsSlice = createSlice({
       state.items[project.id] = project;
       state.ownedIds.push(project.id);
     },
+    addSharedProject(state, action) {
+      const project = action.payload;
+      state.items[project.id] = project;
+      state.sharedIds.push(project.id);
+    },
     updateProject(state, action) {
       const project = action.payload;
       state.items[project.id] = {
@@ -56,7 +61,7 @@ export const fetchProjects = (userId) =>
     return await projects.load(userId);
   });
 
-export const { addProject, updateProject, deleteProject } =
+export const { addProject, addSharedProject, updateProject, deleteProject } =
   projectsSlice.actions;
 
 export default projectsSlice.reducer;
@@ -68,6 +73,8 @@ export default projectsSlice.reducer;
 export const selectAllProjects = (state) => state.projects.items;
 
 export const selectProjectIds = (state) => state.projects.ownedIds;
+
+export const selectSharedProjectIds = (state) => state.projects.sharedIds;
 
 export const selectProjectById = (projectId) => (state) =>
   state.projects.items[projectId];
