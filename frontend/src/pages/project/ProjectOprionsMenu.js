@@ -102,6 +102,7 @@ export function ProjectOptionsMenu(props) {
 
       <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
         <ProjectSharing
+          projectId={projectId}
           projectSharing={projectSharing}
           projectSharingToggle={projectSharingToggle}
           toggleSidebar={toggleSidebar}
