@@ -82,7 +82,7 @@ export function SidebarBody(props) {
   return (
     <>
       <Toolbar />
-      <Box sx={{ padding: "2rem" }}>{props.children}</Box>
+      <Box sx={{ padding: "2rem", ...props.sx }}>{props.children}</Box>
     </>
   );
 }
