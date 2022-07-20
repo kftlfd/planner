@@ -7,6 +7,7 @@ import { store } from "./store/store";
 
 import ProvideTheme from "./context/ThemeContext";
 import ProvideAuth from "./context/AuthContext";
+import ProvideActions from "./context/ActionsContext";
 import App from "./App";
 
 import "./index.scss";
@@ -17,9 +18,11 @@ root.render(
     <ProvideTheme>
       <ProvideAuth>
         <ProvideStore store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <ProvideActions>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ProvideActions>
         </ProvideStore>
       </ProvideAuth>
     </ProvideTheme>
