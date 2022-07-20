@@ -12,6 +12,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import ListIcon from "@mui/icons-material/List";
+import PeopleIcon from "@mui/icons-material/People";
 
 export function ProjectsButtons(props) {
   const { header, projectIds, drawerToggle } = props;
@@ -50,7 +51,7 @@ function ProjectButton(props) {
       }
     >
       <ListItemIcon>
-        <ListIcon />
+        {project.sharing ? <PeopleIcon /> : <ListIcon />}
       </ListItemIcon>
       <ListItemText
         primary={project.name}
