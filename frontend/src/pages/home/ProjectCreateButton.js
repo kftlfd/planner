@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { useDispatch } from "react-redux";
-import { addProject } from "../../store/projectsSlice";
-import { loadTasks } from "../../store/tasksSlice";
-
-import * as api from "../../api/client";
+import { useActions } from "../../context/ActionsContext";
 
 import {
   Button,
@@ -22,8 +17,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 
 export function ProjectCreateButton(props) {
+  const actions = useActions();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
@@ -31,18 +26,16 @@ export function ProjectCreateButton(props) {
   const [nameValue, setNameValue] = useState("");
   const handleNameChange = (e) => setNameValue(e.target.value);
 
-  const handleCreateProject = async (event) => {
+  async function handleCreateProject(event) {
     event.preventDefault();
     try {
-      const newProject = await api.projects.create(nameValue);
-      dispatch(addProject(newProject));
-      dispatch(loadTasks({ tasks: {}, projectId: newProject.id, ids: [] }));
-      navigate(`/project/${newProject.id}`);
+      const newProjectId = await actions.project.create(nameValue);
+      navigate(`/project/${newProjectId}`);
+      toggleCreateDialog();
     } catch (error) {
-      console.error(error);
+      console.error("Failed to create project: ", error);
     }
-    toggleCreateDialog();
-  };
+  }
 
   return (
     <List>

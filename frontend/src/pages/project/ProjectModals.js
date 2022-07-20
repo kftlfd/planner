@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
-import { updateProject, selectProjectById } from "../../store/projectsSlice";
-
-import * as api from "../../api/client";
+import { useActions } from "../../context/ActionsContext";
+import { selectProjectById } from "../../store/projectsSlice";
 
 import {
   Button,
@@ -40,10 +39,11 @@ export function ProjectStopSharingModal(props) {
 export function ProjectRenameModal(props) {
   const { open, toggle } = props;
   const { projectId } = useParams();
+  const actions = useActions();
+
   const handleClose = () => toggle();
 
   const project = useSelector(selectProjectById(projectId));
-  const dispatch = useDispatch();
 
   const [renameValue, setRenameValue] = useState(project.name);
   const handleRenameChange = (e) => setRenameValue(e.target.value);
@@ -52,15 +52,14 @@ export function ProjectRenameModal(props) {
     setRenameValue(project.name);
   }, [projectId]);
 
-  function handleRename(e) {
+  async function handleRename(e) {
     e.preventDefault();
-    api.projects
-      .update(projectId, { name: renameValue })
-      .then((res) => {
-        dispatch(updateProject(res));
-        handleClose();
-      })
-      .catch((err) => console.log("Failed to rename project: ", err));
+    try {
+      await actions.project.update(projectId, { name: renameValue });
+      handleClose();
+    } catch (error) {
+      console.error("Failed to rename project: ", error);
+    }
   }
 
   return (

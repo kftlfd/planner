@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
-import { selectProjectById, updateProject } from "../../store/projectsSlice";
-
-import * as api from "../../api/client";
-
+import { useActions } from "../../context/ActionsContext";
+import { selectProjectById } from "../../store/projectsSlice";
 import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { ProjectStopSharingModal } from "./ProjectModals";
@@ -27,7 +25,7 @@ export function ProjectSharing(props) {
   const { closeOptionsMenu } = props;
   const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
-  const dispatch = useDispatch();
+  const actions = useActions();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
@@ -36,28 +34,35 @@ export function ProjectSharing(props) {
   };
 
   const [projectSharing, setProjectSharing] = useState(project.sharing);
-  const projectSharingToggle = () => {
-    if (projectSharing) {
-      api.projects.sharing
-        .disable(projectId)
-        .then((res) => {
-          dispatch(updateProject(res));
-        })
-        .catch((err) => console.error("Failed to stop sharing: ", err));
-    } else {
-      api.projects.sharing
-        .enable(projectId)
-        .then((res) => {
-          dispatch(updateProject(res));
-        })
-        .catch((err) => console.error("Failed to start sharing: ", err));
-    }
-    setProjectSharing(!projectSharing);
-    stopSharingDialogToggle();
-  };
+  const projectSharingToggle = () => setProjectSharing((x) => !x);
 
   const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
   const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
+
+  useEffect(() => {
+    setProjectSharing(project.sharing);
+  }, [project]);
+
+  async function handleEnableSharing() {
+    projectSharingToggle();
+    try {
+      await actions.project.sharing.enable(projectId);
+    } catch (error) {
+      console.error("Failed to start sharing: ", error);
+      setProjectSharing(false);
+    }
+  }
+
+  async function handleDisableSharing() {
+    stopSharingDialogToggle();
+    projectSharingToggle();
+    try {
+      await actions.project.sharing.disable(projectId);
+    } catch (error) {
+      console.error("Failed to stop sharing: ", error);
+      setProjectSharing(true);
+    }
+  }
 
   const sharingDisabled = (
     <Typography
@@ -81,7 +86,7 @@ export function ProjectSharing(props) {
           <SharingSwitch
             checked={projectSharing}
             onChange={
-              projectSharing ? stopSharingDialogToggle : projectSharingToggle
+              projectSharing ? stopSharingDialogToggle : handleEnableSharing
             }
           />
         </SidebarHeader>
@@ -106,7 +111,7 @@ export function ProjectSharing(props) {
         <ProjectStopSharingModal
           open={stopSharingDialogOpen}
           onClose={stopSharingDialogToggle}
-          onConfirm={projectSharingToggle}
+          onConfirm={handleDisableSharing}
         />
       </Sidebar>
     </>
@@ -151,7 +156,7 @@ function SharingSwitch(props) {
 
 function InviteLink(props) {
   const { projectId, inviteCode } = props;
-  const dispatch = useDispatch();
+  const actions = useActions();
   const inviteLink = `${window.location.origin}/invite/${inviteCode}`;
 
   const [tooltipOpen, setTooltipOpen] = React.useState(false);
@@ -162,18 +167,20 @@ function InviteLink(props) {
     setTimeout(() => setTooltipOpen(false), 3000);
   }
 
-  function handleInviteRecreate() {
-    api.projects.invite
-      .recreate(projectId)
-      .then((res) => dispatch(updateProject(res)))
-      .catch((err) => console.error("Invite recreate: ", err));
+  async function handleInviteRecreate() {
+    try {
+      await actions.project.sharing.recreateInvite(projectId);
+    } catch (error) {
+      console.error("Invite recreate: ", error);
+    }
   }
 
-  function handleInviteDelete() {
-    api.projects.invite
-      .delete(projectId)
-      .then((res) => dispatch(updateProject(res)))
-      .catch((err) => console.error("Invite delete: ", err));
+  async function handleInviteDelete() {
+    try {
+      await actions.project.sharing.deleteInvite(projectId);
+    } catch (error) {
+      console.error("Invite delete: ", error);
+    }
   }
 
   return (
@@ -225,28 +232,22 @@ function InviteLink(props) {
             <Box sx={{ opacity: 0.5 }}>Disabled</Box>
           )}
 
-          <Tooltip title="Copy link to clipboard">
-            <IconButton
-              onClick={copyInviteLinkToClipboard}
-              disabled={!inviteCode}
-            >
-              <ContentCopyIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={copyInviteLinkToClipboard}
+            disabled={!inviteCode}
+          >
+            <ContentCopyIcon />
+          </IconButton>
         </Box>
       </Tooltip>
 
-      <Tooltip title="Create new link">
-        <IconButton onClick={handleInviteRecreate}>
-          <ChangeCircleIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton onClick={handleInviteRecreate}>
+        <ChangeCircleIcon />
+      </IconButton>
 
-      <Tooltip title="Remove link">
-        <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
-          <CancelIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
+        <CancelIcon />
+      </IconButton>
     </Box>
   );
 }
