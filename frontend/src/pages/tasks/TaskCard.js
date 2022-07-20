@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-
 import { useSelector, useDispatch } from "react-redux";
+
+import { selectHideDoneTasks } from "../../store/settingsSlice";
 import { updateTask, selectTaskById } from "../../store/tasksSlice";
 
 import * as api from "../../api/client";
@@ -17,7 +17,7 @@ import {
 
 export function TaskCard(props) {
   const { projectId, taskId, setSelectedTask, taskDetailsToggle } = props;
-  const { hideDoneTasks } = useOutletContext();
+  const hideDoneTasks = useSelector(selectHideDoneTasks);
 
   const task = useSelector(selectTaskById(taskId));
   const dispatch = useDispatch();
