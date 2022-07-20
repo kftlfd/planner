@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Navigate, Outlet, useMatch } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import { useAuth } from "../../context/AuthContext";
+import {
+  selectProjectIds,
+  selectSharedProjectIds,
+} from "../../store/projectsSlice";
 
-import { Drawer } from "../../layout/Drawer";
-import { MainWrapper } from "../../layout/Main";
+import { Main, MainDrawer } from "../../layout/Main";
 
 import { UserButtons } from "./UserButtons";
 import { ProjectsButtons } from "./ProjectsButtons";
@@ -13,16 +17,18 @@ import { ThemeSwitch } from "./ThemeSwitch";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Divider, List, ListSubheader } from "@mui/material";
+import { Divider } from "@mui/material";
 
 export default function Home(props) {
   const { user } = useAuth();
   const rootPath = useMatch("/");
 
+  const ownedProjectIds = useSelector(selectProjectIds);
+  const sharedProjectIds = useSelector(selectSharedProjectIds);
+
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  const drawerWidth = 240;
   const [drawerOpen, setDrawerOpen] = useState(!smallScreen);
   const drawerToggle = () => setDrawerOpen((drawerOpen) => !drawerOpen);
   const handleCloseDrawer = () => {
@@ -33,28 +39,40 @@ export default function Home(props) {
   if (rootPath) return <Navigate to="/project/" />;
 
   return (
-    <MainWrapper>
-      <Drawer
+    <Main>
+      <MainDrawer
         drawerOpen={drawerOpen}
         drawerToggle={drawerToggle}
-        drawerWidth={drawerWidth}
         smallScreen={smallScreen}
       >
         <Divider />
         <UserButtons />
         <Divider />
-        <List
-          subheader={<ListSubheader component="div">Projects</ListSubheader>}
-        >
-          <ProjectsButtons drawerToggle={handleCloseDrawer} />
-          <ProjectCreateButton />
-        </List>
+
+        {ownedProjectIds.length > 0 ? (
+          <ProjectsButtons
+            header={"Projects"}
+            projectIds={ownedProjectIds}
+            drawerToggle={handleCloseDrawer}
+          />
+        ) : null}
+
+        {sharedProjectIds.length > 0 ? (
+          <ProjectsButtons
+            header={"Shared projects"}
+            projectIds={sharedProjectIds}
+            drawerToggle={handleCloseDrawer}
+          />
+        ) : null}
+
+        <ProjectCreateButton />
+
         <div style={{ flexGrow: 1 }} />
         <Divider />
         <ThemeSwitch />
-      </Drawer>
+      </MainDrawer>
 
-      <Outlet context={{ drawerWidth, drawerOpen, drawerToggle }} />
-    </MainWrapper>
+      <Outlet context={{ drawerOpen, drawerToggle }} />
+    </Main>
   );
 }

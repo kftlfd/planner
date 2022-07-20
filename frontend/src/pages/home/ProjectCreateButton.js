@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -44,7 +45,7 @@ export function ProjectCreateButton(props) {
   };
 
   return (
-    <>
+    <List>
       <ListItemButton
         id={"create-new-project-button"}
         onClick={toggleCreateDialog}
@@ -78,6 +79,6 @@ export function ProjectCreateButton(props) {
           </DialogActions>
         </form>
       </Dialog>
-    </>
+    </List>
   );
 }
