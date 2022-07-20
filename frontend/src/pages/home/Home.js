@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Navigate, Outlet, useMatch } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { useAuth } from "../../context/AuthContext";
 
-import { LoadingApp } from "../../components/Loading";
 import { Drawer } from "../../layout/Drawer";
 import { MainWrapper } from "../../layout/Main";
 
@@ -21,10 +19,6 @@ export default function Home(props) {
   const { user } = useAuth();
   const rootPath = useMatch("/");
 
-  const projectsStatus = useSelector((state) => state.projects.status);
-
-  const loading = projectsStatus === "idle" || projectsStatus === "loading";
-
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -36,7 +30,6 @@ export default function Home(props) {
   };
 
   if (!user) return <Navigate to="/welcome" />;
-  if (loading) return <LoadingApp message={"Loading projects"} />;
   if (rootPath) return <Navigate to="/project/" />;
 
   return (

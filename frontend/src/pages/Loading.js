@@ -5,7 +5,7 @@ import { useColorMode } from "../context/ThemeContext";
 import Typography from "@mui/material/Typography";
 import { Box, Card, LinearProgress } from "@mui/material";
 
-export function LoadingApp(props) {
+export default function LoadingApp(props) {
   const colorMode = useColorMode();
 
   return (
