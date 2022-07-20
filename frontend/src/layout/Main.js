@@ -3,10 +3,21 @@ import { useOutletContext } from "react-router-dom";
 
 import { useColorMode } from "../context/ThemeContext";
 
-import { Typography, Box, AppBar, Toolbar, IconButton } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import MenuIcon from "@mui/icons-material/Menu";
 
-export function MainWrapper(props) {
+const drawerWidth = 240;
+
+export function Main(props) {
   const colorMode = useColorMode();
 
   return (
@@ -18,6 +29,7 @@ export function MainWrapper(props) {
           colorMode.mode === "light"
             ? "background.light"
             : "background.default",
+        ...props.sx,
       }}
     >
       {props.children}
@@ -25,8 +37,40 @@ export function MainWrapper(props) {
   );
 }
 
+export function MainDrawer(props) {
+  const { drawerOpen, drawerToggle, smallScreen } = props;
+
+  return (
+    <Drawer
+      variant={smallScreen ? "temporary" : "persistent"}
+      anchor="left"
+      open={drawerOpen}
+      onClose={drawerToggle}
+      ModalProps={{ keepMounted: true }}
+      SlideProps={{ easing: "ease" }}
+      transitionDuration={300}
+      sx={{
+        transition: "width 0.3s ease",
+        width: drawerOpen ? drawerWidth : 0,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: drawerWidth,
+          boxSizing: "border-box",
+        },
+      }}
+    >
+      <Toolbar sx={{ justifyContent: "end" }}>
+        <IconButton onClick={drawerToggle}>
+          {smallScreen ? <CloseIcon /> : <ChevronLeftIcon />}
+        </IconButton>
+      </Toolbar>
+      {props.children}
+    </Drawer>
+  );
+}
+
 export function MainHeader(props) {
-  const { drawerWidth, drawerOpen, drawerToggle } = useOutletContext();
+  const { drawerOpen, drawerToggle } = useOutletContext();
 
   return (
     <AppBar

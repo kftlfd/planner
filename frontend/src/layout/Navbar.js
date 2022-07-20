@@ -1,15 +1,16 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Main } from "./Main";
 
 export default function Navbar(props) {
   const auth = useAuth();
   return (
-    <>
-      <nav className="Navbar">
-        <div className="NavbarContent">
+    <Main sx={{ flexDirection: "column" }}>
+      <div className="Navbar">
+        <nav className="NavbarContent">
           <div>
-            <Link to={auth.user ? "/" : "/welcome"}>Home</Link>
+            <Link to={auth.user ? "/" : "/welcome"}>Planner</Link>
           </div>
 
           <div>
@@ -27,10 +28,10 @@ export default function Navbar(props) {
               </>
             )}
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       <Outlet />
-    </>
+    </Main>
   );
 }
