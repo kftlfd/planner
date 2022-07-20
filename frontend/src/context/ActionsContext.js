@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import * as api from "../api/client";
@@ -13,13 +12,14 @@ export function useActions() {
 }
 
 export default function ProvideActions(props) {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const project = {
     async create(name) {
       const p = await api.projects.create(name);
       dispatch(projectsSlice.addProject(p));
+      dispatch(tasksSlice.loadTasks({ tasks: {}, projectId: p.id, ids: [] }));
+      return p.id;
     },
 
     async update(projectId, update) {
@@ -33,8 +33,29 @@ export default function ProvideActions(props) {
     },
 
     async deleteShared(projectId) {
-      navigate("/");
-      dispatch(projectsSlice.deleteSharedProject(projectId));
+      dispatch(projectsSlice.deleteProject(projectId));
+    },
+
+    sharing: {
+      async enable(projectId) {
+        const p = await api.projects.sharing.enable(projectId);
+        dispatch(projectsSlice.updateProject(p));
+      },
+
+      async disable(projectId) {
+        const p = await api.projects.sharing.disable(projectId);
+        dispatch(projectsSlice.updateProject(p));
+      },
+
+      async recreateInvite(projectId) {
+        const p = await api.projects.invite.recreate(projectId);
+        dispatch(projectsSlice.updateProject(p));
+      },
+
+      async deleteInvite(projectId) {
+        const p = await api.projects.invite.delete(projectId);
+        dispatch(projectsSlice.updateProject(p));
+      },
     },
   };
 

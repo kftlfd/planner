@@ -31,9 +31,10 @@ const projectsSlice = createSlice({
       };
     },
     deleteProject(state, action) {
-      const projectId = action.payload;
+      const projectId = Number(action.payload);
       delete state.items[projectId];
       state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
+      state.sharedIds = state.ownedIds.filter((id) => id !== projectId);
     },
   },
 
