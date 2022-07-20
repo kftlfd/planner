@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams, Outlet } from "react-router-dom";
 
-import { useSelector, useDispatch } from "react-redux";
-import { selectProjectById, updateProject } from "../../store/projectsSlice";
-
-import * as api from "../../api/client";
+import { useSelector } from "react-redux";
+import { selectProjectById } from "../../store/projectsSlice";
 
 import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 
@@ -16,36 +14,6 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 export default function Project(props) {
   const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
-  const dispatch = useDispatch();
-
-  const [hideDoneTasks, setHideDoneTasks] = useState(false);
-  const toggleHideDoneTasks = () => setHideDoneTasks((x) => !x);
-
-  const [projectSharing, setProjectSharing] = useState(false);
-  const projectSharingToggle = () => {
-    if (projectSharing) {
-      api.projects.sharing
-        .disable(projectId)
-        .then((res) => {
-          dispatch(updateProject(res));
-        })
-        .catch((err) => console.error("Failed to stop sharing: ", err));
-    } else {
-      api.projects.sharing
-        .enable(projectId)
-        .then((res) => {
-          dispatch(updateProject(res));
-        })
-        .catch((err) => console.error("Failed to start sharing: ", err));
-    }
-    setProjectSharing(!projectSharing);
-  };
-
-  React.useEffect(() => {
-    if (project) {
-      setProjectSharing(project.sharing);
-    }
-  }, [project]);
 
   const starterMessage = (
     <>
@@ -102,15 +70,7 @@ export default function Project(props) {
   return (
     <>
       <MainHeader title={project ? project.name : null}>
-        {project ? (
-          <ProjectOptionsMenu
-            projectId={projectId}
-            projectSharing={projectSharing}
-            projectSharingToggle={projectSharingToggle}
-            hideDoneValue={hideDoneTasks}
-            hideDoneToggle={toggleHideDoneTasks}
-          />
-        ) : null}
+        {project ? <ProjectOptionsMenu /> : null}
       </MainHeader>
 
       <MainBody>
@@ -119,7 +79,7 @@ export default function Project(props) {
         ) : !project ? (
           <>{errorMessage}</>
         ) : (
-          <Outlet context={{ hideDoneTasks }} />
+          <Outlet />
         )}
       </MainBody>
     </>

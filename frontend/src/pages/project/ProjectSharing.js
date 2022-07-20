@@ -1,23 +1,22 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { selectProjectById, updateProject } from "../../store/projectsSlice";
 
 import * as api from "../../api/client";
 
-import { SidebarHeader, SidebarBody } from "../../layout/Sidebar";
+import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
+import { MenuListItem } from "./ProjectOprionsMenu";
+import { ProjectStopSharingModal } from "./ProjectModals";
 
 import {
   Typography,
   Box,
-  Button,
   IconButton,
   Switch,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
+  MenuItem,
+  Checkbox,
   Tooltip,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -25,10 +24,37 @@ import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 export function ProjectSharing(props) {
-  const { projectId, projectSharing, projectSharingToggle, toggleSidebar } =
-    props;
-
+  const { closeOptionsMenu } = props;
+  const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
+  const dispatch = useDispatch();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    if (!sidebarOpen) closeOptionsMenu();
+    setSidebarOpen((x) => !x);
+  };
+
+  const [projectSharing, setProjectSharing] = useState(project.sharing);
+  const projectSharingToggle = () => {
+    if (projectSharing) {
+      api.projects.sharing
+        .disable(projectId)
+        .then((res) => {
+          dispatch(updateProject(res));
+        })
+        .catch((err) => console.error("Failed to stop sharing: ", err));
+    } else {
+      api.projects.sharing
+        .enable(projectId)
+        .then((res) => {
+          dispatch(updateProject(res));
+        })
+        .catch((err) => console.error("Failed to start sharing: ", err));
+    }
+    setProjectSharing(!projectSharing);
+    stopSharingDialogToggle();
+  };
 
   const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
   const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
@@ -45,37 +71,44 @@ export function ProjectSharing(props) {
 
   return (
     <>
-      <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
-        <SharingSwitch
-          checked={projectSharing}
-          onChange={
-            projectSharing ? stopSharingDialogToggle : projectSharingToggle
-          }
+      <MenuListItem onClick={toggleSidebar}>
+        Project sharing
+        <Checkbox color="primary" checked={projectSharing} />
+      </MenuListItem>
+
+      <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
+        <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
+          <SharingSwitch
+            checked={projectSharing}
+            onChange={
+              projectSharing ? stopSharingDialogToggle : projectSharingToggle
+            }
+          />
+        </SidebarHeader>
+
+        <SidebarBody
+          sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+        >
+          {!projectSharing ? (
+            <>{sharingDisabled}</>
+          ) : (
+            <>
+              <InviteLink projectId={projectId} inviteCode={project.invite} />
+              <div>Members: {project.members.length + 1}</div>
+              <div>Owner: {project.owner}</div>
+              {project.members.map((member) => (
+                <div>{member}</div>
+              ))}
+            </>
+          )}
+        </SidebarBody>
+
+        <ProjectStopSharingModal
+          open={stopSharingDialogOpen}
+          onClose={stopSharingDialogToggle}
+          onConfirm={projectSharingToggle}
         />
-      </SidebarHeader>
-
-      <SidebarBody
-        sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-      >
-        {!projectSharing ? (
-          <>{sharingDisabled}</>
-        ) : (
-          <>
-            <InviteLink projectId={projectId} inviteCode={project.invite} />
-            <div>Members: {project.members.length + 1}</div>
-            <div>Owner: {project.owner}</div>
-            {project.members.map((member) => (
-              <div>{member}</div>
-            ))}
-          </>
-        )}
-      </SidebarBody>
-
-      <StopSharingDialog
-        open={stopSharingDialogOpen}
-        onClose={stopSharingDialogToggle}
-        onConfirm={projectSharingToggle}
-      />
+      </Sidebar>
     </>
   );
 }
@@ -113,32 +146,6 @@ function SharingSwitch(props) {
         },
       }}
     />
-  );
-}
-
-function StopSharingDialog(props) {
-  const { open, onClose, onConfirm } = props;
-
-  function handleConfirm() {
-    onConfirm();
-    onClose();
-  }
-
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Stop sharing project?</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          It will do something unreversible.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleConfirm} color="error">
-          Stop sharing
-        </Button>
-        <Button onClick={onClose}>Cancel</Button>
-      </DialogActions>
-    </Dialog>
   );
 }
 

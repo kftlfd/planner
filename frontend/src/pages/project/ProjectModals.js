@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  updateProject,
-  deleteProject,
-  selectProjectById,
-} from "../../store/projectsSlice";
+
+import { updateProject, selectProjectById } from "../../store/projectsSlice";
 
 import * as api from "../../api/client";
 
@@ -22,8 +18,28 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
+export function ProjectStopSharingModal(props) {
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Stop sharing project?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          It will do something unreversible.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onConfirm} color="error">
+          Stop sharing
+        </Button>
+        <Button onClick={props.onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function ProjectRenameModal(props) {
-  const { open, toggle, projectId } = props;
+  const { open, toggle } = props;
+  const { projectId } = useParams();
   const handleClose = () => toggle();
 
   const project = useSelector(selectProjectById(projectId));
@@ -83,29 +99,9 @@ export function ProjectRenameModal(props) {
 }
 
 export function ProjectDeleteModal(props) {
-  const { open, toggle, projectId } = props;
-  const handleClose = () => toggle();
-  const navigate = useNavigate();
-
-  const project = useSelector(selectProjectById(projectId));
-  const dispatch = useDispatch();
-
-  function handleDelete() {
-    api.projects
-      .delete(projectId)
-      .then((res) => {
-        handleClose();
-        navigate("/project/");
-        // setting delay to prevent flashing 'Project not found message',
-        // since project gets deleted before app navigates to "/project/"
-        setTimeout(() => dispatch(deleteProject(projectId)), 200);
-      })
-      .catch((err) => console.log("Failed to delete project: ", err));
-  }
-
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Delete project "{project.name}"?</DialogTitle>
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Delete project "{props.name}"?</DialogTitle>
       <DialogContent>
         <DialogContentText>
           This action cannot be undone, all tasks in project will be deleted
@@ -113,10 +109,10 @@ export function ProjectDeleteModal(props) {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleDelete} color={"error"}>
+        <Button onClick={props.onConfirm} color={"error"}>
           Delete
         </Button>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={props.onClose}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );

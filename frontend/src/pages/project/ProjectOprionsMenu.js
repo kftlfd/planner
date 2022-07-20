@@ -1,55 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-import { Sidebar } from "../../layout/Sidebar";
+import { ProjectHideDoneToggle } from "./ProjectHideDoneToggle";
 import { ProjectSharing } from "./ProjectSharing";
-import { ProjectRenameModal, ProjectDeleteModal } from "./ProjectModals";
+import { ProjectRename } from "./ProjectRename";
+import { ProjectDelete } from "./ProjectDelete";
 
-import {
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-  Switch,
-  Checkbox,
-  Divider,
-} from "@mui/material";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export function ProjectOptionsMenu(props) {
-  const {
-    projectId,
-    projectSharing,
-    projectSharingToggle,
-    hideDoneValue,
-    hideDoneToggle,
-  } = props;
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-  const openOptionsMenu = (e) => setAnchorEl(e.currentTarget);
-  const closeOptionsMenu = () => setAnchorEl(null);
-
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-  const toggleRenameDialog = () => {
-    setRenameDialogOpen((x) => !x);
-    closeOptionsMenu();
-  };
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const toggleDeleteDialog = () => {
-    setDeleteDialogOpen((x) => !x);
-    closeOptionsMenu();
-  };
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => {
-    setSidebarOpen((x) => !x);
-    closeOptionsMenu();
-  };
+  const optionsButton = useRef();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const openOptionsMenu = () => setMenuOpen(true);
+  const closeOptionsMenu = () => setMenuOpen(false);
 
   return (
     <>
       <IconButton
+        ref={optionsButton}
         id="project-options-button"
         aria-controls={menuOpen ? "project-options-menu" : undefined}
         aria-haspopup="true"
@@ -61,63 +29,36 @@ export function ProjectOptionsMenu(props) {
 
       <Menu
         id="project-options-menu"
-        anchorEl={anchorEl}
+        anchorEl={optionsButton.current}
+        keepMounted={true}
         open={menuOpen}
         onClose={closeOptionsMenu}
         MenuListProps={{
           "aria-labelledby": "project-options-button",
         }}
       >
-        <MenuItem
-          onClick={hideDoneToggle}
-          sx={{ justifyContent: "space-between" }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            Hide done tasks
-            <Switch checked={hideDoneValue} />
-          </Box>
-        </MenuItem>
-
-        <Divider />
-        <MenuItem
-          onClick={toggleSidebar}
-          sx={{ justifyContent: "space-between" }}
-        >
-          Project sharing
-          <Checkbox color="success" checked={projectSharing} />
-        </MenuItem>
-
-        <Divider />
-        <MenuItem onClick={toggleRenameDialog}>Rename</MenuItem>
-
-        <Divider />
-        <MenuItem onClick={toggleDeleteDialog}>Delete</MenuItem>
+        <ProjectHideDoneToggle />
+        <ProjectSharing closeOptionsMenu={closeOptionsMenu} />
+        <ProjectRename closeOptionsMenu={closeOptionsMenu} />
+        <ProjectDelete closeOptionsMenu={closeOptionsMenu} />
       </Menu>
-
-      <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
-        <ProjectSharing
-          projectId={projectId}
-          projectSharing={projectSharing}
-          projectSharingToggle={projectSharingToggle}
-          toggleSidebar={toggleSidebar}
-        />
-      </Sidebar>
-      <ProjectRenameModal
-        open={renameDialogOpen}
-        toggle={toggleRenameDialog}
-        projectId={projectId}
-      />
-      <ProjectDeleteModal
-        open={deleteDialogOpen}
-        toggle={toggleDeleteDialog}
-        projectId={projectId}
-      />
     </>
+  );
+}
+
+export function MenuListItem(props) {
+  return (
+    <MenuItem
+      onClick={props.onClick}
+      sx={{
+        height: "3rem",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "0.5rem",
+        ...props.sx,
+      }}
+    >
+      {props.children}
+    </MenuItem>
   );
 }
