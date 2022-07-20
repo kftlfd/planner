@@ -1,12 +1,10 @@
 import React from "react";
-import { useParams, Outlet } from "react-router-dom";
-
+import { useParams, Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+
 import { selectProjectById } from "../../store/projectsSlice";
-
-import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
-
 import { MainHeader, MainBody } from "../../layout/Main";
+import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 
 import { Typography, Box, IconButton } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -15,9 +13,39 @@ export default function Project(props) {
   const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
 
-  const starterMessage = (
+  return (
     <>
-      <Message text={"Select a project"} />
+      <MainHeader title={project ? project.name : null}>
+        {project ? <ProjectOptionsMenu /> : null}
+      </MainHeader>
+
+      <MainBody>
+        {!projectId ? (
+          <StarterMessage />
+        ) : !project ? (
+          <Navigate to="/project/" />
+        ) : (
+          <Outlet />
+        )}
+      </MainBody>
+    </>
+  );
+}
+
+function StarterMessage(props) {
+  return (
+    <>
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{
+          marginTop: "3rem",
+          fontWeight: "fontWeightLight",
+          color: "text.primary",
+        }}
+      >
+        Select a project
+      </Typography>
       <Box
         sx={{
           marginTop: "5rem",
@@ -59,45 +87,5 @@ export default function Project(props) {
         </IconButton>
       </Box>
     </>
-  );
-
-  const errorMessage = (
-    <>
-      <Message text={"Project not found"} />
-    </>
-  );
-
-  return (
-    <>
-      <MainHeader title={project ? project.name : null}>
-        {project ? <ProjectOptionsMenu /> : null}
-      </MainHeader>
-
-      <MainBody>
-        {!projectId ? (
-          <>{starterMessage}</>
-        ) : !project ? (
-          <>{errorMessage}</>
-        ) : (
-          <Outlet />
-        )}
-      </MainBody>
-    </>
-  );
-}
-
-function Message(props) {
-  return (
-    <Typography
-      variant="h4"
-      align="center"
-      sx={{
-        marginTop: "3rem",
-        fontWeight: "fontWeightLight",
-        color: "text.primary",
-      }}
-    >
-      {props.text}
-    </Typography>
   );
 }
