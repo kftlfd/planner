@@ -49,7 +49,6 @@ export function ProjectCreateButton(props) {
       <ListItemButton
         id={"create-new-project-button"}
         onClick={toggleCreateDialog}
-        sx={{ marginTop: "1rem" }}
       >
         <ListItemIcon>
           <AddIcon />
