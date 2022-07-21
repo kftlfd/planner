@@ -11,6 +11,65 @@ function queryConstructor(url = "", options = {}) {
   };
 }
 
+function authQuery(url, formData) {
+  return async () => {
+    let response = await fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken() },
+      body: formData,
+    });
+    if (response.ok) {
+      return {
+        ok: true,
+        user: await response.json(),
+      };
+    } else if (response.status === 406) {
+      return {
+        ok: false,
+        status: response.status,
+        formErrors: await response.json(),
+      };
+    } else {
+      return {
+        ok: false,
+        status: response.status,
+        error: await response.text(),
+      };
+    }
+  };
+}
+
+export const auth = {
+  async fetchUser() {
+    const response = await fetch(urls.login, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken() },
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error(await response.text());
+    }
+  },
+
+  async register(formData) {
+    const q = authQuery(urls.register, formData);
+    return await q();
+  },
+
+  async login(formData) {
+    const q = authQuery(urls.login, formData);
+    return await q();
+  },
+
+  async logout() {
+    const response = await fetch(urls.logout);
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+  },
+};
+
 export const projects = {
   async load(userId) {
     const q = queryConstructor(urls.userProjects(userId));

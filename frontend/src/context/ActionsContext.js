@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 
 import * as api from "../api/client";
+import * as usersSlice from "../store/usersSlice";
 import * as projectsSlice from "../store/projectsSlice";
 import * as tasksSlice from "../store/tasksSlice";
 
@@ -13,6 +14,25 @@ export function useActions() {
 
 export default function ProvideActions(props) {
   const dispatch = useDispatch();
+
+  const user = {
+    async register(formData) {
+      const resp = await api.auth.register(formData);
+      if (resp.ok) dispatch(usersSlice.setUser(resp.user));
+      else return resp;
+    },
+
+    async login(formData) {
+      const resp = await api.auth.login(formData);
+      if (resp.ok) dispatch(usersSlice.setUser(resp.user));
+      else return resp;
+    },
+
+    async logout() {
+      await api.auth.logout();
+      window.location.replace("/");
+    },
+  };
 
   const project = {
     async create(name) {
@@ -64,7 +84,7 @@ export default function ProvideActions(props) {
   };
 
   return (
-    <ActionsContext.Provider value={{ project, task }}>
+    <ActionsContext.Provider value={{ user, project, task }}>
       {props.children}
     </ActionsContext.Provider>
   );
