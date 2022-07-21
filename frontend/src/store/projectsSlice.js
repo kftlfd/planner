@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { projects } from "../api/client";
+import * as api from "../api/client";
 
 const projectsSlice = createSlice({
   name: "projects",
@@ -8,8 +8,8 @@ const projectsSlice = createSlice({
     items: {},
     ownedIds: [],
     sharedIds: [],
-    status: "idle", // 'idle' | 'loading' | 'complete' | 'failed'
-    error: null, // string | null
+    loading: true,
+    error: null,
   },
 
   reducers: {
@@ -40,18 +40,15 @@ const projectsSlice = createSlice({
 
   extraReducers(builder) {
     builder
-      .addCase(fetchProjects().pending, (state, action) => {
-        state.status = "loading";
-      })
       .addCase(fetchProjects().fulfilled, (state, action) => {
+        state.loading = false;
         const { projects, ownedIds, sharedIds } = action.payload;
-        state.status = "complete";
         state.items = projects;
         state.ownedIds = ownedIds;
         state.sharedIds = sharedIds;
       })
       .addCase(fetchProjects().rejected, (state, action) => {
-        state.status = "failed";
+        state.loading = false;
         state.error = action.error.message;
       });
   },
@@ -59,7 +56,7 @@ const projectsSlice = createSlice({
 
 export const fetchProjects = (userId) =>
   createAsyncThunk("projects/fetchProjects", async () => {
-    return await projects.load(userId);
+    return await api.projects.load(userId);
   });
 
 export const { addProject, addSharedProject, updateProject, deleteProject } =
@@ -70,6 +67,8 @@ export default projectsSlice.reducer;
 //
 // selectors
 //
+
+export const selectLoadingProjects = (state) => state.projects.loading;
 
 export const selectAllProjects = (state) => state.projects.items;
 
