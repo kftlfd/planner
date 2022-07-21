@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
-import { useAuth } from "../../context/AuthContext";
+import { useActions } from "../../context/ActionsContext";
+import { selectUser } from "../../store/usersSlice";
 
 import {
   Collapse,
@@ -16,7 +18,8 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 export function UserButtons(props) {
-  const { user, logout } = useAuth();
+  const user = useSelector(selectUser);
+  const actions = useActions();
 
   const [nestedListOpen, setNestedListOpen] = useState(false);
   const toggleNestedList = () => setNestedListOpen(!nestedListOpen);
@@ -44,7 +47,7 @@ export function UserButtons(props) {
             <ListItemText>Settings</ListItemText>
           </ListItemButton>
 
-          <ListItemButton key="logout-button" onClick={logout}>
+          <ListItemButton key="logout-button" onClick={actions.user.logout}>
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>

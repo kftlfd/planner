@@ -1,23 +1,28 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux";
+
+import { useActions } from "../context/ActionsContext";
+import { selectUser } from "../store/usersSlice";
 import { Main } from "./Main";
 
 export default function Navbar(props) {
-  const auth = useAuth();
+  const user = useSelector(selectUser);
+  const actions = useActions();
+
   return (
     <Main sx={{ flexDirection: "column" }}>
       <div className="Navbar">
         <nav className="NavbarContent">
           <div>
-            <Link to={auth.user ? "/" : "/welcome"}>Planner</Link>
+            <Link to={user ? "/" : "/welcome"}>Planner</Link>
           </div>
 
           <div>
-            {auth.user ? (
+            {user ? (
               <>
-                <span>{auth.user.username}</span>
-                <a href="#" onClick={auth.logout}>
+                <span>{user.username}</span>
+                <a href="#" onClick={actions.user.logout}>
                   Log Out
                 </a>
               </>

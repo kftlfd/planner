@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import { Navigate, Outlet, useMatch } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { useAuth } from "../../context/AuthContext";
+import { selectUser } from "../../store/usersSlice";
 import {
   selectProjectIds,
   selectSharedProjectIds,
 } from "../../store/projectsSlice";
-
 import { Main, MainDrawer } from "../../layout/Main";
-
 import { UserButtons } from "./UserButtons";
 import { ProjectsButtons } from "./ProjectsButtons";
 import { ProjectCreateButton } from "./ProjectCreateButton";
@@ -20,7 +18,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { Divider } from "@mui/material";
 
 export default function Home(props) {
-  const { user } = useAuth();
+  const user = useSelector(selectUser);
   const rootPath = useMatch("/");
 
   const ownedProjectIds = useSelector(selectProjectIds);

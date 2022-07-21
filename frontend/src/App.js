@@ -1,11 +1,9 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-
 import { useSelector, useDispatch } from "react-redux";
-import { fetchProjects } from "./store/projectsSlice";
 
-import { useAuth } from "./context/AuthContext";
-
+import { selectLoadingUser, fetchUser, selectUser } from "./store/usersSlice";
+import { selectLoadingProjects, fetchProjects } from "./store/projectsSlice";
 import LoadingApp from "./pages/Loading";
 import Home from "./pages/home/Home";
 import Project from "./pages/project/Project";
@@ -17,41 +15,41 @@ import { Register, Login } from "./pages/Auth";
 import Error from "./pages/Error";
 
 export default function App() {
-  const auth = useAuth();
-
+  const user = useSelector(selectUser);
+  const loadingUser = useSelector(selectLoadingUser);
+  const loadingProjects = useSelector(selectLoadingProjects);
   const dispatch = useDispatch();
-  const projectsStatus = useSelector((state) => state.projects.status);
-  const loadingProjects =
-    projectsStatus === "idle" || projectsStatus === "loading";
 
   React.useEffect(() => {
-    if (auth.user && loadingProjects) {
-      dispatch(fetchProjects(auth.user.id)());
-    }
-  }, [auth.user]);
+    dispatch(fetchUser());
+  }, []);
 
-  if (auth.loading) {
-    return <LoadingApp />;
-  }
+  React.useEffect(() => {
+    if (user) dispatch(fetchProjects(user.id)());
+  }, [user]);
 
-  if (auth.user && loadingProjects) {
-    return <LoadingApp message={"Loading projects"} />;
-  }
-
-  return (
-    <Routes>
-      <Route path="/" element={<Home />}>
-        <Route path="project" element={<Project />}>
-          <Route path=":projectId" element={<Tasks />} />
-        </Route>
-      </Route>
-      <Route path="/" element={<Navbar />}>
-        <Route path="invite/:inviteCode" element={<Invite />} />
-        <Route path="welcome" element={<Welcome />} />
-        <Route path="register" element={<Register />} />
-        <Route path="login" element={<Login />} />
-        <Route path="*" element={<Error />} />
-      </Route>
-    </Routes>
+  return React.useMemo(
+    () =>
+      loadingUser ? (
+        <LoadingApp />
+      ) : user && loadingProjects ? (
+        <LoadingApp message={"Loading projects"} />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route path="project" element={<Project />}>
+              <Route path=":projectId" element={<Tasks />} />
+            </Route>
+          </Route>
+          <Route path="/" element={<Navbar />}>
+            <Route path="invite/:inviteCode" element={<Invite />} />
+            <Route path="welcome" element={<Welcome />} />
+            <Route path="register" element={<Register />} />
+            <Route path="login" element={<Login />} />
+            <Route path="*" element={<Error />} />
+          </Route>
+        </Routes>
+      ),
+    [loadingUser, loadingProjects]
   );
 }

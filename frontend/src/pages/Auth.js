@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import {
   Link as RouterLink,
+  Navigate,
   useNavigate,
   useLocation,
   useSearchParams,
 } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-import { useAuth } from "../context/AuthContext";
+import { useActions } from "../context/ActionsContext";
+import { selectUser, setUser } from "../store/usersSlice";
 import { CenterCard } from "../layout/CenterCard";
 
 import {
@@ -16,35 +19,50 @@ import {
   Link,
   Alert,
   AlertTitle,
+  CircularProgress,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 
 export function Register() {
-  const auth = useAuth();
-  const [formResponse, setFormResponse] = useState(null);
+  const actions = useActions();
+  const user = useSelector(selectUser);
+
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (auth.user) {
-      navigate(searchParams.get("next") || "/");
-    }
-  }, []);
+  const [state, setState] = useState({
+    loggedIn: user ? true : false,
+    loading: false,
+    success: false,
+    error: false,
+    errorMsg: null,
+    errorStatus: null,
+    formErrors: {},
+  });
 
-  function sendRegisterForm(event) {
+  async function handleRegister(event) {
     event.preventDefault();
+    setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
-    auth.register(formData).then((res) => {
-      setFormResponse(res);
-      if (res.success) {
-        setTimeout(() => {
-          navigate(searchParams.get("next") || "/");
-        }, 2000);
-      } else {
-        console.error("sendRegisterForm", res);
-      }
-    });
+    let resp = await actions.user.register(formData);
+    if (!resp) {
+      setState((prev) => ({ ...prev, loading: false, success: true }));
+      setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
+    } else {
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: true,
+        errorMsg: resp.error,
+        errorStatus: resp.status,
+        formErrors: resp.formErrors,
+      }));
+    }
+  }
+
+  if (state.loggedIn) {
+    return <Navigate to={searchParams.get("next") || "/"} />;
   }
 
   return (
@@ -53,15 +71,15 @@ export function Register() {
         Sign Up
       </Typography>
 
-      <form className="AuthForm" onSubmit={sendRegisterForm}>
+      <form className="AuthForm" onSubmit={handleRegister}>
         <TextField
           name="username"
           type="text"
           label="Username"
           variant="filled"
           size="small"
-          error={formResponse?.username ? true : false}
-          helperText={formResponse?.username}
+          error={state.formErrors.hasOwnProperty("username")}
+          helperText={state.formErrors.username}
         />
         <TextField
           name="password1"
@@ -69,8 +87,8 @@ export function Register() {
           label="Password"
           variant="filled"
           size="small"
-          error={formResponse?.password1 ? true : false}
-          helperText={formResponse?.password1}
+          error={state.formErrors.hasOwnProperty("password1")}
+          helperText={state.formErrors.password1}
         />
         <TextField
           name="password2"
@@ -78,31 +96,57 @@ export function Register() {
           label="Confirm Password"
           variant="filled"
           size="small"
-          error={formResponse?.password2 ? true : false}
-          helperText={formResponse?.password2}
+          error={state.formErrors.hasOwnProperty("password2")}
+          helperText={state.formErrors.password2}
         />
         <Button
           type="submit"
           variant="contained"
-          color={formResponse?.success ? "success" : "primary"}
-          endIcon={formResponse?.success ? <CheckIcon /> : null}
+          disabled={state.loading}
+          color={state.success ? "success" : "primary"}
+          endIcon={state.success ? <CheckIcon /> : null}
+          sx={{ position: "relative" }}
         >
-          {formResponse?.success ? "Sighned Up" : "Sign Up"}
+          Sign Up
+          {state.loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: "-12px",
+                marginLeft: "-12px",
+              }}
+            />
+          )}
         </Button>
 
-        {formResponse?.serverError && (
-          // if can't connect to server
+        {state.error && state.errorStatus !== 406 && (
           <Alert severity="warning">
-            <AlertTitle>Server Error</AlertTitle>
-            {formResponse.serverError}
-          </Alert>
-        )}
-
-        {formResponse?.error && (
-          // if can't create new user
-          <Alert severity="warning">
-            <AlertTitle>Server Error</AlertTitle>
-            {formResponse.error}
+            {state.errorStatus === 504 && (
+              <>
+                <AlertTitle>Can't connect to server</AlertTitle>
+                Please try again later.
+              </>
+            )}
+            {state.errorStatus === 500 && (
+              <>
+                <AlertTitle>Failed to register</AlertTitle>
+                Please try again later.
+              </>
+            )}
+            {state.errorStatus === 403 && (
+              <>
+                <AlertTitle>Cookies are required</AlertTitle>
+                Please enable cookies.
+              </>
+            )}
+            {state.errorStatus === 400 && (
+              <>
+                <AlertTitle>{state.errorMsg}</AlertTitle>
+              </>
+            )}
           </Alert>
         )}
 
@@ -120,31 +164,43 @@ export function Register() {
 }
 
 export function Login() {
-  const auth = useAuth();
-  const [formResponse, setFormResponse] = useState(null);
+  const actions = useActions();
+  const user = useSelector(selectUser);
+
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (auth.user) {
-      navigate(searchParams.get("next") || "/");
-    }
-  }, []);
+  const [state, setState] = useState({
+    loggedIn: user ? true : false,
+    loading: false,
+    success: false,
+    error: false,
+    errorMsg: null,
+    errorStatus: null,
+  });
 
-  function sendLoginForm(event) {
+  async function handleLogin(event) {
     event.preventDefault();
+    setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
-    auth.login(formData).then((res) => {
-      setFormResponse(res);
-      if (res.success) {
-        setTimeout(() => {
-          navigate(searchParams.get("next") || "/");
-        }, 1000);
-      } else {
-        console.error("sendLoginForm", res);
-      }
-    });
+    let resp = await actions.user.login(formData);
+    if (!resp) {
+      setState((prev) => ({ ...prev, loading: false, success: true }));
+      setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
+    } else {
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: true,
+        errorMsg: resp.error,
+        errorStatus: resp.status,
+      }));
+    }
+  }
+
+  if (state.loggedIn) {
+    return <Navigate to={searchParams.get("next") || "/project/"} />;
   }
 
   return (
@@ -153,7 +209,7 @@ export function Login() {
         Log In
       </Typography>
 
-      <form className="AuthForm" onSubmit={sendLoginForm}>
+      <form className="AuthForm" onSubmit={handleLogin}>
         <TextField
           name="username"
           type="text"
@@ -162,7 +218,7 @@ export function Login() {
           size="small"
           fullWidth={true}
           autoComplete="false"
-          error={formResponse?.error ? true : false}
+          error={state.error}
         />
         <TextField
           name="password"
@@ -171,23 +227,35 @@ export function Login() {
           variant="filled"
           size="small"
           fullWidth={true}
-          error={formResponse?.error ? true : false}
-          helperText={formResponse?.error}
+          error={state.error}
+          helperText={state.errorStatus === 404 ? state.errorMsg : null}
         />
         <Button
           type="submit"
           variant="contained"
-          color={formResponse?.success ? "success" : "primary"}
-          endIcon={formResponse?.success ? <CheckIcon /> : null}
+          disabled={state.loading}
+          color={state.success ? "success" : "primary"}
+          endIcon={state.success ? <CheckIcon /> : null}
+          sx={{ position: "relative" }}
         >
-          {formResponse?.success ? "Logged In" : "Log In"}
+          Log In
+          {state.loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: "-12px",
+                marginLeft: "-12px",
+              }}
+            />
+          )}
         </Button>
 
-        {formResponse?.serverError && (
-          // can't connect to server
+        {state.error && state.errorStatus !== 404 && (
           <Alert severity="warning">
-            <AlertTitle>Server Error</AlertTitle>
-            {formResponse.serverError}
+            <AlertTitle>{state.errorMsg}</AlertTitle>
           </Alert>
         )}
 
