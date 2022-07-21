@@ -1,3 +1,5 @@
+/* @deprecated */
+
 import React, { useState, useEffect, useContext, createContext } from "react";
 
 import API from "../api/config";
@@ -14,6 +16,7 @@ export default function ProvideProjects({ children }) {
   );
 }
 
+/* @deprecated, moved to Redux store and ActionsContext */
 export function useProjects() {
   return useContext(ProjectsContext);
 }

@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useContext, createContext } from "react";
+/* @deprecated */
 
+import React, { useState, useEffect, useContext, createContext } from "react";
+import { useDispatch } from "react-redux";
+import { setLoading, setUser } from "../store/usersSlice";
 import API from "../api/config";
 
 /*
@@ -17,17 +20,19 @@ export default function ProvideAuth({ children }) {
 }
 
 // hook for children to access auth context
+/* @deprecated, moved to Redux store and ActionsContext */
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
 // hook that handles auth state
 function useProvideAuth() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUserState] = useState(null);
+  const [loading, setLoadingState] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    login(null).then(() => setLoading(false));
+    //login(null).then(() => setLoadingState(false));
   }, []);
 
   async function sendAuthRequest(url, formData) {
@@ -36,18 +41,29 @@ function useProvideAuth() {
       headers: { "X-CSRFToken": API.csrftoken() },
       body: formData,
     });
-    const responseClone = response.clone();
-    try {
-      let res = await response.json();
-      if (res.success) setUser(res);
-      return res;
-    } catch (err) {
-      let responseText = await responseClone.text();
-      return { serverError: responseText, errorInfo: err.message };
+    dispatch(setLoading(false));
+    if (response.ok) {
+      const user = await response.json();
+      dispatch(setUser(user));
+      return null;
+    } else if (response.status === 406) {
+      const formErrors = await response.json();
+      return {
+        status: response.status,
+        ...formErrors,
+      };
+    } else {
+      return {
+        status: response.status,
+        error: await response.text(),
+      };
     }
   }
 
   async function register(formData) {
+    dispatch(setUser({ id: 0, username: "test" }));
+    dispatch(setLoading(false));
+    return null;
     return await sendAuthRequest(API.register, formData);
   }
 
@@ -56,16 +72,12 @@ function useProvideAuth() {
   }
 
   async function logout() {
-    return await fetch(API.logout)
-      .then((res) => {
-        if (res.ok) {
-          setUser(null);
-          console.log("logged out");
-        } else {
-          console.log("error while logging out");
-        }
-      })
-      .catch((e) => console.error(e, "logout request error"));
+    const response = await fetch(API.logout);
+    if (response.ok) {
+      window.location.replace("/");
+    } else {
+      console.error("Logout error: ", await response.text());
+    }
   }
 
   return {
