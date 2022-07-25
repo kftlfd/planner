@@ -218,13 +218,17 @@ export const invite = {
     return await q();
   },
 
-  async post(inviteCode) {
+  async post(inviteCode, action) {
     let response = await fetch(urls.invite(inviteCode), {
       method: "POST",
-      headers: { "X-CSRFToken": csrftoken() },
+      headers: {
+        "X-CSRFToken": csrftoken(),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ action: action }),
     });
     if (response.ok) {
-      return;
+      return await response.json();
     } else {
       throw new Error(await response.text());
     }

@@ -111,8 +111,21 @@ export default function ProvideActions(props) {
     },
   };
 
+  const invite = {
+    async get(inviteCode) {
+      const project = await api.invite.get(inviteCode);
+      return project;
+    },
+
+    async join(inviteCode) {
+      const project = await api.invite.post(inviteCode, "join");
+      dispatch(projectsSlice.addSharedProject(project));
+      return project;
+    },
+  };
+
   return (
-    <ActionsContext.Provider value={{ user, project, task }}>
+    <ActionsContext.Provider value={{ user, project, task, invite }}>
       {props.children}
     </ActionsContext.Provider>
   );
