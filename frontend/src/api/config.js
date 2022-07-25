@@ -48,6 +48,7 @@ export const urls = {
   projectDetails: (n) => `/api/project/${n}/`,
   projectTasks: (n) => `/api/project/${n}/tasks/`,
   projectSharing: (n) => `/api/project/${n}/sharing/`,
+  projectLeave: (n) => `/api/project/${n}/leave/`,
 
   invite: (s) => `/api/invite/${s}/`,
 

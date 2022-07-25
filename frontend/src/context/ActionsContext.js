@@ -53,7 +53,8 @@ export default function ProvideActions(props) {
       dispatch(projectsSlice.deleteProject(projectId));
     },
 
-    async deleteShared(projectId) {
+    async leave(projectId) {
+      await api.projects.leave(projectId);
       dispatch(projectsSlice.deleteProject(projectId));
     },
 

@@ -112,6 +112,14 @@ export const projects = {
     }
   },
 
+  async leave(projectId) {
+    const q = queryConstructor(urls.projectLeave(projectId), {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken() },
+    });
+    return await q();
+  },
+
   sharing: {
     async enable(projectId) {
       const q = queryConstructor(urls.projectSharing(projectId), {
