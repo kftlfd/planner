@@ -16,6 +16,7 @@ urlpatterns = [
     path('project/<int:pk>/tasks/', views.project_tasks, name='project-tasks'),
     path('project/<int:pk>/sharing/',
          views.project_sharing, name='project-sharing'),
+    path('project/<int:pk>/leave/', views.project_leave, name='project-leave'),
 
     path('invite/<str:invite_code>/', views.invite_details, name='invite-details'),
 

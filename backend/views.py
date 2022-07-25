@@ -143,6 +143,28 @@ def project_sharing(request, pk):
         return Response("Request action not recognized", status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+def project_leave(request, pk):
+    if not request.user.is_authenticated:
+        return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        p = Project.objects.get(pk=pk)
+    except:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
+
+    members = p.members.all()
+    if request.user not in members:
+        return Response("Not a member", status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        p.members.remove(request.user)
+        p.save()
+        return Response({"detail": "Leaved project"})
+    except:
+        return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # ------------
 # Invite
 # ------------
@@ -168,11 +190,6 @@ def invite_details(request, invite_code):
             p.members.add(request.user)
             p.save()
             return Response(ProjectSerializer(p).data)
-
-        elif request.data['action'] == 'leave':
-            p.members.remove(request.user)
-            p.save()
-            return Response({"detail": "Leaved project"})
 
         else:
             return Response("Request action not recognized", status=status.HTTP_400_BAD_REQUEST)
