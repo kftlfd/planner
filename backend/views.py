@@ -87,7 +87,10 @@ def project_tasks(request, pk):
     except:
         return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
 
-    permission = any([request.user == project.owner, request.user.is_staff])
+    members = project.members.all()
+    permission = any([request.user == project.owner,
+                     request.user in members,
+                     request.user.is_staff])
     if not permission:
         return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
 
