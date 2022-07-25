@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
+import { useActions } from "../../context/ActionsContext";
 import { selectHideDoneTasks } from "../../store/settingsSlice";
-import { updateTask, selectTaskById } from "../../store/tasksSlice";
-
-import * as api from "../../api/client";
+import { selectTaskById } from "../../store/tasksSlice";
 
 import {
   Typography,
@@ -16,35 +15,25 @@ import {
 } from "@mui/material";
 
 export function TaskCard(props) {
-  const { projectId, taskId, setSelectedTask, taskDetailsToggle } = props;
+  const { taskId, openDetails } = props;
   const hideDoneTasks = useSelector(selectHideDoneTasks);
-
   const task = useSelector(selectTaskById(taskId));
-  const dispatch = useDispatch();
+  const actions = useActions();
 
   const [doneValue, setDoneValue] = useState(task.done);
   const toggleDone = () => {
     const newDoneValue = !doneValue;
+    const taskUpdate = { done: newDoneValue };
     setDoneValue(newDoneValue);
-    api.tasks
-      .update(projectId, taskId, { done: newDoneValue })
-      .then((res) => {
-        dispatch(updateTask(res));
-      })
-      .catch((err) => {
-        console.log("Failed to update task-done status: ", err);
-        setDoneValue(!newDoneValue);
-      });
+    actions.task.update(taskId, taskUpdate).catch((err) => {
+      console.error("Failed to update task-done status: ", err);
+      setDoneValue(!newDoneValue);
+    });
   };
 
   useEffect(() => {
     setDoneValue(task.done);
   }, [task]);
-
-  const openTaskDetails = () => {
-    setSelectedTask(taskId);
-    taskDetailsToggle();
-  };
 
   return (
     <Collapse in={!(hideDoneTasks && task.done)}>
@@ -65,10 +54,7 @@ export function TaskCard(props) {
           </Box>
 
           <Box
-            onClick={() => {
-              setSelectedTask(taskId);
-              taskDetailsToggle();
-            }}
+            onClick={openDetails}
             sx={{ flexGrow: 1, padding: "1rem", paddingLeft: 0 }}
           >
             <Typography variant="body1">{task.title}</Typography>

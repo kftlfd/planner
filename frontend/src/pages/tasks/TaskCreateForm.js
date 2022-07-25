@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 
-import { useDispatch } from "react-redux";
-import { addTask } from "../../store/tasksSlice";
-
-import * as api from "../../api/client";
+import { useActions } from "../../context/ActionsContext";
 
 import { Button, Paper, InputBase } from "@mui/material";
 
 export function TaskCreateForm(props) {
   const { projectId } = props;
-  const dispatch = useDispatch();
+  const actions = useActions();
 
   const [taskCreateTitle, setTaskCreateTitle] = useState("");
   const handleTaskCreateTitleChange = (e) => {
@@ -18,20 +15,15 @@ export function TaskCreateForm(props) {
     }
   };
 
-  const handleCreateTask = (event) => {
+  async function handleCreateTask(event) {
     event.preventDefault();
-    api.tasks
-      .create(projectId, taskCreateTitle)
-      .then((res) => {
-        const payload = {
-          projectId,
-          task: res,
-        };
-        dispatch(addTask(payload));
-        setTaskCreateTitle("");
-      })
-      .catch((err) => console.log("Failed to create task: ", err));
-  };
+    try {
+      await actions.task.create(projectId, taskCreateTitle);
+      setTaskCreateTitle("");
+    } catch (error) {
+      console.error("Failed to create task: ", error);
+    }
+  }
 
   return (
     <Paper
