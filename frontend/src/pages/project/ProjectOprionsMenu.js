@@ -4,6 +4,7 @@ import { ProjectHideDoneToggle } from "./ProjectHideDoneToggle";
 import { ProjectSharing } from "./ProjectSharing";
 import { ProjectRename } from "./ProjectRename";
 import { ProjectDelete } from "./ProjectDelete";
+import { ProjectLeave } from "./ProjectLeave";
 
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -41,6 +42,7 @@ export function ProjectOptionsMenu(props) {
         <ProjectSharing closeOptionsMenu={closeOptionsMenu} />
         <ProjectRename closeOptionsMenu={closeOptionsMenu} />
         <ProjectDelete closeOptionsMenu={closeOptionsMenu} />
+        <ProjectLeave closeOptionsMenu={closeOptionsMenu} />
       </Menu>
     </>
   );
