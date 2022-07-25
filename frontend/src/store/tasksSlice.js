@@ -23,7 +23,7 @@ const tasksSlice = createSlice({
         ...state.items,
         [task.id]: task,
       };
-      state.idsByProject[projectId].push(String(task.id));
+      state.idsByProject[projectId].push(task.id);
     },
     updateTask(state, action) {
       const task = action.payload;

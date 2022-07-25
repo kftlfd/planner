@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import * as api from "../api/client";
 import * as usersSlice from "../store/usersSlice";
@@ -13,6 +13,7 @@ export function useActions() {
 }
 
 export default function ProvideActions(props) {
+  const userId = useSelector(usersSlice.selectUserId);
   const dispatch = useDispatch();
 
   const user = {
@@ -80,7 +81,34 @@ export default function ProvideActions(props) {
   };
 
   const task = {
-    update(taskId, update) {},
+    async loadTasks(projectId) {
+      const response = await api.tasks.load(projectId);
+      const payload = {
+        projectId,
+        tasks: response,
+        ids: Object.keys(response).map((id) => Number(id)),
+      };
+      dispatch(tasksSlice.loadTasks(payload));
+    },
+
+    async create(projectId, taskTitle) {
+      const response = await api.tasks.create(projectId, taskTitle, userId);
+      const payload = {
+        task: response,
+        projectId,
+      };
+      dispatch(tasksSlice.addTask(payload));
+    },
+
+    async update(taskId, taskUpdate) {
+      const task = await api.tasks.update(taskId, taskUpdate);
+      dispatch(tasksSlice.updateTask(task));
+    },
+
+    async delete(projectId, taskId) {
+      await api.tasks.delete(taskId);
+      dispatch(tasksSlice.deleteTask({ projectId, taskId }));
+    },
   };
 
   return (

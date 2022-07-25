@@ -171,19 +171,23 @@ export const tasks = {
     return await q();
   },
 
-  async create(projectId, taskTitle) {
+  async create(projectId, taskTitle, userId) {
     const q = queryConstructor(urls.taskCreate, {
       method: "POST",
       headers: {
         "X-CSRFToken": csrftoken(),
         "content-type": "application/json",
       },
-      body: JSON.stringify({ project: projectId, title: taskTitle }),
+      body: JSON.stringify({
+        project: projectId,
+        title: taskTitle,
+        user: userId,
+      }),
     });
     return await q();
   },
 
-  async update(projectId, taskId, taskUpdate) {
+  async update(taskId, taskUpdate) {
     const q = queryConstructor(urls.taskDetails(taskId), {
       method: "PATCH",
       headers: {
@@ -195,7 +199,7 @@ export const tasks = {
     return await q();
   },
 
-  async delete(projectId, taskId) {
+  async delete(taskId) {
     let response = await fetch(urls.taskDetails(taskId), {
       method: "DELETE",
       headers: { "X-CSRFToken": csrftoken() },
