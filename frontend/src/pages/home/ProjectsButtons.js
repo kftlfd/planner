@@ -20,7 +20,7 @@ export function ProjectsButtons(props) {
 
   return (
     <List>
-      <ListSubheader component="div" sx={{ backgroundColor: "transparent" }}>
+      <ListSubheader component="div" sx={{ backgroundColor: "background" }}>
         {header}
       </ListSubheader>
       {projectIds.map((id) => (
