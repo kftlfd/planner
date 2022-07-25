@@ -51,6 +51,8 @@ export default usersSlice.reducer;
 
 export const selectLoadingUser = (state) => state.users.loading;
 
+export const selectUserId = (state) => state.users.userId;
+
 export const selectUser = (state) => state.users.items[state.users.userId];
 
 export const selectUserById = (userId) => (state) => state.users.items[userId];
