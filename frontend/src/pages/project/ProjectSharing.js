@@ -3,7 +3,10 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { useActions } from "../../context/ActionsContext";
-import { selectProjectById } from "../../store/projectsSlice";
+import {
+  selectProjectById,
+  selectSharedProjectIds,
+} from "../../store/projectsSlice";
 import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { ProjectStopSharingModal } from "./ProjectModals";
@@ -13,7 +16,6 @@ import {
   Box,
   IconButton,
   Switch,
-  MenuItem,
   Checkbox,
   Tooltip,
 } from "@mui/material";
@@ -24,8 +26,10 @@ import CancelIcon from "@mui/icons-material/Cancel";
 export function ProjectSharing(props) {
   const { closeOptionsMenu } = props;
   const { projectId } = useParams();
-  const project = useSelector(selectProjectById(projectId));
   const actions = useActions();
+  const project = useSelector(selectProjectById(projectId));
+  const sharedIds = useSelector(selectSharedProjectIds);
+  const isShared = sharedIds.includes(Number(projectId));
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
@@ -74,14 +78,20 @@ export function ProjectSharing(props) {
     </Typography>
   );
 
+  if (isShared) return null;
+
   return (
     <>
-      <MenuListItem onClick={toggleSidebar}>
+      <MenuListItem key={"pom-sharing-button"} onClick={toggleSidebar}>
         Project sharing
         <Checkbox color="primary" checked={projectSharing} />
       </MenuListItem>
 
-      <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
+      <Sidebar
+        key={"pom-sharing-sidebar"}
+        open={sidebarOpen}
+        toggle={toggleSidebar}
+      >
         <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
           <SharingSwitch
             checked={projectSharing}

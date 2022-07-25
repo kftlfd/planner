@@ -3,7 +3,10 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { useActions } from "../../context/ActionsContext";
-import { selectProjectById } from "../../store/projectsSlice";
+import {
+  selectProjectById,
+  selectSharedProjectIds,
+} from "../../store/projectsSlice";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { ProjectDeleteModal } from "./ProjectModals";
 
@@ -13,6 +16,8 @@ export function ProjectDelete(props) {
   const actions = useActions();
 
   const project = useSelector(selectProjectById(projectId));
+  const sharedIds = useSelector(selectSharedProjectIds);
+  const isShared = sharedIds.includes(Number(projectId));
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const toggleDeleteDialog = () => {
@@ -27,6 +32,8 @@ export function ProjectDelete(props) {
       console.log("Failed to delete project: ", error);
     }
   }
+
+  if (isShared) return null;
 
   return (
     <>
