@@ -34,7 +34,7 @@ const projectsSlice = createSlice({
       const projectId = Number(action.payload);
       delete state.items[projectId];
       state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
-      state.sharedIds = state.ownedIds.filter((id) => id !== projectId);
+      state.sharedIds = state.sharedIds.filter((id) => id !== projectId);
     },
   },
 

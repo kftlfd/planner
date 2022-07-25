@@ -29,7 +29,7 @@ export function ProjectDelete(props) {
     try {
       await actions.project.delete(projectId);
     } catch (error) {
-      console.log("Failed to delete project: ", error);
+      console.error("Failed to delete project: ", error);
     }
   }
 
