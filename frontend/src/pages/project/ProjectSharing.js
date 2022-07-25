@@ -9,7 +9,7 @@ import {
 } from "../../store/projectsSlice";
 import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 import { MenuListItem } from "./ProjectOprionsMenu";
-import { ProjectStopSharingModal } from "./ProjectModals";
+import { SimpleModal } from "../../layout/Modal";
 
 import {
   Typography,
@@ -118,10 +118,13 @@ export function ProjectSharing(props) {
           )}
         </SidebarBody>
 
-        <ProjectStopSharingModal
+        <SimpleModal
           open={stopSharingDialogOpen}
           onClose={stopSharingDialogToggle}
           onConfirm={handleDisableSharing}
+          title={"Stop sharing project?"}
+          content={"It will do something unreversible."}
+          action={"Stop sharing"}
         />
       </Sidebar>
     </>

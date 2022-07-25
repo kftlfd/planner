@@ -8,7 +8,7 @@ import {
   selectSharedProjectIds,
 } from "../../store/projectsSlice";
 import { MenuListItem } from "./ProjectOprionsMenu";
-import { ProjectDeleteModal } from "./ProjectModals";
+import { SimpleModal } from "../../layout/Modal";
 
 export function ProjectDelete(props) {
   const { closeOptionsMenu } = props;
@@ -39,11 +39,15 @@ export function ProjectDelete(props) {
     <>
       <MenuListItem onClick={toggleDeleteDialog}>Delete</MenuListItem>
 
-      <ProjectDeleteModal
+      <SimpleModal
         open={deleteDialogOpen}
         onClose={toggleDeleteDialog}
         onConfirm={handleDelete}
-        name={project.name}
+        title={`Delete project "${project.name}"?`}
+        content={
+          "This action cannot be undone, all tasks in project will be deleted too."
+        }
+        action={"Delete"}
       />
     </>
   );
