@@ -1,16 +1,14 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
+import { selectUser } from "../store/usersSlice";
 import {
-  addSharedProject,
+  selectLoadingProjects,
   selectProjectIds,
   selectSharedProjectIds,
 } from "../store/projectsSlice";
-
-import * as api from "../api/client";
-
-import { useAuth } from "../context/AuthContext";
+import { useActions } from "../context/ActionsContext";
 import { CenterCard } from "../layout/CenterCard";
 
 import {
@@ -25,9 +23,10 @@ import {
 
 export default function Invite() {
   const { inviteCode } = useParams();
-  const { user } = useAuth();
+  const user = useSelector(selectUser);
+  const loadingProjects = useSelector(selectLoadingProjects);
+  const actions = useActions();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const projectsStatus = useSelector((state) => state.projects.status);
   const ownedProjects = useSelector(selectProjectIds);
@@ -37,12 +36,12 @@ export default function Invite() {
   const [projectInfo, setProjectInfo] = React.useState({});
 
   React.useEffect(() => {
-    if (user && projectsStatus === "complete") loadProjectInfo();
+    if (user && !loadingProjects) loadProjectInfo();
   }, [user, projectsStatus]);
 
   async function loadProjectInfo() {
     try {
-      const p = await api.invite.get(inviteCode);
+      const p = await actions.invite.get(inviteCode);
       if (
         ownedProjects.includes(p.project.id) ||
         sharedProjects.includes(p.project.id)
@@ -64,15 +63,13 @@ export default function Invite() {
       ...prev,
       loading: true,
     }));
-
     try {
-      const p = await api.invite.post(inviteCode);
+      const p = await actions.invite.join(inviteCode);
       setProjectInfo((prev) => ({
         ...prev,
         joined: true,
         loading: false,
       }));
-      dispatch(addSharedProject(p));
       setTimeout(() => {
         navigate(`/project/${p.id}`);
       }, 1000);
