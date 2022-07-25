@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import { useColorMode } from "../../context/ThemeContext";
 import { useActions } from "../../context/ActionsContext";
 import {
   selectProjectById,
@@ -14,6 +15,8 @@ import { SimpleModal } from "../../layout/Modal";
 import {
   Typography,
   Box,
+  Card,
+  Link,
   IconButton,
   Switch,
   Checkbox,
@@ -169,6 +172,7 @@ function SharingSwitch(props) {
 
 function InviteLink(props) {
   const { projectId, inviteCode } = props;
+  const colorMode = useColorMode();
   const actions = useActions();
   const inviteLink = `${window.location.origin}/invite/${inviteCode}`;
 
@@ -210,25 +214,26 @@ function InviteLink(props) {
       </Typography>
 
       <Tooltip title="Copied link to clipboard" open={tooltipOpen} arrow>
-        <Box
+        <Card
+          variant="outlined"
           sx={{
+            backgroundColor:
+              colorMode.mode === "light"
+                ? "rgba(250, 250, 250, 0.8)"
+                : "rgba(20, 20, 20, 0.8)",
             position: "relative",
             flexGrow: 1,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             gap: "0.5rem",
-            paddingInline: "0.5rem",
-            paddingBlock: "0.2rem",
-
-            backgroundColor: "#fcfcfc",
-            border: "1px solid #eee",
-            borderRadius: "0.5rem",
+            padding: "0.2rem 0.5rem 0.2rem 1rem",
             overflow: "hidden",
           }}
         >
           {inviteCode ? (
-            <Box
+            <Link
+              underline={"hover"}
               onClick={copyInviteLinkToClipboard}
               sx={{
                 overflow: "hidden",
@@ -236,11 +241,10 @@ function InviteLink(props) {
                 textOverflow: "ellipsis",
                 direction: "rtl",
                 userSelect: "all",
-                color: "#0072E5",
               }}
             >
               {inviteLink}
-            </Box>
+            </Link>
           ) : (
             <Box sx={{ opacity: 0.5 }}>Disabled</Box>
           )}
@@ -251,7 +255,7 @@ function InviteLink(props) {
           >
             <ContentCopyIcon />
           </IconButton>
-        </Box>
+        </Card>
       </Tooltip>
 
       <IconButton onClick={handleInviteRecreate}>
