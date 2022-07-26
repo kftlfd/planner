@@ -21,3 +21,14 @@ class IsTaskOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return ((obj.user == request.user) and (obj.project.owner == request.user)) \
             or (request.user and request.user.is_staff)
+
+
+class IsTaskProjectMemberOrAdmin(permissions.BasePermission):
+    """Custom permission to only allow owners and members of a project to view and edit its tasks."""
+
+    def has_object_permission(self, request, view, obj):
+        owner = obj.project.owner
+        members = obj.project.members.all()
+        return (request.user and request.user.is_staff) or \
+               (request.user == owner) or \
+               (request.user in members)

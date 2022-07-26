@@ -8,6 +8,7 @@ from rest_framework.serializers import ValidationError as SerializerValidationEr
 from .models import Task, Project
 from .serializers import UserSerializer, ProjectSerializer, TaskSerializer
 from .permissions import IsUserOrAdmin, IsProjectOwnerOrAdmin, IsTaskOwnerOrAdmin
+from .permissions import IsTaskProjectMemberOrAdmin
 from .utils import new_invite_code
 
 
@@ -220,4 +221,4 @@ class Task_Create(generics.CreateAPIView):
 class Task_Detail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all().prefetch_related('user', 'project')
     serializer_class = TaskSerializer
-    permission_classes = [IsTaskOwnerOrAdmin]
+    permission_classes = [IsTaskProjectMemberOrAdmin]
