@@ -1,65 +1,46 @@
 import json
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-class ChatConsumer(WebsocketConsumer):
+class ProjectConsumer(AsyncWebsocketConsumer):
 
-    def connect(self):
-        self.accept()
-
-    def disconnect(self, close_code):
-        pass
-
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-
-class ProjectConsumer(WebsocketConsumer):
-
-    def connect(self):
+    async def connect(self):
+        # set up connection info
+        self.user = self.scope['user']
         self.projectId = self.scope['url_route']['kwargs']['projectId']
-        self.project_group_name = f"project-{projectId}"
+        self.project_group_name = f"project-{self.projectId}"
 
         # join project group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.project_group_name,
             self.channel_name
         )
 
-        self.accept()
+        # establish connection
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         # leave project group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.project_group_name,
             self.channel_name
         )
 
     # receive message from WebSocket
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-
-        # send message to project group
-        async_to_sync(self.channel_layer.group_send)(
+    # broadcast to project group
+    async def receive(self, text_data):
+        await self.channel_layer.group_send(
             self.project_group_name,
             {
-                'type': 'project_message',
-                'message': message
+                'type': 'message',
+                'sender': self.user,
+                'data': text_data
             }
         )
 
     # receive message from project group
-    def project_message(self, event):
-        message = event['message']
-
-        # send message to WebSocket
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
+    # send to WebSocket
+    async def message(self, event):
+        if event['sender'] != self.user:
+            await self.send(text_data=event['data'])
