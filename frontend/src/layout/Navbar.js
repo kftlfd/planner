@@ -51,14 +51,6 @@ const NavbarCard = {
   gap: "2rem",
 };
 
-const NavbarDivStyle = {
-  display: "flex",
-  alignSelf: "start",
-  alignItems: "center",
-  gap: "1rem",
-  flexWrap: "wrap",
-};
-
 export default function Navbar(props) {
   const { mode, toggleColorMode } = useColorMode();
   const user = useSelector(selectUser);
@@ -93,7 +85,15 @@ export default function Navbar(props) {
               Planner
             </Link>
 
-            <div style={NavbarDivStyle}>
+            <div
+              style={{
+                display: "flex",
+                alignSelf: user ? "center" : "start",
+                alignItems: "center",
+                gap: "1rem",
+                flexWrap: user ? "nowrap" : "wrap",
+              }}
+            >
               <IconButton
                 size="small"
                 onClick={toggleColorMode}
