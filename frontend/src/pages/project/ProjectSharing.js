@@ -85,16 +85,12 @@ export function ProjectSharing(props) {
 
   return (
     <>
-      <MenuListItem key={"pom-sharing-button"} onClick={toggleSidebar}>
+      <MenuListItem onClick={toggleSidebar}>
         Project sharing
         <Checkbox color="primary" checked={projectSharing} />
       </MenuListItem>
 
-      <Sidebar
-        key={"pom-sharing-sidebar"}
-        open={sidebarOpen}
-        toggle={toggleSidebar}
-      >
+      <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
         <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
           <SharingSwitch
             checked={projectSharing}
@@ -115,7 +111,7 @@ export function ProjectSharing(props) {
               <div>Members: {project.members.length + 1}</div>
               <div>Owner: {project.owner}</div>
               {project.members.map((member) => (
-                <div>{member}</div>
+                <div key={`member-${member}`}>{member}</div>
               ))}
             </>
           )}
