@@ -23,6 +23,12 @@ import {
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 
+const AuthFormStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+};
+
 export function Register() {
   const actions = useActions();
   const user = useSelector(selectUser);
@@ -71,7 +77,7 @@ export function Register() {
         Sign Up
       </Typography>
 
-      <form className="AuthForm" onSubmit={handleRegister}>
+      <form style={AuthFormStyle} onSubmit={handleRegister}>
         <TextField
           name="username"
           type="text"
@@ -209,7 +215,7 @@ export function Login() {
         Log In
       </Typography>
 
-      <form className="AuthForm" onSubmit={handleLogin}>
+      <form style={AuthFormStyle} onSubmit={handleLogin}>
         <TextField
           name="username"
           type="text"
