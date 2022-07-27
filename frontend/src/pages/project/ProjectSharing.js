@@ -8,6 +8,7 @@ import {
   selectProjectById,
   selectSharedProjectIds,
 } from "../../store/projectsSlice";
+import { selectUserById } from "../../store/usersSlice";
 import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { SimpleModal } from "../../layout/Modal";
@@ -21,6 +22,7 @@ import {
   Switch,
   Checkbox,
   Tooltip,
+  Avatar,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
@@ -32,7 +34,7 @@ export function ProjectSharing(props) {
   const actions = useActions();
   const project = useSelector(selectProjectById(projectId));
   const sharedIds = useSelector(selectSharedProjectIds);
-  const isShared = sharedIds.includes(Number(projectId));
+  const isOwned = !sharedIds.includes(Number(projectId));
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
@@ -81,50 +83,54 @@ export function ProjectSharing(props) {
     </Typography>
   );
 
-  if (isShared) return null;
-
   return (
     <>
       <MenuListItem onClick={toggleSidebar}>
-        Project sharing
-        <Checkbox color="primary" checked={projectSharing} />
+        {isOwned ? "Project sharing" : "Project info"}
+        {isOwned && <Checkbox color="primary" checked={projectSharing} />}
       </MenuListItem>
 
       <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
-        <SidebarHeader title="Project sharing" toggle={toggleSidebar}>
-          <SharingSwitch
-            checked={projectSharing}
-            onChange={
-              projectSharing ? stopSharingDialogToggle : handleEnableSharing
-            }
-          />
+        <SidebarHeader
+          title={isOwned ? "Project sharing" : "Project info"}
+          toggle={toggleSidebar}
+        >
+          {isOwned && (
+            <SharingSwitch
+              checked={projectSharing}
+              onChange={
+                projectSharing ? stopSharingDialogToggle : handleEnableSharing
+              }
+            />
+          )}
         </SidebarHeader>
 
         <SidebarBody
-          sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+          sx={{ display: "flex", flexDirection: "column", gap: "2rem" }}
         >
           {!projectSharing ? (
             <>{sharingDisabled}</>
           ) : (
             <>
-              <InviteLink projectId={projectId} inviteCode={project.invite} />
-              <div>Members: {project.members.length + 1}</div>
-              <div>Owner: {project.owner}</div>
-              {project.members.map((member) => (
-                <div key={`member-${member}`}>{member}</div>
-              ))}
+              {isOwned && (
+                <InviteLink projectId={projectId} inviteCode={project.invite} />
+              )}
+
+              <ProjectMembers projectId={projectId} />
             </>
           )}
         </SidebarBody>
 
-        <SimpleModal
-          open={stopSharingDialogOpen}
-          onClose={stopSharingDialogToggle}
-          onConfirm={handleDisableSharing}
-          title={"Stop sharing project?"}
-          content={"It will do something unreversible."}
-          action={"Stop sharing"}
-        />
+        {isOwned && (
+          <SimpleModal
+            open={stopSharingDialogOpen}
+            onClose={stopSharingDialogToggle}
+            onConfirm={handleDisableSharing}
+            title={"Stop sharing project?"}
+            content={"It will do something unreversible."}
+            action={"Stop sharing"}
+          />
+        )}
       </Sidebar>
     </>
   );
@@ -206,7 +212,7 @@ function InviteLink(props) {
       }}
     >
       <Typography variant="h6" conponent="div">
-        Link:
+        Link
       </Typography>
 
       <Tooltip title="Copied link to clipboard" open={tooltipOpen} arrow>
@@ -261,6 +267,55 @@ function InviteLink(props) {
       <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
         <CancelIcon />
       </IconButton>
+    </Box>
+  );
+}
+
+function ProjectMembers({ projectId }) {
+  const project = useSelector(selectProjectById(projectId));
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <Typography variant="h6" conponent="div">
+          Members
+        </Typography>
+        {project.members.length + 1}
+      </Box>
+      <MemberListItem userId={project.owner} owner={true} />
+      {project.members.map((userId) => (
+        <MemberListItem key={"memb" + userId} userId={userId} />
+      ))}
+    </Box>
+  );
+}
+
+function MemberListItem({ userId, owner }) {
+  const user = useSelector(selectUserById(userId));
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: "1rem",
+      }}
+    >
+      <Avatar sx={{ width: "2rem", height: "2rem" }}>{user.username[0]}</Avatar>
+      <Box>{user.username}</Box>
+      {owner && (
+        <Box
+          sx={{
+            fontSize: "0.85rem",
+            fontWeight: "bold",
+            border: "1px solid tomato",
+            borderRadius: "0.5rem",
+            padding: "0.2rem 0.4rem",
+          }}
+        >
+          Owner
+        </Box>
+      )}
     </Box>
   );
 }
