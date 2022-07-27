@@ -56,9 +56,11 @@ def user_projects(request, pk):
 
     members = set()
     for p in owned:
+        members.add(p.owner)
         for u in p.members.all():
             members.add(u)
     for p in shared:
+        members.add(p.owner)
         for u in p.members.all():
             members.add(u)
 
