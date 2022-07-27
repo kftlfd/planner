@@ -8,6 +8,7 @@ const projectsSlice = createSlice({
     items: {},
     ownedIds: [],
     sharedIds: [],
+    sharingOnIds: [],
     loading: true,
     error: null,
   },
@@ -46,6 +47,11 @@ const projectsSlice = createSlice({
         state.items = projects;
         state.ownedIds = ownedIds;
         state.sharedIds = sharedIds;
+        let sharingOn = [];
+        Object.keys(projects).forEach((id) => {
+          if (projects[id].sharing) sharingOn.push(id);
+        });
+        state.sharingOnIds = sharingOn;
       })
       .addCase(fetchProjects().rejected, (state, action) => {
         state.loading = false;
@@ -75,6 +81,8 @@ export const selectAllProjects = (state) => state.projects.items;
 export const selectProjectIds = (state) => state.projects.ownedIds;
 
 export const selectSharedProjectIds = (state) => state.projects.sharedIds;
+
+export const selectSharingOnIds = (state) => state.projects.sharingOnIds;
 
 export const selectProjectById = (projectId) => (state) =>
   state.projects.items[projectId];
