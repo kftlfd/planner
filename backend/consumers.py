@@ -8,7 +8,7 @@ class UserConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         """ establish connection """
         self.user = self.scope['user']
-        self.groups = []
+        self.groups = set()
         if self.user.is_authenticated:
             await self.accept()
 
@@ -31,10 +31,11 @@ class UserConsumer(AsyncWebsocketConsumer):
                     group,
                     self.channel_name
                 )
-            self.groups += data['groups']
+            for g in data['groups']:
+                self.groups.add(g)
             await self.send(text_data=json.dumps({
                 'info': f"joined groups {data['groups']}",
-                'groups': self.groups
+                'groups': [g for g in self.groups]
             }))
 
         # leave group
@@ -44,16 +45,15 @@ class UserConsumer(AsyncWebsocketConsumer):
                     group,
                     self.channel_name
                 )
-            for group in data['groups']:
-                if group in self.groups:
-                    self.groups.remove(group)
+            for g in data['groups']:
+                self.groups.remove(g)
             await self.send(text_data=json.dumps({
                 'info': f"leaved groups {data['groups']}",
-                'groups': self.groups
+                'groups': [g for g in self.groups]
             }))
 
         # broadcast to group
-        else:
+        elif data['group'] in self.groups:
             await self.channel_layer.group_send(
                 data['group'],
                 {
