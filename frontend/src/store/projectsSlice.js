@@ -14,6 +14,18 @@ const projectsSlice = createSlice({
   },
 
   reducers: {
+    loadProjects(state, action) {
+      const { projects, ownedIds, sharedIds } = action.payload;
+      state.loading = false;
+      state.items = projects;
+      state.ownedIds = ownedIds;
+      state.sharedIds = sharedIds;
+      let sharingOn = [];
+      Object.keys(projects).forEach((id) => {
+        if (projects[id].sharing) sharingOn.push(id);
+      });
+      state.sharingOnIds = sharingOn;
+    },
     addProject(state, action) {
       const project = action.payload;
       state.items[project.id] = project;
@@ -76,6 +88,7 @@ export const fetchProjects = (userId) =>
   });
 
 export const {
+  loadProjects,
   addProject,
   addSharedProject,
   updateProject,

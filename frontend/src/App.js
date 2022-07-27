@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { selectLoadingUser, fetchUser, selectUser } from "./store/usersSlice";
 import { selectLoadingProjects, fetchProjects } from "./store/projectsSlice";
+import { useActions } from "./context/ActionsContext";
 import LoadingApp from "./pages/Loading";
 import Home from "./pages/home/Home";
 import Project from "./pages/project/Project";
@@ -19,14 +20,18 @@ export default function App() {
   const loadingUser = useSelector(selectLoadingUser);
   const loadingProjects = useSelector(selectLoadingProjects);
   const dispatch = useDispatch();
+  const actions = useActions();
 
   React.useEffect(() => {
     dispatch(fetchUser());
   }, []);
 
   React.useEffect(() => {
-    if (user) dispatch(fetchProjects(user.id)());
-  }, [user]);
+    if (user && loadingProjects) {
+      // dispatch(fetchProjects(user.id)());
+      actions.project.loadProjects(user.id);
+    }
+  }, [user, loadingProjects]);
 
   return React.useMemo(
     () =>

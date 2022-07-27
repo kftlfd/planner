@@ -13,6 +13,7 @@ export function useActions() {
 }
 
 export default function ProvideActions(props) {
+  const userObj = useSelector(usersSlice.selectUser);
   const userId = useSelector(usersSlice.selectUserId);
   const projectsLoading = useSelector(projectsSlice.selectLoadingProjects);
   const sharingOnIds = useSelector(projectsSlice.selectSharingOnIds);
@@ -62,6 +63,13 @@ export default function ProvideActions(props) {
   };
 
   const project = {
+    async loadProjects(userId) {
+      const response = await api.projects.load(userId);
+      const { projects, ownedIds, sharedIds, users } = response;
+      dispatch(projectsSlice.loadProjects({ projects, ownedIds, sharedIds }));
+      dispatch(usersSlice.loadUsers(users));
+    },
+
     async create(name) {
       const p = await api.projects.create(name);
       dispatch(projectsSlice.addProject(p));
@@ -160,6 +168,7 @@ export default function ProvideActions(props) {
       ws.send("project/addMember", `${project.id}`, {
         projectId: project.id,
         userId,
+        userObj,
       });
       dispatch(projectsSlice.addSharedProject(project));
       return project;
@@ -199,6 +208,9 @@ export default function ProvideActions(props) {
                 projectId: message.projectId,
                 userId: message.userId,
               })
+            );
+            dispatch(
+              usersSlice.loadUsers({ [message.userObj.id]: message.userObj })
             );
             break;
           case "project/removeMember":

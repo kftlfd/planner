@@ -20,6 +20,12 @@ const usersSlice = createSlice({
       state.userId = user.id;
       state.items[user.id] = user;
     },
+    loadUsers(state, action) {
+      state.items = {
+        ...state.items,
+        ...action.payload,
+      };
+    },
   },
 
   extraReducers(builder) {
@@ -41,7 +47,7 @@ export const fetchUser = createAsyncThunk("users/fetchUser", async () => {
   return api.auth.fetchUser();
 });
 
-export const { setLoading, setUser } = usersSlice.actions;
+export const { setLoading, setUser, loadUsers } = usersSlice.actions;
 
 export default usersSlice.reducer;
 
