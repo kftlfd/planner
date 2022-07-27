@@ -20,25 +20,25 @@ export default function ProvideActions(props) {
 
   const [webSocket, setWebSocket] = React.useState(null);
 
-  function wsSend(action, group, data) {
-    if (webSocket.readyState === 1) {
-      webSocket.send(
-        JSON.stringify({
-          action,
-          group,
-          ...data,
-        })
-      );
-    }
-  }
-
   const ws = {
+    send(action, group, data) {
+      if (webSocket.readyState === 1) {
+        webSocket.send(
+          JSON.stringify({
+            action,
+            group,
+            ...data,
+          })
+        );
+      }
+    },
+
     join(projectIds) {
-      wsSend("group/join", "", { groups: projectIds });
+      this.send("group/join", "", { groups: projectIds });
     },
 
     leave(projectIds) {
-      wsSend("group/leave", "", { groups: projectIds });
+      this.send("group/leave", "", { groups: projectIds });
     },
   };
 
@@ -71,27 +71,34 @@ export default function ProvideActions(props) {
 
     async update(projectId, update) {
       const p = await api.projects.update(projectId, update);
+      ws.send("project/update", `${projectId}`, { project: p });
       dispatch(projectsSlice.updateProject(p));
     },
 
     async delete(projectId) {
       await api.projects.delete(projectId);
+      ws.send("project/stopSharing", `${projectId}`, { projectId });
       dispatch(projectsSlice.deleteProject(projectId));
     },
 
     async leave(projectId) {
       await api.projects.leave(projectId);
+      ws.send("project/removeMember", `${projectId}`, { projectId, userId });
+      ws.leave([`${projectId}`]);
       dispatch(projectsSlice.deleteProject(projectId));
     },
 
     sharing: {
       async enable(projectId) {
         const p = await api.projects.sharing.enable(projectId);
+        ws.join([`${projectId}`]);
         dispatch(projectsSlice.updateProject(p));
       },
 
       async disable(projectId) {
         const p = await api.projects.sharing.disable(projectId);
+        ws.send("project/stopSharing", `${projectId}`, { projectId });
+        ws.leave([`${projectId}`]);
         dispatch(projectsSlice.updateProject(p));
       },
 
@@ -124,19 +131,19 @@ export default function ProvideActions(props) {
         task: response,
         projectId,
       };
-      wsSend("task/create", `${payload.projectId}`, { payload });
+      ws.send("task/create", `${payload.projectId}`, { payload });
       dispatch(tasksSlice.addTask(payload));
     },
 
     async update(taskId, taskUpdate) {
       const task = await api.tasks.update(taskId, taskUpdate);
-      wsSend("task/update", `${task.project}`, { task });
+      ws.send("task/update", `${task.project}`, { task });
       dispatch(tasksSlice.updateTask(task));
     },
 
     async delete(projectId, taskId) {
       await api.tasks.delete(taskId);
-      wsSend("task/delete", `${projectId}`, { projectId, taskId });
+      ws.send("task/delete", `${projectId}`, { projectId, taskId });
       dispatch(tasksSlice.deleteTask({ projectId, taskId }));
     },
   };
@@ -149,12 +156,19 @@ export default function ProvideActions(props) {
 
     async join(inviteCode) {
       const project = await api.invite.post(inviteCode, "join");
+      ws.join([`${project.id}`]);
+      ws.send("project/addMember", `${project.id}`, {
+        projectId: project.id,
+        userId,
+      });
       dispatch(projectsSlice.addSharedProject(project));
       return project;
     },
   };
 
   React.useEffect(() => {
+    // setup websocket
+
     if (webSocket) webSocket.close();
 
     if (userId !== null && !projectsLoading) {
@@ -176,6 +190,29 @@ export default function ProvideActions(props) {
         console.log(message);
 
         switch (message.action) {
+          case "project/update":
+            dispatch(projectsSlice.updateProject(message.project));
+            break;
+          case "project/addMember":
+            dispatch(
+              projectsSlice.addMember({
+                projectId: message.projectId,
+                userId: message.userId,
+              })
+            );
+            break;
+          case "project/removeMember":
+            dispatch(
+              projectsSlice.removeMember({
+                projectId: message.projectId,
+                userId: message.userId,
+              })
+            );
+            break;
+          case "project/stopSharing":
+            dispatch(projectsSlice.deleteProject(message.projectId));
+            break;
+
           case "task/create":
             dispatch(tasksSlice.addTask(message.payload));
             break;
