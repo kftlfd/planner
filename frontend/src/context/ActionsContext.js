@@ -20,27 +20,25 @@ export default function ProvideActions(props) {
 
   const [webSocket, setWebSocket] = React.useState(null);
 
-  const wsSend = {
+  function wsSend(action, group, data) {
+    if (webSocket.readyState === 1) {
+      webSocket.send(
+        JSON.stringify({
+          action,
+          group,
+          ...data,
+        })
+      );
+    }
+  }
+
+  const ws = {
     join(projectIds) {
-      if (webSocket.readyState === 1) {
-        webSocket.send(
-          JSON.stringify({
-            action: "group/join",
-            groups: projectIds,
-          })
-        );
-      }
+      wsSend("group/join", "", { groups: projectIds });
     },
 
     leave(projectIds) {
-      if (webSocket.readyState === 1) {
-        webSocket.send(
-          JSON.stringify({
-            action: "group/leave",
-            groups: projectIds,
-          })
-        );
-      }
+      wsSend("group/leave", "", { groups: projectIds });
     },
   };
 
@@ -126,25 +124,19 @@ export default function ProvideActions(props) {
         task: response,
         projectId,
       };
+      wsSend("task/create", `${payload.projectId}`, { payload });
       dispatch(tasksSlice.addTask(payload));
     },
 
     async update(taskId, taskUpdate) {
       const task = await api.tasks.update(taskId, taskUpdate);
-      if (webSocket.readyState === 1) {
-        webSocket.send(
-          JSON.stringify({
-            action: "task/update",
-            group: `${task.project}`,
-            task: task,
-          })
-        );
-      }
+      wsSend("task/update", `${task.project}`, { task });
       dispatch(tasksSlice.updateTask(task));
     },
 
     async delete(projectId, taskId) {
       await api.tasks.delete(taskId);
+      wsSend("task/delete", `${projectId}`, { projectId, taskId });
       dispatch(tasksSlice.deleteTask({ projectId, taskId }));
     },
   };
@@ -183,8 +175,21 @@ export default function ProvideActions(props) {
         const message = JSON.parse(data);
         console.log(message);
 
-        if (message.action === "task/update") {
-          dispatch(tasksSlice.updateTask(message.task));
+        switch (message.action) {
+          case "task/create":
+            dispatch(tasksSlice.addTask(message.payload));
+            break;
+          case "task/update":
+            dispatch(tasksSlice.updateTask(message.task));
+            break;
+          case "task/delete":
+            dispatch(
+              tasksSlice.deleteTask({
+                projectId: message.projectId,
+                taskId: message.taskId,
+              })
+            );
+            break;
         }
       };
 
