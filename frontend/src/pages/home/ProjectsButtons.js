@@ -19,10 +19,14 @@ export function ProjectsButtons(props) {
   const { projectId } = useParams();
 
   return (
-    <List>
-      <ListSubheader component="div" sx={{ backgroundColor: "background" }}>
-        {header}
-      </ListSubheader>
+    <List
+      subheader={
+        <ListSubheader component={"div"} sx={{ background: "inherit" }}>
+          {header}
+        </ListSubheader>
+      }
+      sx={{ background: "inherit" }}
+    >
       {projectIds.map((id) => (
         <ProjectButton
           key={"pb-" + id}
