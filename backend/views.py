@@ -54,10 +54,19 @@ def user_projects(request, pk):
 
     all_projects = {**owned_projects, **shared_projects}
 
+    members = set()
+    for p in owned:
+        for u in p.members.all():
+            members.add(u)
+    for p in shared:
+        for u in p.members.all():
+            members.add(u)
+
     return Response({
         "projects": all_projects,
         "ownedIds": owned_ids,
-        "sharedIds": shared_ids
+        "sharedIds": shared_ids,
+        "users": {u.id: UserSerializer(u).data for u in members},
     })
 
 
