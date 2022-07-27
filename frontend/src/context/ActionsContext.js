@@ -14,7 +14,35 @@ export function useActions() {
 
 export default function ProvideActions(props) {
   const userId = useSelector(usersSlice.selectUserId);
+  const projectsLoading = useSelector(projectsSlice.selectLoadingProjects);
+  const sharingOnIds = useSelector(projectsSlice.selectSharingOnIds);
   const dispatch = useDispatch();
+
+  const [webSocket, setWebSocket] = React.useState(null);
+
+  const wsSend = {
+    join(projectIds) {
+      if (webSocket.readyState === 1) {
+        webSocket.send(
+          JSON.stringify({
+            action: "group/join",
+            groups: projectIds,
+          })
+        );
+      }
+    },
+
+    leave(projectIds) {
+      if (webSocket.readyState === 1) {
+        webSocket.send(
+          JSON.stringify({
+            action: "group/leave",
+            groups: projectIds,
+          })
+        );
+      }
+    },
+  };
 
   const user = {
     async register(formData) {
@@ -103,6 +131,15 @@ export default function ProvideActions(props) {
 
     async update(taskId, taskUpdate) {
       const task = await api.tasks.update(taskId, taskUpdate);
+      if (webSocket.readyState === 1) {
+        webSocket.send(
+          JSON.stringify({
+            action: "task/update",
+            group: `${task.project}`,
+            task: task,
+          })
+        );
+      }
       dispatch(tasksSlice.updateTask(task));
     },
 
@@ -124,6 +161,40 @@ export default function ProvideActions(props) {
       return project;
     },
   };
+
+  React.useEffect(() => {
+    if (webSocket) webSocket.close();
+
+    if (userId !== null && !projectsLoading) {
+      const ws = new WebSocket(`ws://${window.location.host}/ws/`);
+
+      // join groups on connection
+      ws.onopen = (e) => {
+        console.info("WS open");
+        ws.send(
+          JSON.stringify({
+            action: "group/join",
+            groups: sharingOnIds,
+          })
+        );
+      };
+
+      ws.onmessage = ({ data }) => {
+        const message = JSON.parse(data);
+        console.log(message);
+
+        if (message.action === "task/update") {
+          dispatch(tasksSlice.updateTask(message.task));
+        }
+      };
+
+      ws.onerror = (e) => console.info("WS error: ", e);
+
+      ws.onclose = (e) => console.info("WS closed");
+
+      setWebSocket(ws);
+    }
+  }, [userId, projectsLoading]);
 
   return (
     <ActionsContext.Provider value={{ user, project, task, invite }}>
