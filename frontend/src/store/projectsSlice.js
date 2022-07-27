@@ -37,6 +37,16 @@ const projectsSlice = createSlice({
       state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
       state.sharedIds = state.sharedIds.filter((id) => id !== projectId);
     },
+    addMember(state, action) {
+      const { projectId, userId } = action.payload;
+      state.items[projectId].members.push(Number(userId));
+    },
+    removeMember(state, action) {
+      const { projectId, userId } = action.payload;
+      state.items[projectId].members = state.items[projectId].members.filter(
+        (id) => id !== Number(userId)
+      );
+    },
   },
 
   extraReducers(builder) {
@@ -65,8 +75,14 @@ export const fetchProjects = (userId) =>
     return await api.projects.load(userId);
   });
 
-export const { addProject, addSharedProject, updateProject, deleteProject } =
-  projectsSlice.actions;
+export const {
+  addProject,
+  addSharedProject,
+  updateProject,
+  deleteProject,
+  addMember,
+  removeMember,
+} = projectsSlice.actions;
 
 export default projectsSlice.reducer;
 
