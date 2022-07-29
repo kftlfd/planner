@@ -7,6 +7,7 @@ import { selectProjectById } from "../../store/projectsSlice";
 import { useActions } from "../../context/ActionsContext";
 
 import {
+  Box,
   List,
   ListSubheader,
   ListItemButton,
@@ -50,26 +51,31 @@ export function ProjectsButtons(props) {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId={type}>
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <Box ref={provided.innerRef} {...provided.droppableProps}>
               {projectIds.map((id, index) => (
                 <Draggable key={`${id}`} draggableId={`${id}`} index={index}>
-                  {(provided) => (
-                    <div
+                  {(provided, snapshot) => (
+                    <Box
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      sx={{
+                        backgroundColor: snapshot.isDragging
+                          ? "background.default"
+                          : "initial",
+                      }}
                     >
                       <ProjectButton
                         projectId={id}
                         selected={Number(projectId) === id}
                         drawerToggle={drawerToggle}
                       />
-                    </div>
+                    </Box>
                   )}
                 </Draggable>
               ))}
               {provided.placeholder}
-            </div>
+            </Box>
           )}
         </Droppable>
       </DragDropContext>
