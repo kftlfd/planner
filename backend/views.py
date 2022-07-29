@@ -78,11 +78,13 @@ def user_projects(request, pk):
     if not permission:
         return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
 
-    owned = user.owned_projects.all()
+    # owned = user.owned_projects.all()
+    owned = Project.objects.filter(pk__in=account.get_ownedProjectsOrder())
     # owned_ids = [p.id for p in owned]
     owned_projects = {p.id: ProjectSerializer(p).data for p in owned}
 
-    shared = user.shared_projects.all()
+    # shared = user.shared_projects.all()
+    shared = Project.objects.filter(pk__in=account.get_sharedProjectsOrder())
     # shared_ids = [p.id for p in shared]
     shared_projects = {p.id: ProjectSerializer(p).data for p in shared}
 
