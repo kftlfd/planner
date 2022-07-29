@@ -1,5 +1,24 @@
+import json
 from django.db import models
 from django.core.exceptions import ValidationError
+
+
+class Account(models.Model):
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    ownedProjectsOrder = models.TextField(default="[]")
+    sharedProjectsOrder = models.TextField(default="[]")
+
+    def get_ownedProjectsOrder(self):
+        return json.loads(self.ownedProjectsOrder)
+
+    def set_ownedProjectsOrder(self, val):
+        self.ownedProjectsOrder = json.dumps(val)
+
+    def get_sharedProjectsOrder(self):
+        return json.loads(self.sharedProjectsOrder)
+
+    def set_sharedProjectsOrder(self, val):
+        self.sharedProjectsOrder = json.dumps(val)
 
 
 class Project(models.Model):
