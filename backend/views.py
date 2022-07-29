@@ -120,6 +120,12 @@ class Project_Create(generics.CreateAPIView):
         serializer.save(owner=owner)
 
 
+class Project_Detail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsProjectOwnerOrAdmin]
+
+
 @api_view(['POST'])
 def project_create(request):
     if not request.user.is_authenticated:
@@ -164,12 +170,6 @@ def project_delete(request, pk):
         return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response({"detail": "Project deleted"})
-
-
-class Project_Detail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsProjectOwnerOrAdmin]
 
 
 @api_view(['GET'])
