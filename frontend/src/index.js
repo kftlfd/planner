@@ -17,15 +17,15 @@ import "./index.scss";
 
 const root = ReactDOM.createRoot(document.querySelector("#root"));
 root.render(
-  <React.StrictMode>
-    <ProvideStore store={store}>
-      <ProvideTheme>
-        <ProvideActions>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ProvideActions>
-      </ProvideTheme>
-    </ProvideStore>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <ProvideStore store={store}>
+    <ProvideTheme>
+      <ProvideActions>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ProvideActions>
+    </ProvideTheme>
+  </ProvideStore>
+  // </React.StrictMode>
 );
