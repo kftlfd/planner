@@ -49,6 +49,7 @@ export default function Home(props) {
 
         {ownedProjectIds.length > 0 ? (
           <ProjectsButtons
+            type="owned"
             header={"Projects"}
             projectIds={ownedProjectIds}
             drawerToggle={handleCloseDrawer}
@@ -57,6 +58,7 @@ export default function Home(props) {
 
         {sharedProjectIds.length > 0 ? (
           <ProjectsButtons
+            type="shared"
             header={"Shared projects"}
             projectIds={sharedProjectIds}
             drawerToggle={handleCloseDrawer}

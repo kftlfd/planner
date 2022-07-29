@@ -59,6 +59,12 @@ const projectsSlice = createSlice({
         (id) => id !== Number(userId)
       );
     },
+    changeOwnedIdsOrder(state, action) {
+      state.ownedIds = action.payload;
+    },
+    changeSharedIdsOrder(state, action) {
+      state.sharedIds = action.payload;
+    },
   },
 
   extraReducers(builder) {
@@ -95,6 +101,8 @@ export const {
   deleteProject,
   addMember,
   removeMember,
+  changeOwnedIdsOrder,
+  changeSharedIdsOrder,
 } = projectsSlice.actions;
 
 export default projectsSlice.reducer;
