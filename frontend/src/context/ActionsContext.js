@@ -60,6 +60,16 @@ export default function ProvideActions(props) {
       await api.auth.logout();
       window.location.replace("/");
     },
+
+    async updateProjectsOrder(type, newOrder) {
+      if (type === "owned") {
+        dispatch(projectsSlice.changeOwnedIdsOrder(newOrder));
+        api.user.update(userId, { ownedProjectsOrder: newOrder });
+      } else if (type === "shared") {
+        dispatch(projectsSlice.changeSharedIdsOrder(newOrder));
+        api.user.update(userId, { sharedProjectsOrder: newOrder });
+      }
+    },
   };
 
   const project = {

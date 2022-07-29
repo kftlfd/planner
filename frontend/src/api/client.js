@@ -70,6 +70,20 @@ export const auth = {
   },
 };
 
+export const user = {
+  async update(userId, update) {
+    const q = queryConstructor(urls.userUpdate(userId), {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken(),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(update),
+    });
+    return q();
+  },
+};
+
 export const projects = {
   async load(userId) {
     const q = queryConstructor(urls.userProjects(userId));
@@ -101,7 +115,7 @@ export const projects = {
   },
 
   async delete(projectId) {
-    let response = await fetch(urls.projectDetails(projectId), {
+    let response = await fetch(urls.projectDelete(projectId), {
       method: "DELETE",
       headers: { "X-CSRFToken": csrftoken() },
     });

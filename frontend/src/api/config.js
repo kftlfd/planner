@@ -42,6 +42,7 @@ export const urls = {
   logout: "/auth/logout",
 
   userDetails: (n) => `/api/user/${n}/`,
+  userUpdate: (n) => `/api/user/${n}/update/`,
   userProjects: (n) => `/api/user/${n}/projects/`,
 
   projectCreate: "/api/project/",
@@ -49,6 +50,7 @@ export const urls = {
   projectTasks: (n) => `/api/project/${n}/tasks/`,
   projectSharing: (n) => `/api/project/${n}/sharing/`,
   projectLeave: (n) => `/api/project/${n}/leave/`,
+  projectDelete: (n) => `/api/project/${n}/delete/`,
 
   invite: (s) => `/api/invite/${s}/`,
 
