@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.serializers import ValidationError as SerializerValidationError
 
-from .models import Task, Project
+from .models import Account, Project, Task
 from .serializers import UserSerializer, ProjectSerializer, TaskSerializer
 from .permissions import IsUserOrAdmin, IsProjectOwnerOrAdmin, IsTaskOwnerOrAdmin
 from .permissions import IsTaskProjectMemberOrAdmin
@@ -33,10 +33,44 @@ class User_Detail(generics.RetrieveAPIView):
     permission_classes = [IsUserOrAdmin]
 
 
+@api_view(['POST'])
+def user_update(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+        account = user.account
+    except:
+        return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+
+    permission = any([request.user == user, request.user.is_staff])
+    if not permission:
+        return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
+
+    if "username" in request.data:
+        user.username = request.data["username"]
+
+    if "ownedProjectsOrder" in request.data:
+        account.set_ownedProjectsOrder(request.data["ownedProjectsOrder"])
+
+    if "sharedProjectsOrder" in request.data:
+        account.set_ownedProjectsOrder(request.data["sharedProjectsOrder"])
+
+    try:
+        user.save()
+        account.save()
+        account_data = {
+            "ownedProjectsOrder": account.get_ownedProjectsOrder(),
+            "sharedProjectsOrder": account.get_sharedProjectsOrder(),
+        }
+        return Response({**UserSerializer(user).data, **account_data})
+    except:
+        return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['GET'])
 def user_projects(request, pk):
     try:
         user = User.objects.get(pk=pk)
+        account = user.account
     except:
         return Response("User not found", status=status.HTTP_404_NOT_FOUND)
 
@@ -45,11 +79,11 @@ def user_projects(request, pk):
         return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
 
     owned = user.owned_projects.all()
-    owned_ids = [p.id for p in owned]
+    # owned_ids = [p.id for p in owned]
     owned_projects = {p.id: ProjectSerializer(p).data for p in owned}
 
     shared = user.shared_projects.all()
-    shared_ids = [p.id for p in shared]
+    # shared_ids = [p.id for p in shared]
     shared_projects = {p.id: ProjectSerializer(p).data for p in shared}
 
     all_projects = {**owned_projects, **shared_projects}
@@ -66,8 +100,8 @@ def user_projects(request, pk):
 
     return Response({
         "projects": all_projects,
-        "ownedIds": owned_ids,
-        "sharedIds": shared_ids,
+        "ownedIds": account.get_ownedProjectsOrder(),  # owned_ids,
+        "sharedIds": account.get_sharedProjectsOrder(),  # shared_ids,
         "users": {u.id: UserSerializer(u).data for u in members},
     })
 
@@ -84,6 +118,52 @@ class Project_Create(generics.CreateAPIView):
     def perform_create(self, serializer):
         owner = self.request.user
         serializer.save(owner=owner)
+
+
+@api_view(['POST'])
+def project_create(request):
+    if not request.user.is_authenticated:
+        return Respose("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
+
+    new_project = Project(owner=request.user, name=request.data['name'])
+    try:
+        new_project.save()
+    except:
+        return Response("DB error: project", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    account = request.user.account
+    user_projects = account.get_ownedProjectsOrder()
+    user_projects.append(new_project.id)
+    account.set_ownedProjectsOrder(user_projects)
+    try:
+        account.save()
+    except:
+        return Response("DB error: user", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response(ProjectSerializer(new_project).data)
+
+
+@api_view(['DELETE'])
+def project_delete(request, pk):
+    if not request.user.is_authenticated:
+        return Respose("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        p = Project.objects.get(pk=pk)
+    except:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
+
+    account = request.user.account
+    user_projects = account.get_ownedProjectsOrder()
+    user_projects.remove(p.id)
+    account.set_ownedProjectsOrder(user_projects)
+    try:
+        account.save()
+        p.delete()
+    except:
+        return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response({"detail": "Project deleted"})
 
 
 class Project_Detail(generics.RetrieveUpdateDestroyAPIView):
@@ -169,9 +249,15 @@ def project_leave(request, pk):
     if request.user not in members:
         return Response("Not a member", status=status.HTTP_400_BAD_REQUEST)
 
+    account = request.user.account
+    user_projects = account.get_sharedProjectsOrder()
+    user_projects.remove(pk)
+    account.set_sharedProjectsOrder(user_projects)
+
     try:
         p.members.remove(request.user)
         p.save()
+        account.save()
         return Response({"detail": "Leaved project"})
     except:
         return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -201,6 +287,11 @@ def invite_details(request, invite_code):
         if request.data['action'] == 'join':
             p.members.add(request.user)
             p.save()
+            account = request.user.account
+            user_projects = account.get_sharedProjectsOrder()
+            user_projects.append(pk)
+            account.set_sharedProjectsOrder(user_projects)
+            account.save()
             return Response(ProjectSerializer(p).data)
 
         else:

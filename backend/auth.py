@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse
 from django.urls import path
 
+from .models import Account
 from .serializers import UserSerializer
 
 
@@ -17,6 +18,8 @@ def register_view(request):
                     password=form.cleaned_data['password2']
                 )
                 user.save()
+                account = Account(user=user)
+                account.save()
                 login(request, user)
                 return JsonResponse(UserSerializer(user).data)
             except:
