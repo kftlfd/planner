@@ -1,258 +1,132 @@
-import { urls, csrftoken } from "./config";
+import { urls, methods, query, authQuery } from "./config";
 
-function queryConstructor(url = "", options = {}) {
-  return async () => {
-    let response = await fetch(url, options);
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error(await response.text());
-    }
-  };
-}
-
-function authQuery(url, formData) {
-  return async () => {
-    let response = await fetch(url, {
-      method: "POST",
-      headers: { "X-CSRFToken": csrftoken() },
-      body: formData,
-    });
-    if (response.ok) {
-      return {
-        ok: true,
-        user: await response.json(),
-      };
-    } else if (response.status === 406) {
-      return {
-        ok: false,
-        status: response.status,
-        formErrors: await response.json(),
-      };
-    } else {
-      return {
-        ok: false,
-        status: response.status,
-        error: await response.text(),
-      };
-    }
-  };
-}
+//
+// Auth
+//
 
 export const auth = {
-  async fetchUser() {
-    const response = await fetch(urls.login, {
-      method: "POST",
-      headers: { "X-CSRFToken": csrftoken() },
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error(await response.text());
-    }
-  },
-
   async register(formData) {
-    const q = authQuery(urls.register, formData);
-    return await q();
+    return await authQuery(urls.auth.register, formData);
   },
 
   async login(formData) {
-    const q = authQuery(urls.login, formData);
-    return await q();
+    return await authQuery(urls.auth.login, formData);
   },
 
   async logout() {
-    const response = await fetch(urls.logout);
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
+    return await authQuery(urls.auth.logout);
   },
 };
+
+//
+// User
+//
 
 export const user = {
-  async update(userId, update) {
-    const q = queryConstructor(urls.userUpdate(userId), {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(update),
-    });
-    return q();
+  async load() {
+    return await query(urls.auth.login, methods.post);
+  },
+
+  async update(userUpdate) {
+    return await query(urls.user.details, methods.patch, userUpdate);
+  },
+
+  async projects() {
+    return await query(urls.user.projects, methods.get);
   },
 };
 
-export const projects = {
-  async load(userId) {
-    const q = queryConstructor(urls.userProjects(userId));
-    return await q();
-  },
+//
+// Project
+//
 
+export const project = {
   async create(projectName) {
-    const q = queryConstructor(urls.projectCreate, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ name: projectName }),
+    return await query(urls.project.create, methods.post, {
+      name: projectName,
     });
-    return await q();
   },
 
   async update(projectId, projectUpdate) {
-    const q = queryConstructor(urls.projectDetails(projectId), {
-      method: "PATCH",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(projectUpdate),
-    });
-    return await q();
+    return await query(
+      urls.project.details(projectId),
+      methods.patch,
+      projectUpdate
+    );
   },
 
   async delete(projectId) {
-    let response = await fetch(urls.projectDelete(projectId), {
-      method: "DELETE",
-      headers: { "X-CSRFToken": csrftoken() },
-    });
-    if (response.ok) {
-      return;
-    } else {
-      throw new Error(await response.text());
-    }
+    return await query(urls.project.details(projectId), methods.delete);
   },
 
-  async leave(projectId) {
-    const q = queryConstructor(urls.projectLeave(projectId), {
-      method: "POST",
-      headers: { "X-CSRFToken": csrftoken() },
-    });
-    return await q();
+  async tasks(projectId) {
+    return await query(urls.project.tasks(projectId), methods.get);
   },
 
   sharing: {
     async enable(projectId) {
-      const q = queryConstructor(urls.projectSharing(projectId), {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": csrftoken(),
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ action: "sharing-update", sharing: true }),
+      return await query(urls.project.sharing(projectId), methods.post, {
+        sharing: true,
       });
-      return await q();
     },
 
     async disable(projectId) {
-      const q = queryConstructor(urls.projectSharing(projectId), {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": csrftoken(),
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ action: "sharing-update", sharing: false }),
+      return await query(urls.project.sharing(projectId), methods.post, {
+        sharing: false,
       });
-      return await q();
     },
   },
 
   invite: {
     async recreate(projectId) {
-      const q = queryConstructor(urls.projectSharing(projectId), {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": csrftoken(),
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ action: "invite-update", type: "recreate" }),
+      return await query(urls.project.sharing(projectId), methods.post, {
+        invite: "recreate",
       });
-      return await q();
     },
 
     async delete(projectId) {
-      const q = queryConstructor(urls.projectSharing(projectId), {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": csrftoken(),
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ action: "invite-update", type: "delete" }),
+      return await query(urls.project.sharing(projectId), methods.post, {
+        invite: "delete",
       });
-      return await q();
     },
   },
-};
 
-export const tasks = {
-  async load(projectId) {
-    const q = queryConstructor(urls.projectTasks(projectId));
-    return await q();
-  },
-
-  async create(projectId, taskTitle, userId) {
-    const q = queryConstructor(urls.taskCreate, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        project: projectId,
-        title: taskTitle,
-        user: userId,
-      }),
-    });
-    return await q();
-  },
-
-  async update(taskId, taskUpdate) {
-    const q = queryConstructor(urls.taskDetails(taskId), {
-      method: "PATCH",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(taskUpdate),
-    });
-    return await q();
-  },
-
-  async delete(taskId) {
-    let response = await fetch(urls.taskDetails(taskId), {
-      method: "DELETE",
-      headers: { "X-CSRFToken": csrftoken() },
-    });
-    if (response.ok) {
-      return;
-    } else {
-      throw new Error(await response.text());
-    }
+  async leave(projectId) {
+    return await query(urls.project.leave(projectId), methods.post);
   },
 };
+
+//
+// Invite
+//
 
 export const invite = {
   async get(inviteCode) {
-    const q = queryConstructor(urls.invite(inviteCode));
-    return await q();
+    return await query(urls.invite(inviteCode), methods.get);
   },
 
-  async post(inviteCode, action) {
-    let response = await fetch(urls.invite(inviteCode), {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrftoken(),
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ action: action }),
+  async join(inviteCode) {
+    return await query(urls.invite(inviteCode), methods.post);
+  },
+};
+
+//
+// Task
+//
+
+export const task = {
+  async create(projectId, taskTitle) {
+    return await query(urls.task.create, methods.post, {
+      project: projectId,
+      title: taskTitle,
     });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error(await response.text());
-    }
+  },
+
+  async update(taskId, taskUpdate) {
+    return await query(urls.task.details(taskId), methods.patch, taskUpdate);
+  },
+
+  async delete(taskId) {
+    return await query(urls.task.details(taskId), methods.delete);
   },
 };

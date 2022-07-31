@@ -1,5 +1,6 @@
 // https://docs.djangoproject.com/en/4.0/ref/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
-function getCookie(name) {
+function csrftoken() {
+  const name = "csrftoken";
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
@@ -15,45 +16,79 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const API = {
-  root: "/api/",
-  auth: "/auth/",
-  csrftoken: () => getCookie("csrftoken"),
-  register: "/auth/register",
-  login: "/auth/login",
-  logout: "/auth/logout",
-  userDetail: (n) => `/api/user/${n}/`,
-  userProjects: (n) => `/api/user/${n}/projects/`,
-  projectCreate: "/api/project/",
-  projectDetail: (n) => `/api/project/${n}/`,
-  projectTasks: (n) => `/api/project/${n}/tasks/`,
-  projectSharing: (n) => `/api/project/${n}/sharing/`,
-  taskCreate: "/api/task/",
-  taskDetail: (n) => `/api/task/${n}/`,
-  invite: (s) => `/api/invite/${s}/`,
-};
-export default API;
-
-export const csrftoken = () => getCookie("csrftoken");
-
 export const urls = {
-  register: "/auth/register",
-  login: "/auth/login",
-  logout: "/auth/logout",
+  auth: {
+    register: `/auth/register/`,
+    login: `/auth/login/`,
+    logout: `/auth/logout/`,
+  },
 
-  userDetails: (n) => `/api/user/${n}/`,
-  userUpdate: (n) => `/api/user/${n}/update/`,
-  userProjects: (n) => `/api/user/${n}/projects/`,
+  user: {
+    details: `/api/user/`,
+    projects: `/api/user/projects/`,
+  },
 
-  projectCreate: "/api/project/",
-  projectDetails: (n) => `/api/project/${n}/`,
-  projectTasks: (n) => `/api/project/${n}/tasks/`,
-  projectSharing: (n) => `/api/project/${n}/sharing/`,
-  projectLeave: (n) => `/api/project/${n}/leave/`,
-  projectDelete: (n) => `/api/project/${n}/delete/`,
+  project: {
+    create: `/api/project/`,
+    details: (id) => `/api/project/${id}/`,
+    tasks: (id) => `/api/project/${id}/tasks/`,
+    sharing: (id) => `/api/project/${id}/sharing/`,
+    leave: (id) => `/api/project/${id}/leave/`,
+  },
 
-  invite: (s) => `/api/invite/${s}/`,
+  invite: (code) => `/api/invite/${code}/`,
 
-  taskCreate: "/api/task/",
-  taskDetails: (n) => `/api/task/${n}/`,
+  task: {
+    create: `/api/task/`,
+    details: (id) => `/api/task/${id}/`,
+  },
 };
+
+export const methods = {
+  get: "GET",
+  post: "POST",
+  patch: "PATCH",
+  delete: "DELETE",
+};
+
+export async function query(url, method, body) {
+  const response = await fetch(url, {
+    method: method,
+    headers: {
+      "X-CSRFToken": csrftoken(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error(await response.text());
+  }
+}
+
+export async function authQuery(url, formData) {
+  const response = await fetch(url, {
+    method: methods.post,
+    headers: { "X-CSRFToken": csrftoken() },
+    body: formData,
+  });
+  if (response.ok) {
+    return {
+      ok: true,
+      user: await response.json(),
+    };
+  } else if (response.status === 406) {
+    return {
+      ok: false,
+      status: response.status,
+      formErrors: await response.json(),
+    };
+  } else {
+    return {
+      ok: false,
+      status: response.status,
+      error: await response.text(),
+    };
+  }
+}
