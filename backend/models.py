@@ -1,60 +1,44 @@
-import json
 from django.db import models
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser
 
 
-class Account(models.Model):
-    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    ownedProjectsOrder = models.TextField(default="[]")
-    sharedProjectsOrder = models.TextField(default="[]")
+def default_board():
+    return {
+        "columns": {'none': [], 'done': []},
+        "order": []
+    }
 
-    def get_ownedProjectsOrder(self):
-        return json.loads(self.ownedProjectsOrder)
 
-    def set_ownedProjectsOrder(self, val):
-        self.ownedProjectsOrder = json.dumps(val)
-
-    def get_sharedProjectsOrder(self):
-        return json.loads(self.sharedProjectsOrder)
-
-    def set_sharedProjectsOrder(self, val):
-        self.sharedProjectsOrder = json.dumps(val)
+class User(AbstractUser):
+    ownedProjectsOrder = models.JSONField(default=list, blank=True)
+    sharedProjectsOrder = models.JSONField(default=list, blank=True)
 
 
 class Project(models.Model):
-    owner = models.ForeignKey(
-        'auth.User', on_delete=models.CASCADE, related_name='owned_projects')
     name = models.CharField(max_length=150)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='owned_projects', blank=True)
     sharing = models.BooleanField(default=False)
     invite = models.CharField(
         max_length=10, blank=True, null=True, unique=True)
     members = models.ManyToManyField(
-        'auth.User', related_name='shared_projects')
-    online = models.ManyToManyField(
-        'auth.User', related_name='online_projects')
-
-
-class Task(models.Model):
-    user = models.ForeignKey(
-        'auth.User', on_delete=models.CASCADE, related_name='created_tasks')
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name='tasks')
-    title = models.CharField(max_length=150)
-    done = models.BooleanField(default=False)
-    notes = models.TextField(blank=True)
-    due = models.DateTimeField(blank=True, null=True)
+        User, related_name='shared_projects', blank=True)
+    tasksOrder = models.JSONField(default=list, blank=True)
+    board = models.JSONField(default=default_board)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    def clean(self):
-        if self.user != self.project.owner:
-            raise ValidationError(
-                {"project": "User can add tasks only to projects that they own."})
 
-
-class ChatMessage(models.Model):
+class Task(models.Model):
     project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name='chat_messages')
-    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    text = models.TextField()
-    time = models.DateTimeField(auto_now_add=True)
+        Project, on_delete=models.CASCADE, related_name='tasks')
+    userCreated = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='tasks_created')
+    userModified = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='tasks_modified')
+    title = models.CharField(max_length=150)
+    done = models.BooleanField(default=False)
+    notes = models.TextField(blank=True, default='')
+    due = models.DateTimeField(blank=True, null=True)
+    modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
