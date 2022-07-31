@@ -12,14 +12,12 @@ const usersSlice = createSlice({
   },
 
   reducers: {
-    setLoading(state, action) {
-      state.loading = action.payload;
-    },
     setUser(state, action) {
       const user = action.payload;
       state.userId = user.id;
       state.items[user.id] = user;
     },
+
     loadUsers(state, action) {
       state.items = {
         ...state.items,
@@ -44,10 +42,10 @@ const usersSlice = createSlice({
 });
 
 export const fetchUser = createAsyncThunk("users/fetchUser", async () => {
-  return api.auth.fetchUser();
+  return api.user.load();
 });
 
-export const { setLoading, setUser, loadUsers } = usersSlice.actions;
+export const { setUser, loadUsers } = usersSlice.actions;
 
 export default usersSlice.reducer;
 

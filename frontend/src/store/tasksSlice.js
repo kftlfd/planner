@@ -5,26 +5,24 @@ const tasksSlice = createSlice({
 
   initialState: {
     items: {},
-    idsByProject: {},
   },
 
   reducers: {
     loadTasks(state, action) {
-      const { tasks, projectId, ids } = action.payload;
       state.items = {
         ...state.items,
-        ...tasks,
+        ...action.payload,
       };
-      state.idsByProject[projectId] = ids;
     },
+
     addTask(state, action) {
-      const { task, projectId } = action.payload;
+      const task = action.payload;
       state.items = {
         ...state.items,
         [task.id]: task,
       };
-      state.idsByProject[projectId].push(task.id);
     },
+
     updateTask(state, action) {
       const task = action.payload;
       state.items[task.id] = {
@@ -32,12 +30,10 @@ const tasksSlice = createSlice({
         ...task,
       };
     },
+
     deleteTask(state, action) {
-      const { projectId, taskId } = action.payload;
-      delete state.items[taskId];
-      state.idsByProject[projectId] = state.idsByProject[projectId].filter(
-        (id) => id !== taskId
-      );
+      const task = action.payload;
+      delete state.items[task.id];
     },
   },
 });
@@ -52,8 +48,5 @@ export default tasksSlice.reducer;
 //
 
 export const selectAllTasks = (state) => state.tasks.items;
-
-export const selectProjectTasksIds = (projectId) => (state) =>
-  state.tasks.idsByProject[projectId];
 
 export const selectTaskById = (taskId) => (state) => state.tasks.items[taskId];
