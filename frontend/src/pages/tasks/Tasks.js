@@ -3,15 +3,21 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { useActions } from "../../context/ActionsContext";
-import { selectProjectTasksIds } from "../../store/tasksSlice";
+import {
+  selectProjectaTasksLoaded,
+  selectProjectTasksIds,
+} from "../../store/projectsSlice";
 import { TasksListView } from "./TasksListView";
 import { Sidebar } from "../../layout/Sidebar";
 import { TaskDetails } from "./TaskDetails";
 
 export default function Tasks(props) {
   const { projectId } = useParams();
+  const projectsTasksLoaded = useSelector(selectProjectaTasksLoaded);
   const taskIds = useSelector(selectProjectTasksIds(projectId));
   const actions = useActions();
+
+  const tasksLoaded = projectsTasksLoaded.includes(Number(projectId));
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
@@ -21,7 +27,7 @@ export default function Tasks(props) {
 
   useEffect(() => {
     setSelectedTask(null);
-    if (!taskIds) {
+    if (!tasksLoaded) {
       actions.task
         .loadTasks(projectId)
         .catch((err) => console.error("Failed loading tasks: ", err));
@@ -31,6 +37,7 @@ export default function Tasks(props) {
   return (
     <>
       <TasksListView
+        tasksLoaded={tasksLoaded}
         projectId={projectId}
         taskIds={taskIds}
         setSelectedTask={setSelectedTask}

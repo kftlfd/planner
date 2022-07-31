@@ -6,9 +6,15 @@ import { TaskCard } from "./TaskCard";
 import { Skeleton, Container } from "@mui/material";
 
 export function TasksListView(props) {
-  const { projectId, taskIds, setSelectedTask, taskDetailsToggle } = props;
+  const {
+    projectId,
+    tasksLoaded,
+    taskIds,
+    setSelectedTask,
+    taskDetailsToggle,
+  } = props;
 
-  if (!taskIds) {
+  if (!tasksLoaded) {
     return (
       <TaskListWrapper>
         {[...Array(4).keys()].map((x) => (

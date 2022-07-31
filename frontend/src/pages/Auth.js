@@ -51,7 +51,7 @@ export function Register() {
     event.preventDefault();
     setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
-    let resp = await actions.user.register(formData);
+    let resp = await actions.auth.register(formData);
     if (!resp) {
       setState((prev) => ({ ...prev, loading: false, success: true }));
       setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
@@ -190,7 +190,7 @@ export function Login() {
     event.preventDefault();
     setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
-    let resp = await actions.user.login(formData);
+    let resp = await actions.auth.login(formData);
     if (!resp) {
       setState((prev) => ({ ...prev, loading: false, success: true }));
       setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
