@@ -109,8 +109,6 @@ def project_tasks(request, pk):
 
     return Response({
         'tasks': {t.id: TaskSerializer(t).data for t in tasks},
-        'tasksOrder': project.tasksOrder,
-        'board': project.board,
         'members': {u.id: UserBasicSerializer(u).data for u in [m for m in members] + [project.owner]}
     })
 
