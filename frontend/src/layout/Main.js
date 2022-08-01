@@ -116,7 +116,14 @@ export function MainHeader(props) {
 
 export function MainBody(props) {
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box
+      sx={{
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
       <Toolbar />
       {props.children}
     </Box>
