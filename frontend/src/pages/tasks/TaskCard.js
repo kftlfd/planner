@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 
 export function TaskCard(props) {
-  const { taskId, openDetails } = props;
+  const { taskId, openDetails, children } = props;
   const hideDoneTasks = useSelector(selectHideDoneTasks);
   const task = useSelector(selectTaskById(taskId));
   const actions = useActions();
@@ -43,8 +43,11 @@ export function TaskCard(props) {
             display: "flex",
             justifyContent: "start",
             alignItems: "flex-start",
+            opacity: doneValue ? 0.5 : 1,
           }}
         >
+          {children}
+
           <Box sx={{ padding: "0.5rem" }}>
             <Checkbox
               sx={{ padding: "0.5rem" }}
@@ -55,7 +58,12 @@ export function TaskCard(props) {
 
           <Box
             onClick={openDetails}
-            sx={{ flexGrow: 1, padding: "1rem", paddingLeft: 0 }}
+            sx={{
+              flexGrow: 1,
+              padding: "1rem",
+              paddingLeft: 0,
+              textDecoration: doneValue ? "line-through" : "none",
+            }}
           >
             <Typography variant="body1">{task.title}</Typography>
             <Typography variant="body2">{task.notes}</Typography>

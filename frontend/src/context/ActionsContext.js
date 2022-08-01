@@ -92,6 +92,12 @@ export default function ProvideActions(props) {
       dispatch(projectsSlice.updateProject(project));
     },
 
+    async updateTasksOrder(project) {
+      dispatch(projectsSlice.updateProject(project));
+      api.project.update(project.id, project);
+      ws.send("project/update", `${project.id}`, { project });
+    },
+
     async delete(projectId) {
       await api.project.delete(projectId);
       ws.send("project/stopSharing", `${projectId}`, { projectId });
