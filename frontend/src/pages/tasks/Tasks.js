@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { useActions } from "../../context/ActionsContext";
@@ -8,11 +8,13 @@ import {
   selectProjectTasksIds,
 } from "../../store/projectsSlice";
 import { TasksListView } from "./TasksListView";
+import { TasksBoardView } from "./TasksBoardView";
 import { Sidebar } from "../../layout/Sidebar";
 import { TaskDetails } from "./TaskDetails";
 
 export default function Tasks(props) {
   const { projectId } = useParams();
+  const { view } = useOutletContext();
   const projectsTasksLoaded = useSelector(selectProjectaTasksLoaded);
   const taskIds = useSelector(selectProjectTasksIds(projectId));
   const actions = useActions();
@@ -34,15 +36,21 @@ export default function Tasks(props) {
     }
   }, [projectId]);
 
+  const viewProps = {
+    tasksLoaded: tasksLoaded,
+    projectId: projectId,
+    taskIds: taskIds,
+    setSelectedTask: setSelectedTask,
+    taskDetailsToggle: taskDetailsToggle,
+  };
+
   return (
     <>
-      <TasksListView
-        tasksLoaded={tasksLoaded}
-        projectId={projectId}
-        taskIds={taskIds}
-        setSelectedTask={setSelectedTask}
-        taskDetailsToggle={taskDetailsToggle}
-      />
+      {view === "list" ? (
+        <TasksListView {...viewProps} />
+      ) : view === "board" ? (
+        <TasksBoardView {...viewProps} />
+      ) : null}
 
       <Sidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
         <TaskDetails

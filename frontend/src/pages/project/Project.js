@@ -6,17 +6,47 @@ import { selectProjectById } from "../../store/projectsSlice";
 import { MainHeader, MainBody } from "../../layout/Main";
 import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 
-import { Typography, Box, IconButton } from "@mui/material";
+import {
+  Typography,
+  Box,
+  IconButton,
+  ButtonGroup,
+  Button,
+} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 
 export default function Project(props) {
   const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
 
+  const [view, setView] = React.useState("list");
+
   return (
     <>
       <MainHeader title={project ? project.name : null}>
-        {project ? <ProjectOptionsMenu /> : null}
+        {project ? (
+          <Box sx={{ display: "flex", gap: "1rem" }}>
+            <ButtonGroup size="small" disableElevation>
+              <Button
+                value={"list"}
+                variant={view === "list" ? "contained" : "outlined"}
+                onClick={() => setView("list")}
+              >
+                <ViewListIcon />
+              </Button>
+              <Button
+                value={"board"}
+                variant={view === "board" ? "contained" : "outlined"}
+                onClick={() => setView("board")}
+              >
+                <ViewColumnIcon />
+              </Button>
+            </ButtonGroup>
+            <ProjectOptionsMenu />
+          </Box>
+        ) : null}
       </MainHeader>
 
       <MainBody>
@@ -25,7 +55,7 @@ export default function Project(props) {
         ) : !project ? (
           <Navigate to="/project/" />
         ) : (
-          <Outlet />
+          <Outlet context={{ view }} />
         )}
       </MainBody>
     </>
