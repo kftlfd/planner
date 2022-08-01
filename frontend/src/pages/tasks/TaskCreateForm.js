@@ -29,7 +29,14 @@ export function TaskCreateForm(props) {
     <Paper
       component="form"
       onSubmit={handleCreateTask}
-      sx={{ display: "flex", marginBottom: "1.5rem", padding: "0.3rem 1rem" }}
+      sx={{
+        flexGrow: 1,
+        display: "flex",
+        height: "2.5rem",
+        marginBottom: "1.5rem",
+        padding: "0.3rem 1rem",
+        ...props.sx,
+      }}
     >
       <InputBase
         type={"text"}
@@ -42,7 +49,12 @@ export function TaskCreateForm(props) {
           input: { sx: { padding: "0" } },
         }}
       />
-      <Button type={"submit"} disabled={!taskCreateTitle} size={"small"}>
+      <Button
+        type={"submit"}
+        disabled={!taskCreateTitle}
+        size={"small"}
+        sx={{ flexShrink: 0 }}
+      >
         + Add task
       </Button>
     </Paper>
