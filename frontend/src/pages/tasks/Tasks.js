@@ -12,6 +12,8 @@ import { TasksBoardView } from "./TasksBoardView";
 import { Sidebar } from "../../layout/Sidebar";
 import { TaskDetails } from "./TaskDetails";
 
+import { Typography } from "@mui/material";
+
 export default function Tasks(props) {
   const { projectId } = useParams();
   const { view } = useOutletContext();
@@ -60,5 +62,21 @@ export default function Tasks(props) {
         />
       </Sidebar>
     </>
+  );
+}
+
+export function NoTasks() {
+  return (
+    <Typography
+      variant="h4"
+      align="center"
+      sx={{
+        marginTop: "3rem",
+        fontWeight: "fontWeightLight",
+        color: "text.primary",
+      }}
+    >
+      No tasks
+    </Typography>
   );
 }
