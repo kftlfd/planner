@@ -43,6 +43,10 @@ export default function ProvideActions(props) {
     },
   };
 
+  //
+  // Auth
+  //
+
   const auth = {
     async register(formData) {
       const resp = await api.auth.register(formData);
@@ -62,6 +66,10 @@ export default function ProvideActions(props) {
     },
   };
 
+  //
+  // User
+  //
+
   const user = {
     async updateProjectsOrder(type, newOrder) {
       if (type === "owned") {
@@ -73,6 +81,10 @@ export default function ProvideActions(props) {
       }
     },
   };
+
+  //
+  // Project
+  //
 
   const project = {
     async loadProjects() {
@@ -137,6 +149,32 @@ export default function ProvideActions(props) {
     },
   };
 
+  //
+  // Invite
+  //
+
+  const invite = {
+    async get(inviteCode) {
+      return await api.invite.get(inviteCode);
+    },
+
+    async join(inviteCode) {
+      const project = await api.invite.join(inviteCode);
+      ws.join([`${project.id}`]);
+      ws.send("project/addMember", `${project.id}`, {
+        projectId: project.id,
+        userId,
+        userObj,
+      });
+      dispatch(projectsSlice.addSharedProject(project));
+      return project;
+    },
+  };
+
+  //
+  // Task
+  //
+
   const task = {
     async loadTasks(projectId) {
       const response = await api.project.tasks(projectId);
@@ -167,27 +205,11 @@ export default function ProvideActions(props) {
     },
   };
 
-  const invite = {
-    async get(inviteCode) {
-      return await api.invite.get(inviteCode);
-    },
-
-    async join(inviteCode) {
-      const project = await api.invite.join(inviteCode);
-      ws.join([`${project.id}`]);
-      ws.send("project/addMember", `${project.id}`, {
-        projectId: project.id,
-        userId,
-        userObj,
-      });
-      dispatch(projectsSlice.addSharedProject(project));
-      return project;
-    },
-  };
+  //
+  // WebSocket
+  //
 
   React.useEffect(() => {
-    // setup websocket
-
     if (webSocket) webSocket.close();
 
     if (userId !== null && !projectsLoading) {
