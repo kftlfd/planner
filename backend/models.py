@@ -4,8 +4,16 @@ from django.contrib.auth.models import AbstractUser
 
 def default_board():
     return {
-        "columns": {'none': [], 'done': []},
-        "order": []
+        "columns": {
+            "col-0": {
+                "id": "col-0",
+                "name": "In progress",
+                "taskIds": []
+            }
+        },
+        "order": ["col-0"],
+        "none": [],
+        "lastColId": 0,
     }
 
 

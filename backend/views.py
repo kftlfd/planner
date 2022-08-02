@@ -230,7 +230,7 @@ class Task_Create(generics.CreateAPIView):
         serializer.save(project=p, userCreated=u, userModified=u)
 
         p.tasksOrder.append(serializer.data['id'])
-        p.board['columns']['none'].append(serializer.data['id'])
+        p.board['none'].append(serializer.data['id'])
         p.save()
 
 
@@ -253,6 +253,9 @@ class Task_Details(generics.RetrieveUpdateDestroyAPIView):
 
         if t_id in p.tasksOrder:
             p.tasksOrder.remove(t_id)
+
+        if t_id in p.board['none'][col]:
+            p.board['none'].remove(t_id)
 
         for col in p.board['columns']:
             if t_id in p.board['columns'][col]:
