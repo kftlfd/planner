@@ -4,8 +4,10 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
 import { TaskCard } from "./TaskCard";
+import { NoTasks } from "./Tasks";
+import { BaseSkeleton } from "../../layout/Loading";
 
-import { Skeleton, Container, Box } from "@mui/material";
+import { Container, Box } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 export function TasksListView(props) {
@@ -37,50 +39,53 @@ export function TasksListView(props) {
   }
 
   if (!tasksLoaded) {
-    return (
-      <TaskListWrapper>
-        {[...Array(4).keys()].map((x) => (
-          <Skeleton key={x} height={60} animation="wave" />
-        ))}
-      </TaskListWrapper>
-    );
+    return <LoadingList />;
   }
 
   return (
-    <TaskListWrapper>
+    <>
       <TaskCreateForm projectId={projectId} />
 
-      <DragDropContext onDragEnd={updateTasksOrder}>
-        <Droppable droppableId="tasksListView">
-          {(provided) => (
-            <Box ref={provided.innerRef} {...provided.droppableProps}>
-              {taskIds.map((taskId, index) => (
-                <Draggable
-                  key={`${taskId}`}
-                  draggableId={`${taskId}`}
-                  index={index}
-                >
-                  {(provided, snapshot) => (
-                    <Box ref={provided.innerRef} {...provided.draggableProps}>
-                      <TaskCard
-                        taskId={taskId}
-                        openDetails={() => {
-                          setSelectedTask(taskId);
-                          taskDetailsToggle();
-                        }}
-                      >
-                        <DragHandle {...provided.dragHandleProps} />
-                      </TaskCard>
-                    </Box>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Box>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </TaskListWrapper>
+      {taskIds.length === 0 ? (
+        <NoTasks />
+      ) : (
+        <TaskListWrapper>
+          <DragDropContext onDragEnd={updateTasksOrder}>
+            <Droppable droppableId="tasksListView">
+              {(provided) => (
+                <Box ref={provided.innerRef} {...provided.droppableProps}>
+                  {taskIds.map((taskId, index) => (
+                    <Draggable
+                      key={`${taskId}`}
+                      draggableId={`${taskId}`}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <Box
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                        >
+                          <TaskCard
+                            taskId={taskId}
+                            openDetails={() => {
+                              setSelectedTask(taskId);
+                              taskDetailsToggle();
+                            }}
+                          >
+                            <DragHandle {...provided.dragHandleProps} />
+                          </TaskCard>
+                        </Box>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </Box>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </TaskListWrapper>
+      )}
+    </>
   );
 }
 
@@ -88,7 +93,7 @@ function TaskListWrapper({ children }) {
   return (
     <Container
       maxWidth="md"
-      sx={{ paddingTop: { xs: "1rem", sm: "1.5rem" }, paddingBottom: "3rem" }}
+      sx={{ paddingBottom: { xs: "1rem", sm: "1.5rem" } }}
     >
       {children}
     </Container>
@@ -107,5 +112,22 @@ function DragHandle(props) {
     >
       <DragIndicatorIcon />
     </Box>
+  );
+}
+
+function LoadingList() {
+  return (
+    <>
+      <TaskCreateForm loading={true} />
+      <TaskListWrapper>
+        {[...Array(4).keys()].map((x) => (
+          <BaseSkeleton
+            key={x}
+            height={"56px"}
+            sx={{ marginBottom: "0.5rem" }}
+          />
+        ))}
+      </TaskListWrapper>
+    </>
   );
 }
