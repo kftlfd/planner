@@ -1,4 +1,4 @@
-import { urls, methods, query, authQuery } from "./config";
+import { urls, methods, query, authQuery, queryNoResponse } from "./config";
 
 //
 // Auth
@@ -56,7 +56,10 @@ export const project = {
   },
 
   async delete(projectId) {
-    return await query(urls.project.details(projectId), methods.delete);
+    return await queryNoResponse(
+      urls.project.details(projectId),
+      methods.delete
+    );
   },
 
   async tasks(projectId) {
@@ -127,6 +130,6 @@ export const task = {
   },
 
   async delete(taskId) {
-    return await query(urls.task.details(taskId), methods.delete);
+    return await queryNoResponse(urls.task.details(taskId), methods.delete);
   },
 };

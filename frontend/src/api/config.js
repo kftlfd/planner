@@ -92,3 +92,17 @@ export async function authQuery(url, formData) {
     };
   }
 }
+
+export async function queryNoResponse(url, method, body) {
+  const response = await fetch(url, {
+    method: method,
+    headers: {
+      "X-CSRFToken": csrftoken(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
