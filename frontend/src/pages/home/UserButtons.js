@@ -47,7 +47,7 @@ export function UserButtons(props) {
             <ListItemText>Settings</ListItemText>
           </ListItemButton>
 
-          <ListItemButton key="logout-button" onClick={actions.user.logout}>
+          <ListItemButton key="logout-button" onClick={actions.auth.logout}>
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
