@@ -77,13 +77,16 @@ const projectsSlice = createSlice({
     addNewTask(state, action) {
       const task = action.payload;
       state.items[task.project].tasksOrder.push(task.id);
-      state.items[task.project].board.columns.none.push(task.id);
+      state.items[task.project].board.none.push(task.id);
     },
     deleteTask(state, action) {
       const task = action.payload;
       state.items[task.project].tasksOrder = state.items[
         task.project
       ].tasksOrder.filter((id) => id !== task.id);
+      state.items[task.project].board.none = state.items[
+        task.project
+      ].board.none.filter((id) => id !== task.id);
       Object.keys(state.items[task.project].board.columns).forEach((col) => {
         state.items[task.project].board.columns[col] = state.items[
           task.project
