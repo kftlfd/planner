@@ -9,6 +9,7 @@ import {
 } from "../../store/projectsSlice";
 import { TasksListView } from "./TasksListView";
 import { TasksBoardView } from "./TasksBoardView";
+import { TasksCalendarView } from "./TasksCalendarView";
 import { Sidebar } from "../../layout/Sidebar";
 import { TaskDetails } from "./TaskDetails";
 
@@ -52,6 +53,8 @@ export default function Tasks(props) {
         <TasksListView {...viewProps} />
       ) : view === "board" ? (
         <TasksBoardView {...viewProps} />
+      ) : view === "calendar" ? (
+        <TasksCalendarView {...viewProps} />
       ) : null}
 
       <Sidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>

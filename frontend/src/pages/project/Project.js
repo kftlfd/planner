@@ -16,6 +16,7 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 export default function Project(props) {
   const { projectId } = useParams();
@@ -23,26 +24,28 @@ export default function Project(props) {
 
   const [view, setView] = React.useState("list");
 
+  function ViewButton(props) {
+    const { viewName, icon } = props;
+    return (
+      <Button
+        value={viewName}
+        variant={view === viewName ? "contained" : "outlined"}
+        onClick={() => setView(viewName)}
+      >
+        {icon}
+      </Button>
+    );
+  }
+
   return (
     <>
       <MainHeader title={project ? project.name : null}>
         {project ? (
-          <Box sx={{ display: "flex", gap: "1rem" }}>
+          <Box sx={{ display: "flex", gap: "1rem", marginLeft: "1rem" }}>
             <ButtonGroup size="small" disableElevation>
-              <Button
-                value={"list"}
-                variant={view === "list" ? "contained" : "outlined"}
-                onClick={() => setView("list")}
-              >
-                <ViewListIcon />
-              </Button>
-              <Button
-                value={"board"}
-                variant={view === "board" ? "contained" : "outlined"}
-                onClick={() => setView("board")}
-              >
-                <ViewColumnIcon />
-              </Button>
+              <ViewButton viewName="list" icon={<ViewListIcon />} />
+              <ViewButton viewName="board" icon={<ViewColumnIcon />} />
+              <ViewButton viewName="calendar" icon={<CalendarMonthIcon />} />
             </ButtonGroup>
             <ProjectOptionsMenu />
           </Box>
