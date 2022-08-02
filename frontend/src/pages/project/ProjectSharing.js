@@ -112,9 +112,11 @@ export function ProjectSharing(props) {
             <>{sharingDisabled}</>
           ) : (
             <>
-              {isOwned && (
-                <InviteLink projectId={projectId} inviteCode={project.invite} />
-              )}
+              <InviteLink
+                projectId={projectId}
+                inviteCode={project.invite}
+                canEdit={isOwned}
+              />
 
               <ProjectMembers projectId={projectId} />
             </>
@@ -260,13 +262,17 @@ function InviteLink(props) {
         </Card>
       </Tooltip>
 
-      <IconButton onClick={handleInviteRecreate}>
-        <ChangeCircleIcon />
-      </IconButton>
+      {props.canEdit && (
+        <>
+          <IconButton onClick={handleInviteRecreate}>
+            <ChangeCircleIcon />
+          </IconButton>
 
-      <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
-        <CancelIcon />
-      </IconButton>
+          <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
+            <CancelIcon />
+          </IconButton>
+        </>
+      )}
     </Box>
   );
 }
@@ -292,6 +298,8 @@ function ProjectMembers({ projectId }) {
 
 function MemberListItem({ userId, owner }) {
   const user = useSelector(selectUserById(userId));
+
+  if (!user) return <div>???</div>;
 
   return (
     <Box
