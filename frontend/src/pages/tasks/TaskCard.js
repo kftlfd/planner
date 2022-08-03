@@ -66,8 +66,12 @@ export function TaskCard(props) {
             }}
           >
             <Typography variant="body1">{task.title}</Typography>
-            <Typography variant="body2">{task.notes}</Typography>
-            <Typography variant="body2">{task.due}</Typography>
+            <Typography variant="caption" component="div">
+              {task.notes}
+            </Typography>
+            <Typography variant="caption" component="div" align="right">
+              {task.due}
+            </Typography>
           </Box>
         </CardActionArea>
       </Card>
