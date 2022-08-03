@@ -35,18 +35,24 @@ export default function ProvideTheme({ children }) {
     [mode]
   );
 
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-          background: {
-            light: "aliceblue",
-          },
+  const theme = React.useMemo(() => {
+    const defaultTheme = createTheme({
+      palette: { mode },
+    });
+
+    return createTheme({
+      palette: {
+        mode,
+        background: {
+          light: "aliceblue",
         },
-      }),
-    [mode]
-  );
+        chat: {
+          bg: mode === "light" ? "aliceblue" : "rgba(0,0,0,0.6)",
+          msg: mode === "light" ? "white" : defaultTheme.palette.action.hover,
+        },
+      },
+    });
+  }, [mode]);
 
   return (
     <ColorModeContext.Provider value={colorMode}>

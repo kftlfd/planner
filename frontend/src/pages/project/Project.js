@@ -7,6 +7,7 @@ import { selectProjectById } from "../../store/projectsSlice";
 import { useActions } from "../../context/ActionsContext";
 import { MainHeader, MainBody } from "../../layout/Main";
 import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
+import { ProjectChat } from "./ProjectChat";
 
 import {
   Typography,
@@ -44,6 +45,7 @@ export default function Project(props) {
       <MainHeader title={project ? project.name : null}>
         {project ? (
           <Box sx={{ display: "flex", gap: "1rem", marginLeft: "1rem" }}>
+            {project.sharing && <ProjectChat />}
             <ButtonGroup size="small" disableElevation>
               <ViewButton viewName="list" icon={<ViewListIcon />} />
               <ViewButton viewName="board" icon={<ViewColumnIcon />} />
