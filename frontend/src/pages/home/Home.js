@@ -7,6 +7,8 @@ import {
   selectProjectIds,
   selectSharedProjectIds,
 } from "../../store/projectsSlice";
+import { selectNavDrawerOpen } from "../../store/settingsSlice";
+import { useActions } from "../../context/ActionsContext";
 import { Main, MainDrawer } from "../../layout/Main";
 import { UserButtons } from "./UserButtons";
 import { ProjectsButtons } from "./ProjectsButtons";
@@ -23,12 +25,18 @@ export default function Home(props) {
 
   const ownedProjectIds = useSelector(selectProjectIds);
   const sharedProjectIds = useSelector(selectSharedProjectIds);
+  const navDrawer = useSelector(selectNavDrawerOpen);
+  const actions = useActions();
 
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [drawerOpen, setDrawerOpen] = useState(!smallScreen);
-  const drawerToggle = () => setDrawerOpen((drawerOpen) => !drawerOpen);
+  const navDrawerOpen = navDrawer === null ? !smallScreen : navDrawer;
+  const [drawerOpen, setDrawerOpen] = useState(navDrawerOpen);
+  const drawerToggle = () => {
+    setDrawerOpen((drawerOpen) => !drawerOpen);
+    actions.settings.toggleNavDrawer();
+  };
   const handleCloseDrawer = () => {
     if (smallScreen) drawerToggle();
   };

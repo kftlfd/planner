@@ -1,23 +1,20 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
+import { selectHideDoneTasks } from "../../store/settingsSlice";
+import { useActions } from "../../context/ActionsContext";
 import { MenuListItem } from "./ProjectOprionsMenu";
 
-import {
-  selectHideDoneTasks,
-  toggleHideDoneTasks,
-} from "../../store/settingsSlice";
-
-import { Box, MenuItem, Switch } from "@mui/material";
+import { Switch } from "@mui/material";
 
 export function ProjectHideDoneToggle(props) {
   const hideDone = useSelector(selectHideDoneTasks);
-  const dispatch = useDispatch();
+  const actions = useActions();
 
   const [checked, setChecked] = useState(hideDone);
   const toggleChecked = () => {
     setChecked((x) => !x);
-    dispatch(toggleHideDoneTasks());
+    actions.settings.toggleHideDoneTasks();
   };
 
   return (

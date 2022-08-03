@@ -5,6 +5,7 @@ import * as api from "../api/client";
 import * as usersSlice from "../store/usersSlice";
 import * as projectsSlice from "../store/projectsSlice";
 import * as tasksSlice from "../store/tasksSlice";
+import * as settingsSlice from "../store/settingsSlice";
 
 const ActionsContext = React.createContext();
 
@@ -206,6 +207,24 @@ export default function ProvideActions(props) {
   };
 
   //
+  // Settings
+  //
+
+  const settings = {
+    toggleNavDrawer() {
+      dispatch(settingsSlice.toggleNavDrawer());
+    },
+
+    toggleHideDoneTasks() {
+      dispatch(settingsSlice.toggleHideDoneTasks());
+    },
+
+    setProjectView(view) {
+      dispatch(settingsSlice.setProjectView(view));
+    },
+  };
+
+  //
   // WebSocket
   //
 
@@ -279,7 +298,9 @@ export default function ProvideActions(props) {
   }, [userId, projectsLoading]);
 
   return (
-    <ActionsContext.Provider value={{ auth, user, project, task, invite }}>
+    <ActionsContext.Provider
+      value={{ auth, user, project, task, invite, settings }}
+    >
       {props.children}
     </ActionsContext.Provider>
   );

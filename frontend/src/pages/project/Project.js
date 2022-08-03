@@ -2,7 +2,9 @@ import React from "react";
 import { useParams, Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import { selectProjectView } from "../../store/settingsSlice";
 import { selectProjectById } from "../../store/projectsSlice";
+import { useActions } from "../../context/ActionsContext";
 import { MainHeader, MainBody } from "../../layout/Main";
 import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 
@@ -21,8 +23,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 export default function Project(props) {
   const { projectId } = useParams();
   const project = useSelector(selectProjectById(projectId));
-
-  const [view, setView] = React.useState("list");
+  const view = useSelector(selectProjectView);
+  const actions = useActions();
 
   function ViewButton(props) {
     const { viewName, icon } = props;
@@ -30,7 +32,7 @@ export default function Project(props) {
       <Button
         value={viewName}
         variant={view === viewName ? "contained" : "outlined"}
-        onClick={() => setView(viewName)}
+        onClick={() => actions.settings.setProjectView(viewName)}
       >
         {icon}
       </Button>
