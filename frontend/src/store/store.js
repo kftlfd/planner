@@ -4,6 +4,7 @@ import settingsReducer from "./settingsSlice";
 import usersReducer from "./usersSlice";
 import projectsReducer from "./projectsSlice";
 import tasksReducer from "./tasksSlice";
+import chatReducer from "./chatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,5 +12,6 @@ export const store = configureStore({
     users: usersReducer,
     projects: projectsReducer,
     tasks: tasksReducer,
+    chat: chatReducer,
   },
 });

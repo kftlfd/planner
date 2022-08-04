@@ -66,6 +66,10 @@ export const project = {
     return await query(urls.project.tasks(projectId), methods.get);
   },
 
+  async chat(projectId) {
+    return await query(urls.project.chat(projectId), methods.get);
+  },
+
   sharing: {
     async enable(projectId) {
       return await query(urls.project.sharing(projectId), methods.post, {
@@ -131,5 +135,18 @@ export const task = {
 
   async delete(taskId) {
     return await queryNoResponse(urls.task.details(taskId), methods.delete);
+  },
+};
+
+//
+// ChatMessage
+//
+
+export const chat = {
+  async createMessage(projectId, text) {
+    return await query(urls.chat, methods.post, {
+      project: projectId,
+      text,
+    });
   },
 };

@@ -6,6 +6,7 @@ import * as usersSlice from "../store/usersSlice";
 import * as projectsSlice from "../store/projectsSlice";
 import * as tasksSlice from "../store/tasksSlice";
 import * as settingsSlice from "../store/settingsSlice";
+import * as chatSlice from "../store/chatSlice";
 
 const ActionsContext = React.createContext();
 
@@ -207,6 +208,24 @@ export default function ProvideActions(props) {
   };
 
   //
+  // Chat
+  //
+
+  const chat = {
+    async load(projectId) {
+      const messages = await api.project.chat(projectId);
+      dispatch(chatSlice.loadMessages({ projectId, messages }));
+    },
+
+    async newMessage(projectId, text) {
+      const message = await api.chat.createMessage(projectId, text);
+      const payload = { projectId, message };
+      dispatch(chatSlice.addMessage(payload));
+      ws.send("chat/newMessage", `${projectId}`, { payload });
+    },
+  };
+
+  //
   // Settings
   //
 
@@ -286,6 +305,10 @@ export default function ProvideActions(props) {
             dispatch(tasksSlice.deleteTask(message.task));
             dispatch(projectsSlice.deleteTask(message.task));
             break;
+
+          case "chat/newMessage":
+            dispatch(chatSlice.addMessage(message.payload));
+            break;
         }
       };
 
@@ -299,7 +322,7 @@ export default function ProvideActions(props) {
 
   return (
     <ActionsContext.Provider
-      value={{ auth, user, project, task, invite, settings }}
+      value={{ auth, user, project, task, invite, chat, settings }}
     >
       {props.children}
     </ActionsContext.Provider>

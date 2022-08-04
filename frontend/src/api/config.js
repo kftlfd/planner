@@ -32,6 +32,7 @@ export const urls = {
     create: `/api/project/`,
     details: (id) => `/api/project/${id}/`,
     tasks: (id) => `/api/project/${id}/tasks/`,
+    chat: (id) => `/api/project/${id}/chat/`,
     sharing: (id) => `/api/project/${id}/sharing/`,
     leave: (id) => `/api/project/${id}/leave/`,
   },
@@ -42,6 +43,8 @@ export const urls = {
     create: `/api/task/`,
     details: (id) => `/api/task/${id}/`,
   },
+
+  chat: `/api/chat/`,
 };
 
 export const methods = {
