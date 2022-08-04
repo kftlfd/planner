@@ -3,9 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { selectLoadingUser, fetchUser, selectUser } from "./store/usersSlice";
-import { selectLoadingProjects, fetchProjects } from "./store/projectsSlice";
+import { selectLoadingProjects } from "./store/projectsSlice";
 import { useActions } from "./context/ActionsContext";
-import LoadingApp from "./pages/Loading";
+import { SplashScreen } from "./layout/Loading";
 import Home from "./pages/home/Home";
 import Project from "./pages/project/Project";
 import Tasks from "./pages/tasks/Tasks";
@@ -28,7 +28,6 @@ export default function App() {
 
   React.useEffect(() => {
     if (user && loadingProjects) {
-      // dispatch(fetchProjects(user.id)());
       actions.project.loadProjects(user.id);
     }
   }, [user, loadingProjects]);
@@ -36,9 +35,9 @@ export default function App() {
   return React.useMemo(
     () =>
       loadingUser ? (
-        <LoadingApp />
+        <SplashScreen />
       ) : user && loadingProjects ? (
-        <LoadingApp message={"Loading projects"} />
+        <SplashScreen message={"Loading projects"} />
       ) : (
         <Routes>
           <Route path="/" element={<Home />}>

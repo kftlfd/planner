@@ -7,7 +7,7 @@ export function CenterCard(props) {
       maxWidth={props.ContainerWidth || "xs"}
       sx={{ marginBlock: "5rem", ...props.sx }}
     >
-      <Card sx={{ padding: "3rem" }}>{props.children}</Card>
+      <Card sx={{ padding: "3rem", ...props.cardSx }}>{props.children}</Card>
     </Container>
   );
 }
