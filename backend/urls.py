@@ -13,6 +13,7 @@ urlpatterns = [
     path('project/', views.Project_Create.as_view()),
     path('project/<int:pk>/', views.Project_Details.as_view()),
     path('project/<int:pk>/tasks/', views.project_tasks),
+    path('project/<int:pk>/chat/', views.project_chat),
     path('project/<int:pk>/sharing/', views.project_sharing),
     path('project/<int:pk>/leave/', views.project_leave),
 
@@ -20,6 +21,8 @@ urlpatterns = [
 
     path('task/', views.Task_Create.as_view()),
     path('task/<int:pk>/', views.Task_Details.as_view()),
+
+    path('chat/', views.ChatMessage_Create.as_view()),
 
     re_path('.*', views.bad_request),
 ]

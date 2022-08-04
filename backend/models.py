@@ -50,3 +50,12 @@ class Task(models.Model):
     due = models.DateTimeField(blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+
+class ChatMessage(models.Model):
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='chat_messages')
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='user_messages', null=True)
+    text = models.TextField()
+    time = models.DateTimeField(auto_now_add=True)

@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.serializers import ValidationError
 
-from .models import User, Project, Task
+from .models import User, Project, Task, ChatMessage
 from .serializers import UserBasicSerializer, UserFullSerializer
-from .serializers import ProjectSerializer, TaskSerializer
+from .serializers import ProjectSerializer, TaskSerializer, ChatMessageSerializer
 from .permissions import ProjectPermission, TaskPermission
 from .utils import new_invite_code
 
@@ -113,6 +113,25 @@ def project_tasks(request, pk):
     })
 
 
+@api_view(['GET'])
+def project_chat(request, pk):
+    try:
+        project = Project.objects.get(pk=pk)
+    except:
+        return Response('Project not found', status=status.HTTP_404_NOT_FOUND)
+
+    members = project.members.all()
+    permission = any([request.user == project.owner,
+                     request.user in members,
+                     request.user.is_staff])
+    if not permission:
+        return Response('No permissions', status=status.HTTP_403_FORBIDDEN)
+
+    messages = ChatMessage.objects.filter(project=project).order_by('id')
+
+    return Response([ChatMessageSerializer(m).data for m in messages])
+
+
 @api_view(['POST'])
 def project_sharing(request, pk):
     try:
@@ -138,6 +157,7 @@ def project_sharing(request, pk):
         p.members.clear()
         p.sharing = False
         p.invite = None
+        ChatMessage.objects.filter(project=p).delete()
 
     elif request.data.get('invite') == 'recreate':
         p.invite = new_invite_code()
@@ -263,3 +283,18 @@ class Task_Details(generics.RetrieveUpdateDestroyAPIView):
 
         p.save()
         instance.delete()
+
+
+# ------------
+# Chat message
+# ------------
+
+class ChatMessage_Create(generics.CreateAPIView):
+    serializer_class = ChatMessageSerializer
+    permission_classes = [TaskPermission]
+
+    def perform_create(self, serializer):
+        u = self.request.user
+        p_id = self.request.data['project']
+        p = Project.objects.get(pk=p_id)
+        serializer.save(project=p, user=u)

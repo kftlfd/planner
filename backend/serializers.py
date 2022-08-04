@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Project, Task
+from .models import User, Project, Task, ChatMessage
 
 
 class UserBasicSerializer(serializers.ModelSerializer):
@@ -29,3 +29,9 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         exclude = []
         read_only_fields = ['project', 'userCreated', 'userModified']
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatMessage
+        fields = '__all__'
