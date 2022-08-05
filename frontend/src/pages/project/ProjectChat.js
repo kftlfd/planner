@@ -29,50 +29,44 @@ export function ProjectChat(props) {
   const actions = useActions();
 
   const [state, setState] = React.useState({
-    chatOpen: false,
-    messagesLoaded: false,
-    messagesError: false,
+    chatOpen: projectChat?.open || false,
+    viewingNow: false,
+    loadError: false,
     newMessage: "",
-    loading: false,
-    error: false,
-    unread: 0,
-    unreadIndex: null,
+    sendLoading: false,
+    sendError: false,
   });
-  const chatToggle = () =>
+  const chatToggle = () => {
     setState((prev) => ({ ...prev, chatOpen: !prev.chatOpen }));
+    actions.chat.toggleChatOpen(projectId); // in store if marked open, don't update unread count
+  };
   const newMessageChange = (e) =>
     setState((prev) => ({ ...prev, newMessage: e.target.value }));
 
   //
-  // Scroll to bottom of chatbox
+  // Scroll to bottom of chatbox on receiving message and on load
   //
   const chatboxBottom = React.useRef();
   React.useLayoutEffect(() => {
-    chatboxBottom.current?.scrollIntoView(true);
-  }, [state.messagesLoaded]);
-  React.useLayoutEffect(() => {
-    chatboxBottom.current?.scrollIntoView({
-      block: "start",
-      behavior: "smooth",
-    });
+    if (!state.chatOpen) {
+      chatboxBottom.current?.scrollIntoView(true);
+    } else {
+      chatboxBottom.current?.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
+    }
   }, [projectChat]);
 
   //
-  // Update unread badge
+  // Reset unread on closing chat
   //
   React.useEffect(() => {
-    if (state.messagesLoaded && !state.chatOpen) {
-      setState((prev) => ({
-        ...prev,
-        unread: prev.unread + 1,
-        unreadIndex:
-          prev.unreadIndex === null ? projectChat.length - 1 : prev.unreadIndex,
-      }));
-    }
-  }, [projectChat]);
-  React.useEffect(() => {
-    if (state.unread > 0 && !state.chatOpen) {
-      setState((prev) => ({ ...prev, unread: 0, unreadIndex: null }));
+    if (state.chatOpen) {
+      setState((prev) => ({ ...prev, viewingNow: true }));
+    } else if (state.viewingNow) {
+      setState((prev) => ({ ...prev, viewingNow: false }));
+      if (projectChat?.unreadIndex) actions.chat.resetUnread(projectId);
     }
   }, [state.chatOpen]);
 
@@ -82,38 +76,35 @@ export function ProjectChat(props) {
   async function loadChat() {
     try {
       await actions.chat.load(projectId);
-      setState((prev) => ({ ...prev, messagesLoaded: true }));
     } catch (error) {
       console.error("Failed to load chat: ", error);
-      setState((prev) => ({ ...prev, messagesError: true }));
+      setState((prev) => ({ ...prev, loadError: true }));
     }
   }
   React.useEffect(() => {
-    if (!state.messagesLoaded) {
-      loadChat();
-    }
-  }, [state.messagesLoaded]);
+    if (!projectChat || !projectChat.loaded) loadChat();
+  }, [projectChat]);
 
   //
   // Send new message
   //
-  const sendDisabled = state.messagesError
+  const sendDisabled = state.loadError
     ? true
     : !state.newMessage
     ? true
-    : state.loading || state.error;
+    : state.sendLoading || state.sendError;
   async function sendMessage(e) {
     e.preventDefault();
     if (sendDisabled) return;
-    setState((prev) => ({ ...prev, loading: true }));
+    setState((prev) => ({ ...prev, sendLoading: true }));
     try {
       await actions.chat.newMessage(projectId, state.newMessage);
-      setState((prev) => ({ ...prev, loading: false, newMessage: "" }));
+      setState((prev) => ({ ...prev, sendLoading: false, newMessage: "" }));
     } catch (error) {
       console.error("Failed to send message: ", error);
-      setState((prev) => ({ ...prev, loading: false, error: true }));
+      setState((prev) => ({ ...prev, sendLoading: false, sendError: true }));
       setTimeout(() => {
-        setState((prev) => ({ ...prev, error: false }));
+        setState((prev) => ({ ...prev, sendError: false }));
       }, 5000);
     }
   }
@@ -122,8 +113,8 @@ export function ProjectChat(props) {
     <>
       <IconButton onClick={chatToggle}>
         <Badge
-          badgeContent={state.unread}
-          invisible={state.unread === 0}
+          badgeContent={projectChat?.unread}
+          invisible={projectChat?.unread === 0}
           color="primary"
         >
           <ChatIcon />
@@ -146,7 +137,7 @@ export function ProjectChat(props) {
             padding: "0 1.5rem",
           }}
         >
-          {state.messagesError ? (
+          {state.loadError ? (
             <Typography
               variant="h5"
               component="div"
@@ -155,21 +146,23 @@ export function ProjectChat(props) {
             >
               Failed to load messages
             </Typography>
-          ) : state.messagesLoaded ? (
+          ) : projectChat?.loaded ? (
             <>
-              {projectChat.map((msg, index) => (
+              {projectChat?.messages.map((msg, index) => (
                 <Message
                   key={msg.id}
                   message={msg}
                   samePrevUser={
-                    projectChat[index - 1] &&
-                    projectChat[index - 1].user === projectChat[index].user
+                    projectChat.messages[index - 1] &&
+                    projectChat.messages[index - 1].user ===
+                      projectChat.messages[index].user
                   }
                   sameNextUser={
-                    projectChat[index + 1] &&
-                    projectChat[index + 1].user === projectChat[index].user
+                    projectChat.messages[index + 1] &&
+                    projectChat.messages[index + 1].user ===
+                      projectChat.messages[index].user
                   }
-                  unread={index === state.unreadIndex}
+                  unread={index === projectChat.unreadIndex}
                 />
               ))}
               <Box ref={chatboxBottom} sx={{ height: "1rem" }} />
@@ -209,9 +202,9 @@ export function ProjectChat(props) {
               fullWidth
             />
             <IconButton type="submit" disabled={sendDisabled}>
-              {state.loading ? (
+              {state.sendLoading ? (
                 <CircularProgress size={"100%"} />
-              ) : state.error ? (
+              ) : state.sendError ? (
                 <Close color="error" />
               ) : (
                 <SendIcon />
