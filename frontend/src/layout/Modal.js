@@ -51,6 +51,8 @@ export function InputModal(props) {
     title,
     content,
     action,
+    inputLabel,
+    inputPlaceholder,
     inputValue,
     inputChange,
     actionsChildren,
@@ -64,6 +66,7 @@ export function InputModal(props) {
           justifyContent: "space-between",
           alignItems: "center",
           gap: "1rem",
+          paddingBottom: "0.5rem",
         }}
       >
         {title}
@@ -72,8 +75,17 @@ export function InputModal(props) {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent>
-        {content && <DialogContentText>{content}</DialogContentText>}
+      <DialogContent
+        sx={{
+          paddingBlock: "0.5rem",
+          ".MuiDialogTitle-root + &": { paddingTop: "0.5rem" },
+        }}
+      >
+        {content && (
+          <DialogContentText sx={{ marginBottom: "1rem" }}>
+            {content}
+          </DialogContentText>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -81,11 +93,12 @@ export function InputModal(props) {
           }}
         >
           <TextField
+            label={inputLabel}
+            placeholder={inputPlaceholder}
             value={inputValue}
             onChange={inputChange}
             fullWidth
             autoFocus
-            sx={{ paddingBlock: "1rem" }}
           />
         </form>
       </DialogContent>
