@@ -1,3 +1,5 @@
+/* @deprecated */
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -17,6 +19,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
+/* @deprecated */
 export function ProjectRenameModal(props) {
   const { open, toggle } = props;
   const { projectId } = useParams();
