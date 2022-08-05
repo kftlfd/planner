@@ -70,59 +70,44 @@ export default function Project(props) {
 }
 
 function StarterMessage(props) {
+  const containerStyle = {
+    marginTop: "3rem",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "1.5rem",
+  };
+
+  const textStyle = {
+    fontWeight: "fontWeightLight",
+    color: "text.primary",
+  };
+
+  const iconStyle = {
+    svg: { fontSize: "10rem" },
+  };
+
+  function handleClick() {
+    document.getElementById("create-new-project-button").click();
+  }
+
   return (
-    <>
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{
-          marginTop: "3rem",
-          fontWeight: "fontWeightLight",
-          color: "text.primary",
-        }}
-      >
+    <Box sx={containerStyle}>
+      <Typography variant="h4" sx={textStyle}>
         Select a project
       </Typography>
-      <Box
-        sx={{
-          marginTop: "5rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "2rem",
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: "fontWeightLight",
-            color: "text.primary",
-          }}
-        >
-          or
-        </Typography>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: "fontWeightLight",
-            color: "text.primary",
-          }}
-        >
-          Create New Project
-        </Typography>
-        <IconButton
-          onClick={() =>
-            document.getElementById("create-new-project-button").click()
-          }
-          sx={{
-            svg: {
-              fontSize: "10rem",
-            },
-          }}
-        >
-          <AddCircleIcon />
-        </IconButton>
-      </Box>
-    </>
+
+      <Typography variant="h6" sx={textStyle}>
+        or
+      </Typography>
+
+      <Typography variant="h5" sx={textStyle}>
+        Create New Project
+      </Typography>
+
+      <IconButton onClick={handleClick} sx={iconStyle}>
+        <AddCircleIcon />
+      </IconButton>
+    </Box>
   );
 }
