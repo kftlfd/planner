@@ -1,18 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useActions } from "../../context/ActionsContext";
+import { InputModal } from "../../layout/Modal";
 
 import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -49,28 +45,16 @@ export function ProjectCreateButton(props) {
         <ListItemText>Create new project</ListItemText>
       </ListItemButton>
 
-      <Dialog open={createDialogOpen} onClose={toggleCreateDialog}>
-        <DialogTitle>Create new project</DialogTitle>
-        <form onSubmit={handleCreateProject}>
-          <DialogContent>
-            <TextField
-              autoFocus
-              fullWidth
-              type="text"
-              name="name"
-              placeholder="Project Name"
-              value={nameValue}
-              onChange={handleNameChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button type="submit" disabled={!nameValue}>
-              Create
-            </Button>
-            <Button onClick={toggleCreateDialog}>Cancel</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <InputModal
+        open={createDialogOpen}
+        onConfirm={handleCreateProject}
+        onClose={toggleCreateDialog}
+        title={"Create new project"}
+        action={"Create"}
+        inputLabel={"Project Name"}
+        inputValue={nameValue}
+        inputChange={handleNameChange}
+      />
     </List>
   );
 }
