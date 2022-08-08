@@ -59,6 +59,7 @@ export default function Tasks(props) {
 
       <Sidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
         <TaskDetails
+          open={taskDetailsOpen}
           taskId={selectedTask}
           sidebarToggle={taskDetailsToggle}
           setTaskSelected={setSelectedTask}
