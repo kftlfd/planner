@@ -35,10 +35,14 @@ export function TasksCalendarView(props) {
 
   const tasksByDate = {};
   tasks.forEach((task) => {
-    const d = new Date(task.modified).toLocaleString(...format);
+    if (!task.due) return;
+    const d = new Date(task.due).toLocaleString(...format);
     if (!tasksByDate[d]) tasksByDate[d] = [];
     tasksByDate[d].push(task);
   });
+  Object.keys(tasksByDate).forEach((d) =>
+    tasksByDate[d].sort((a, b) => a.due > b.due)
+  );
 
   const [state, setState] = React.useState({
     today: new Date(),
@@ -195,7 +199,10 @@ export function TasksCalendarView(props) {
         </Card>
       </Container>
 
-      <Container maxWidth="md" sx={{ marginTop: "1rem", marginBottom: "3rem" }}>
+      <Container
+        maxWidth="md"
+        sx={{ marginTop: "1.5rem", marginBottom: "3rem" }}
+      >
         {(() => {
           let tasks =
             tasksByDate[state.selectedDate.toLocaleString(...format)] || [];
