@@ -3,10 +3,9 @@ import { useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import { selectProjectBoard } from "../../store/projectsSlice";
-import { selectTaskById } from "../../store/tasksSlice";
-import { selectHideDoneTasks } from "../../store/settingsSlice";
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
+import { BoardTask } from "./TaskCard";
 import { NoTasks } from "./Tasks";
 import { InputModal, SimpleModal } from "../../layout/Modal";
 import { BaseSkeleton } from "../../layout/Loading";
@@ -145,7 +144,7 @@ export function TasksBoardView(props) {
                       index={index}
                     >
                       {(dragProvided, dragSnapshot) => (
-                        <Task
+                        <BoardTask
                           taskId={taskId}
                           dragProps={{
                             ref: dragProvided.innerRef,
@@ -218,7 +217,7 @@ export function TasksBoardView(props) {
                                     index={taskIndex}
                                   >
                                     {(dragProvided, dragSnapshot) => (
-                                      <Task
+                                      <BoardTask
                                         taskId={taskId}
                                         dragProps={{
                                           ref: dragProvided.innerRef,
@@ -545,46 +544,6 @@ function BoardColumn(props) {
         {children}
       </Box>
     </Paper>
-  );
-}
-
-function Task(props) {
-  const task = useSelector(selectTaskById(props.taskId));
-  const hide = useSelector(selectHideDoneTasks);
-
-  return (
-    <Collapse in={!(hide && task.done)}>
-      <Card
-        raised={props.isDragging}
-        {...props.dragProps}
-        {...props.dragHandle}
-        sx={{ marginTop: "0.5rem" }}
-      >
-        <Box
-          sx={{
-            padding: "1rem",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              backgroundColor: "action.hover",
-            },
-            ...(task.done && {
-              opacity: 0.5,
-              textDecoration: "line-through",
-            }),
-          }}
-        >
-          <Box onClick={props.onClick}>
-            <Typography variant="body1">{task.title}</Typography>
-            <Typography variant="caption" component="div">
-              {task.notes}
-            </Typography>
-            <Typography variant="caption" component="div" align="right">
-              {task.due}
-            </Typography>
-          </Box>
-        </Box>
-      </Card>
-    </Collapse>
   );
 }
 

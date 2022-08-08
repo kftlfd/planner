@@ -14,6 +14,17 @@ import {
   Collapse,
 } from "@mui/material";
 
+const timeFormat = [
+  {},
+  {
+    month: "short",
+    day: "numeric",
+    hour12: false,
+    hour: "numeric",
+    minute: "2-digit",
+  },
+];
+
 export function TaskCard(props) {
   const { taskId, openDetails, children } = props;
   const hideDoneTasks = useSelector(selectHideDoneTasks);
@@ -37,7 +48,16 @@ export function TaskCard(props) {
 
   return (
     <Collapse in={!(hideDoneTasks && task.done)}>
-      <Card sx={{ marginBottom: "0.5rem" }}>
+      <Card
+        sx={{
+          marginBottom: "0.5rem",
+          ...(!doneValue &&
+            Date.parse(task.due) < Date.now() && {
+              backgroundColor: "error.main",
+              color: "error.contrastText",
+            }),
+        }}
+      >
         <CardActionArea
           sx={{
             display: "flex",
@@ -69,11 +89,63 @@ export function TaskCard(props) {
             <Typography variant="caption" component="div">
               {task.notes}
             </Typography>
-            <Typography variant="caption" component="div" align="right">
-              {task.due}
-            </Typography>
+            {task.due && (
+              <Typography variant="caption" component="div" align="right">
+                {new Date(task.due).toLocaleString(...timeFormat)}
+              </Typography>
+            )}
           </Box>
         </CardActionArea>
+      </Card>
+    </Collapse>
+  );
+}
+
+export function BoardTask(props) {
+  const { taskId, isDragging, dragProps, dragHandle, onClick } = props;
+  const task = useSelector(selectTaskById(taskId));
+  const hide = useSelector(selectHideDoneTasks);
+
+  return (
+    <Collapse in={!(hide && task.done)}>
+      <Card
+        raised={isDragging}
+        {...dragProps}
+        {...dragHandle}
+        sx={{
+          marginTop: "0.5rem",
+          ...(!task.done &&
+            Date.parse(task.due) < Date.now() && {
+              backgroundColor: "error.main",
+              color: "error.contrastText",
+            }),
+        }}
+      >
+        <Box
+          sx={{
+            padding: "1rem",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "action.hover",
+            },
+            ...(task.done && {
+              opacity: 0.5,
+              textDecoration: "line-through",
+            }),
+          }}
+        >
+          <Box onClick={onClick}>
+            <Typography variant="body1">{task.title}</Typography>
+            <Typography variant="caption" component="div">
+              {task.notes}
+            </Typography>
+            {task.due && (
+              <Typography variant="caption" component="div" align="right">
+                {new Date(task.due).toLocaleString(...timeFormat)}
+              </Typography>
+            )}
+          </Box>
+        </Box>
       </Card>
     </Collapse>
   );
