@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { isEqual } from "date-fns";
 
 import { useActions } from "../../context/ActionsContext";
 import { selectTaskById } from "../../store/tasksSlice";
@@ -17,18 +18,38 @@ import {
   DialogContentText,
   DialogActions,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
+
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { MobileDateTimePicker } from "@mui/x-date-pickers";
 
 export function TaskDetails(props) {
-  const { taskId, sidebarToggle, setTaskSelected } = props;
+  const { open, taskId, sidebarToggle, setTaskSelected } = props;
   const task = useSelector(selectTaskById(taskId));
   const actions = useActions();
 
   const [loading, setLoading] = useState(false);
 
-  const [taskState, setTaskState] = useState({ ...task });
-  const updateTaskState = (e) => {
+  const [taskState, setTaskState] = useState({});
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const toggleDeleteModal = () => setDeleteModalOpen((x) => !x);
+
+  useEffect(() => {
+    setTaskState({
+      done: task ? task.done : false,
+      title: task ? task.title : "",
+      notes: task ? task.notes : "",
+      due: task?.due ? new Date(task.due) : null,
+      newDue: task?.due ? new Date(task.due) : null,
+    });
+  }, [open, task]);
+
+  function updateTaskState(e) {
     let { name, value } = e.target;
     if (name === "done") {
       value = !taskState.done;
@@ -37,14 +58,7 @@ export function TaskDetails(props) {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const toggleDeleteModal = () => setDeleteModalOpen((x) => !x);
-
-  useEffect(() => {
-    setTaskState({ ...task });
-  }, [taskId, task]);
+  }
 
   async function handleTaskUpdate() {
     setLoading(true);
@@ -52,6 +66,7 @@ export function TaskDetails(props) {
       done: taskState.done,
       title: taskState.title,
       notes: taskState.notes,
+      due: taskState.newDue?.toISOString() || null,
     };
     try {
       await actions.task.update(taskId, taskUpdate);
@@ -73,36 +88,29 @@ export function TaskDetails(props) {
     }
   }
 
-  if (!task) return null;
-
   return (
     <>
       <SidebarHeader title="Task details" toggle={sidebarToggle}>
         {taskId && task && (
           <Button
+            endIcon={
+              loading ? <CircularProgress size={"100%"} /> : <SaveIcon />
+            }
             disabled={
-              (task.done === taskState.done &&
-                task.title === taskState.title &&
-                task.notes === taskState.notes) ||
-              loading
+              loading ||
+              [
+                task.done === taskState.done,
+                task.title === taskState.title,
+                task.notes === taskState.notes,
+                (taskState.due === null && taskState.newDue === null) ||
+                  (taskState.due &&
+                    taskState.newDue &&
+                    isEqual(taskState.due, taskState.newDue)),
+              ].every((x) => x === true)
             }
             onClick={handleTaskUpdate}
-            endIcon={<SaveIcon />}
-            sx={{ position: "relative" }}
           >
             Save
-            {loading && (
-              <CircularProgress
-                size={24}
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  marginTop: "-12px",
-                  marginLeft: "-12px",
-                }}
-              />
-            )}
           </Button>
         )}
       </SidebarHeader>
@@ -145,6 +153,35 @@ export function TaskDetails(props) {
               multiline
               rows={4}
             />
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <MobileDateTimePicker
+                  name="due"
+                  label={"Due"}
+                  value={taskState.newDue}
+                  ampm={false}
+                  onChange={(newValue) => {
+                    setTaskState((prev) => ({
+                      ...prev,
+                      newDue: newValue,
+                    }));
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} sx={{ flexGrow: 1 }} />
+                  )}
+                />
+              </LocalizationProvider>
+
+              <IconButton
+                disabled={taskState.newDue === null}
+                onClick={() =>
+                  setTaskState((prev) => ({ ...prev, newDue: null }))
+                }
+              >
+                <CancelIcon />
+              </IconButton>
+            </Box>
 
             <Box
               sx={{ display: "flex", justifyContent: "end", marginTop: "2rem" }}
