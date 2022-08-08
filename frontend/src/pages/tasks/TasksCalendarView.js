@@ -8,6 +8,7 @@ import {
   startOfMonth,
   lastDayOfMonth,
   isSameDay,
+  isBefore,
 } from "date-fns";
 
 import { selectAllTasks } from "../../store/tasksSlice";
@@ -238,6 +239,8 @@ function Day(props) {
   const { day, notCurrentMonth, isSelected, onClick, doneCount, notDoneCount } =
     props;
 
+  const today = new Date().setHours(0, 0, 0, 0);
+
   return (
     <Box
       onClick={onClick}
@@ -277,6 +280,10 @@ function Day(props) {
             <Box
               sx={{
                 ...tasksCountStyle,
+                ...(isBefore(day, today) && {
+                  backgroundColor: "error.main",
+                  color: "error.contrastText",
+                }),
               }}
             >
               {notDoneCount}
