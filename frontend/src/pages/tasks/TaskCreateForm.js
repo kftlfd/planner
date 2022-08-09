@@ -156,7 +156,7 @@ export function CreateTaskWithDate(props) {
             onChange={(newVal) =>
               setState((prev) => ({ ...prev, taskDue: newVal }))
             }
-            onClead={() => setState((prev) => ({ ...prev, taskDue: null }))}
+            onClear={() => setState((prev) => ({ ...prev, taskDue: null }))}
             boxSx={{ marginTop: "1rem" }}
           />
         }
