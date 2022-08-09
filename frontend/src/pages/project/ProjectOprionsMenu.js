@@ -38,6 +38,7 @@ export function ProjectOptionsMenu(props) {
           "aria-labelledby": "project-options-button",
         }}
       >
+        {props.children}
         <ProjectHideDoneToggle />
         <ProjectSharing closeOptionsMenu={closeOptionsMenu} />
         <ProjectRename closeOptionsMenu={closeOptionsMenu} />

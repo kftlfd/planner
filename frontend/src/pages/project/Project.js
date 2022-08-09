@@ -9,6 +9,8 @@ import { MainHeader, MainBody } from "../../layout/Main";
 import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 import { ProjectChat } from "./ProjectChat";
 
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Typography,
   Box,
@@ -27,6 +29,9 @@ export default function Project(props) {
   const view = useSelector(selectProjectView);
   const actions = useActions();
 
+  const theme = useTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   function ViewButton(props) {
     const { viewName, icon } = props;
     return (
@@ -40,18 +45,39 @@ export default function Project(props) {
     );
   }
 
+  function ViewButtonGroup(props) {
+    return (
+      <ButtonGroup
+        size={props.hasOwnProperty("large") ? "large" : "small"}
+        disableElevation
+      >
+        <ViewButton viewName="list" icon={<ViewListIcon />} />
+        <ViewButton viewName="board" icon={<ViewColumnIcon />} />
+        <ViewButton viewName="calendar" icon={<CalendarMonthIcon />} />
+      </ButtonGroup>
+    );
+  }
+
   return (
     <>
       <MainHeader title={project ? project.name : null}>
         {project ? (
           <Box sx={{ display: "flex", gap: "1rem", marginLeft: "1rem" }}>
             {project.sharing && <ProjectChat />}
-            <ButtonGroup size="small" disableElevation>
-              <ViewButton viewName="list" icon={<ViewListIcon />} />
-              <ViewButton viewName="board" icon={<ViewColumnIcon />} />
-              <ViewButton viewName="calendar" icon={<CalendarMonthIcon />} />
-            </ButtonGroup>
-            <ProjectOptionsMenu />
+            {!smallScreen && <ViewButtonGroup />}
+            <ProjectOptionsMenu>
+              {smallScreen && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    paddingBottom: "0.5rem",
+                  }}
+                >
+                  <ViewButtonGroup large />
+                </Box>
+              )}
+            </ProjectOptionsMenu>
           </Box>
         ) : null}
       </MainHeader>
