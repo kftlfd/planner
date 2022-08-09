@@ -122,10 +122,10 @@ export const invite = {
 //
 
 export const task = {
-  async create(projectId, taskTitle) {
+  async create(projectId, task) {
     return await query(urls.task.create, methods.post, {
       project: projectId,
-      title: taskTitle,
+      ...task,
     });
   },
 

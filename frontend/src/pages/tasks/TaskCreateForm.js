@@ -2,8 +2,18 @@ import React, { useState } from "react";
 
 import { useActions } from "../../context/ActionsContext";
 import { BaseSkeleton } from "../../layout/Loading";
+import { InputModal } from "../../layout/Modal";
+import { DueForm } from "./TaskDetails";
 
-import { Container, Button, Paper, InputBase } from "@mui/material";
+import {
+  Container,
+  Box,
+  Button,
+  IconButton,
+  Paper,
+  InputBase,
+} from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 export function TaskCreateForm(props) {
   const { projectId } = props;
@@ -19,7 +29,7 @@ export function TaskCreateForm(props) {
   async function handleCreateTask(event) {
     event.preventDefault();
     try {
-      await actions.task.create(projectId, taskCreateTitle);
+      await actions.task.create(projectId, { title: taskCreateTitle });
       setTaskCreateTitle("");
     } catch (error) {
       console.error("Failed to create task: ", error);
@@ -87,5 +97,70 @@ function CreateFormWrapper({ children }) {
     >
       {children}
     </Container>
+  );
+}
+
+export function CreateTaskWithDate(props) {
+  const actions = useActions();
+
+  const [state, setState] = React.useState({
+    open: false,
+    taskTitle: "",
+    taskDue: props.due || null,
+  });
+
+  React.useEffect(() => {
+    setState((prev) => ({ ...prev, taskDue: props.due }));
+  }, [props.due]);
+
+  function handleClose() {
+    setState((prev) => ({
+      open: false,
+      taskTitle: "",
+      taskDue: props.due || null,
+    }));
+  }
+
+  async function handleCreate() {
+    try {
+      await actions.task.create(props.projectId, {
+        title: state.taskTitle,
+        ...(state.taskDue && { due: state.taskDue.toISOString() }),
+      });
+      handleClose();
+    } catch (error) {
+      console.error("Failed to create task: ", error);
+    }
+  }
+
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <IconButton onClick={() => setState((prev) => ({ ...prev, open: true }))}>
+        <AddCircleIcon sx={{ height: "3rem", width: "3rem" }} />
+      </IconButton>
+
+      <InputModal
+        open={state.open}
+        onConfirm={handleCreate}
+        onClose={handleClose}
+        title={"Create new task"}
+        action={"Create"}
+        inputLabel={"Task title"}
+        inputValue={state.taskTitle}
+        inputChange={(e) =>
+          setState((prev) => ({ ...prev, taskTitle: e.target.value }))
+        }
+        formChildren={
+          <DueForm
+            value={state.taskDue}
+            onChange={(newVal) =>
+              setState((prev) => ({ ...prev, taskDue: newVal }))
+            }
+            onClead={() => setState((prev) => ({ ...prev, taskDue: null }))}
+            boxSx={{ marginTop: "1rem" }}
+          />
+        }
+      />
+    </Box>
   );
 }

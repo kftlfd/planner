@@ -186,11 +186,11 @@ export default function ProvideActions(props) {
       dispatch(projectsSlice.updateTasksLoaded(projectId));
     },
 
-    async create(projectId, taskTitle) {
-      const task = await api.task.create(projectId, taskTitle);
-      ws.send("task/create", `${task.project}`, { task });
-      dispatch(tasksSlice.addTask(task));
-      dispatch(projectsSlice.addNewTask(task));
+    async create(projectId, task) {
+      const newTask = await api.task.create(projectId, task);
+      ws.send("task/create", `${task.project}`, { newTask });
+      dispatch(tasksSlice.addTask(newTask));
+      dispatch(projectsSlice.addNewTask(newTask));
     },
 
     async update(taskId, taskUpdate) {
