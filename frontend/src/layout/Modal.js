@@ -55,6 +55,7 @@ export function InputModal(props) {
     inputPlaceholder,
     inputValue,
     inputChange,
+    formChildren,
     actionsChildren,
   } = props;
 
@@ -100,6 +101,7 @@ export function InputModal(props) {
             fullWidth
             autoFocus
           />
+          {formChildren}
         </form>
       </DialogContent>
 
