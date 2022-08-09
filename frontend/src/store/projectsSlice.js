@@ -11,6 +11,7 @@ const projectsSlice = createSlice({
     projectsTasksLoaded: [],
     loading: true,
     error: null,
+    selectedCalDate: {},
   },
 
   reducers: {
@@ -102,6 +103,11 @@ const projectsSlice = createSlice({
       const { projectId, board } = action.payload;
       state.items[projectId].board = board;
     },
+
+    selectCalDate(state, action) {
+      const { projectId, date } = action.payload;
+      state.selectedCalDate[projectId] = date;
+    },
   },
 });
 
@@ -120,6 +126,7 @@ export const {
   deleteTask,
   updateTasksOrder,
   updateTasksBoard,
+  selectCalDate,
 } = projectsSlice.actions;
 
 export default projectsSlice.reducer;
@@ -149,3 +156,6 @@ export const selectProjectTasksIds = (projectId) => (state) =>
 
 export const selectProjectBoard = (projectId) => (state) =>
   state.projects.items[projectId].board;
+
+export const selectSelectedCalDate = (projectId) => (state) =>
+  state.projects.selectedCalDate[projectId];

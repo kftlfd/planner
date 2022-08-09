@@ -149,6 +149,10 @@ export default function ProvideActions(props) {
         dispatch(projectsSlice.updateProject(project));
       },
     },
+
+    selectCalDate(projectId, date) {
+      dispatch(projectsSlice.selectCalDate({ projectId, date }));
+    },
   };
 
   //

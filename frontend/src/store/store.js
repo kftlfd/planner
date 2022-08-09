@@ -14,4 +14,12 @@ export const store = configureStore({
     tasks: tasksReducer,
     chat: chatReducer,
   },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["projects/selectCalDate"],
+        ignoredPaths: ["projects.selectedCalDate"],
+      },
+    }),
 });

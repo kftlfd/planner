@@ -11,7 +11,9 @@ import {
   isBefore,
 } from "date-fns";
 
+import { selectSelectedCalDate } from "../../store/projectsSlice";
 import { selectAllTasks } from "../../store/tasksSlice";
+import { useActions } from "../../context/ActionsContext";
 import { TaskCard, CardSkeleton } from "./TaskCard";
 import { CreateTaskWithDate } from "./TaskCreateForm";
 
@@ -36,7 +38,10 @@ const weekendColor = {
 
 export function TasksCalendarView(props) {
   const { setSelectedTask, taskDetailsToggle, tasksLoaded } = props;
+  const actions = useActions();
   const { projectId } = useParams();
+  const selectedDate =
+    useSelector(selectSelectedCalDate(projectId)) || new Date();
   const allTasks = useSelector(selectAllTasks);
   const tasks = Object.keys(allTasks)
     .filter((taskId) => allTasks[taskId].project === Number(projectId))
@@ -53,28 +58,22 @@ export function TasksCalendarView(props) {
     tasksByDate[d].sort((a, b) => a.due > b.due)
   );
 
-  const [state, setState] = React.useState({
-    today: new Date(),
-    selectedDate: new Date(),
-    tasksByDate,
-  });
-
   function goToPrevMonth() {
-    let newSelect = addMonths(state.selectedDate, -1);
-    setState((prev) => ({ ...prev, selectedDate: newSelect }));
+    let newSelect = addMonths(selectedDate, -1);
+    actions.project.selectCalDate(projectId, newSelect);
   }
 
   function goToNextMonth() {
-    let newSelect = addMonths(state.selectedDate, 1);
-    setState((prev) => ({ ...prev, selectedDate: newSelect }));
+    let newSelect = addMonths(selectedDate, 1);
+    actions.project.selectCalDate(projectId, newSelect);
   }
 
   function goToToday() {
-    setState((prev) => ({ ...prev, selectedDate: prev.today }));
+    actions.project.selectCalDate(projectId, new Date());
   }
 
   function selectDate(day) {
-    setState((prev) => ({ ...prev, selectedDate: day }));
+    actions.project.selectCalDate(projectId, day);
   }
 
   function MonthDays(props) {
@@ -89,7 +88,7 @@ export function TasksCalendarView(props) {
         <Day
           key={`${day.toISOString()}`}
           day={day}
-          isSelected={isSameDay(day, state.selectedDate)}
+          isSelected={isSameDay(day, selectedDate)}
           onClick={() => selectDate(day)}
           notCurrentMonth={!isCurrMonth}
           doneCount={doneCount}
@@ -129,7 +128,7 @@ export function TasksCalendarView(props) {
             align="center"
             sx={{ flexBasis: "15rem", color: "text.primary" }}
           >
-            {state.selectedDate.toLocaleString(
+            {selectedDate.toLocaleString(
               {},
               { month: "long", year: "numeric" }
             )}
@@ -169,7 +168,7 @@ export function TasksCalendarView(props) {
 
             {/* Previous Month */}
             {(() => {
-              let firstDayOfCurrMonth = startOfMonth(state.selectedDate);
+              let firstDayOfCurrMonth = startOfMonth(selectedDate);
               return (
                 <MonthDays
                   firstDay={addDays(firstDayOfCurrMonth, -1)}
@@ -182,7 +181,7 @@ export function TasksCalendarView(props) {
 
             {/* This Month */}
             {(() => {
-              let firstDayOfCurrMonth = startOfMonth(state.selectedDate);
+              let firstDayOfCurrMonth = startOfMonth(selectedDate);
               return (
                 <MonthDays
                   firstDay={firstDayOfCurrMonth}
@@ -195,7 +194,7 @@ export function TasksCalendarView(props) {
 
             {/* Next Month */}
             {(() => {
-              let lastDayOfCurrMonth = lastDayOfMonth(state.selectedDate);
+              let lastDayOfCurrMonth = lastDayOfMonth(selectedDate);
               return (
                 <MonthDays
                   firstDay={addDays(lastDayOfCurrMonth, 1)}
@@ -217,7 +216,7 @@ export function TasksCalendarView(props) {
           <>
             {(() => {
               let tasks =
-                tasksByDate[state.selectedDate.toLocaleString(...format)] || [];
+                tasksByDate[selectedDate.toLocaleString(...format)] || [];
 
               return tasks.map((task) => (
                 <TaskCard
@@ -231,10 +230,7 @@ export function TasksCalendarView(props) {
               ));
             })()}
 
-            <CreateTaskWithDate
-              projectId={projectId}
-              due={state.selectedDate}
-            />
+            <CreateTaskWithDate projectId={projectId} due={selectedDate} />
           </>
         ) : (
           <CardSkeleton />
