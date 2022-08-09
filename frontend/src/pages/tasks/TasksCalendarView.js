@@ -70,6 +70,34 @@ export function TasksCalendarView(props) {
     setState((prev) => ({ ...prev, selectedDate: day }));
   }
 
+  function MonthDays(props) {
+    const { firstDay, nDays, isPrevMonth, isCurrMonth } = props;
+
+    let days = [...Array(nDays).keys()].map((i) => {
+      let day = addDays(firstDay, isPrevMonth ? -i : i);
+      let tasks = tasksByDate[day.toLocaleString(...format)] || [];
+      let doneCount = tasks.filter((task) => task.done === true).length;
+      let notDoneCount = tasks.length - doneCount;
+      return (
+        <Day
+          key={`${day.toISOString()}`}
+          day={day}
+          isSelected={isSameDay(day, state.selectedDate)}
+          onClick={() => selectDate(day)}
+          notCurrentMonth={!isCurrMonth}
+          doneCount={doneCount}
+          notDoneCount={notDoneCount}
+        />
+      );
+    });
+
+    if (isPrevMonth) {
+      return days.reverse();
+    } else {
+      return days;
+    }
+  }
+
   return (
     <>
       <Container maxWidth="lg">
@@ -133,83 +161,41 @@ export function TasksCalendarView(props) {
 
             {/* Previous Month */}
             {(() => {
-              let thisStart = startOfMonth(state.selectedDate);
-              let lastDay = addDays(thisStart, -1);
-              let days = (thisStart.getDay() + 6) % 7;
-
-              return [...Array(days).keys()]
-                .map((i) => {
-                  let day = addDays(lastDay, -i);
-                  let tasks = tasksByDate[day.toLocaleString(...format)] || [];
-                  let doneCount = tasks.filter(
-                    (task) => task.done === true
-                  ).length;
-                  let notDoneCount = tasks.length - doneCount;
-
-                  return (
-                    <Day
-                      key={`${day.toISOString()}`}
-                      day={day}
-                      notCurrentMonth={true}
-                      onClick={() => selectDate(day)}
-                      doneCount={doneCount}
-                      notDoneCount={notDoneCount}
-                    />
-                  );
-                })
-                .reverse();
+              let firstDayOfCurrMonth = startOfMonth(state.selectedDate);
+              return (
+                <MonthDays
+                  firstDay={addDays(firstDayOfCurrMonth, -1)}
+                  nDays={(firstDayOfCurrMonth.getDay() + 6) % 7}
+                  isPrevMonth={true}
+                  isCurrMonth={false}
+                />
+              );
             })()}
 
             {/* This Month */}
             {(() => {
-              let firstDay = startOfMonth(state.selectedDate);
-              let days = getDaysInMonth(firstDay);
-
-              return [...Array(days).keys()].map((i) => {
-                let day = addDays(firstDay, i);
-                let tasks = tasksByDate[day.toLocaleString(...format)] || [];
-                let doneCount = tasks.filter(
-                  (task) => task.done === true
-                ).length;
-                let notDoneCount = tasks.length - doneCount;
-
-                return (
-                  <Day
-                    key={`${day.toISOString()}`}
-                    day={day}
-                    isSelected={isSameDay(day, state.selectedDate)}
-                    onClick={() => selectDate(day)}
-                    doneCount={doneCount}
-                    notDoneCount={notDoneCount}
-                  />
-                );
-              });
+              let firstDayOfCurrMonth = startOfMonth(state.selectedDate);
+              return (
+                <MonthDays
+                  firstDay={firstDayOfCurrMonth}
+                  nDays={getDaysInMonth(firstDayOfCurrMonth)}
+                  isPrevMonth={false}
+                  isCurrMonth={true}
+                />
+              );
             })()}
 
             {/* Next Month */}
             {(() => {
-              let lastDay = lastDayOfMonth(state.selectedDate);
-              let days = 7 - lastDay.getDay();
-
-              return [...Array(days).keys()].map((i) => {
-                let day = addDays(lastDay, 1 + i);
-                let tasks = tasksByDate[day.toLocaleString(...format)] || [];
-                let doneCount = tasks.filter(
-                  (task) => task.done === true
-                ).length;
-                let notDoneCount = tasks.length - doneCount;
-
-                return (
-                  <Day
-                    key={`${day.toISOString()}`}
-                    day={day}
-                    notCurrentMonth={true}
-                    onClick={() => selectDate(day)}
-                    doneCount={doneCount}
-                    notDoneCount={notDoneCount}
-                  />
-                );
-              });
+              let lastDayOfCurrMonth = lastDayOfMonth(state.selectedDate);
+              return (
+                <MonthDays
+                  firstDay={addDays(lastDayOfCurrMonth, 1)}
+                  nDays={(7 - lastDayOfCurrMonth.getDay()) % 7}
+                  isPrevMonth={false}
+                  isCurrMonth={false}
+                />
+              );
             })()}
           </Box>
         </Card>
