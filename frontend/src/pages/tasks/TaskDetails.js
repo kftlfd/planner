@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { isEqual } from "date-fns";
 
 import { useActions } from "../../context/ActionsContext";
+import {
+  selectSharedProjectIds,
+  selectProjectById,
+} from "../../store/projectsSlice";
+import { selectUserById } from "../../store/usersSlice";
 import { selectTaskById } from "../../store/tasksSlice";
 import { SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 
@@ -19,6 +25,7 @@ import {
   DialogActions,
   CircularProgress,
   IconButton,
+  Avatar,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -29,6 +36,12 @@ import { MobileDateTimePicker } from "@mui/x-date-pickers";
 
 export function TaskDetails(props) {
   const { open, taskId, sidebarToggle, setTaskSelected } = props;
+
+  const { projectId } = useParams();
+  const project = useSelector(selectProjectById(projectId));
+  const sharedIds = useSelector(selectSharedProjectIds);
+  const isShared = sharedIds.includes(Number(projectId));
+
   const task = useSelector(selectTaskById(taskId));
   const actions = useActions();
 
@@ -167,23 +180,35 @@ export function TaskDetails(props) {
               }
             />
 
-            <Box
-              sx={{ display: "flex", justifyContent: "end", marginTop: "2rem" }}
-            >
-              <Button
-                variant="contained"
-                color="error"
-                onClick={toggleDeleteModal}
-              >
-                Delete task
-              </Button>
+            <LastModified
+              timestamp={task.modified}
+              userId={task.userModified}
+              showUser={project.sharing}
+            />
 
-              <TaskDeleteModal
-                open={deleteModalOpen}
-                onClose={toggleDeleteModal}
-                onConfirm={handleTaskDelete}
-              />
-            </Box>
+            {!isShared && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "end",
+                  marginTop: "2rem",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={toggleDeleteModal}
+                >
+                  Delete task
+                </Button>
+
+                <TaskDeleteModal
+                  open={deleteModalOpen}
+                  onClose={toggleDeleteModal}
+                  onConfirm={handleTaskDelete}
+                />
+              </Box>
+            )}
           </Box>
         ) : (
           "Task not found"
@@ -235,6 +260,50 @@ export function DueForm(props) {
       <IconButton disabled={value === null} onClick={onClear}>
         <CancelIcon />
       </IconButton>
+    </Box>
+  );
+}
+
+function LastModified(props) {
+  const { timestamp, userId, showUser } = props;
+  const user = useSelector(selectUserById(userId));
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "1rem",
+      }}
+    >
+      <Box>Last modified</Box>
+      <Box>
+        {new Date(timestamp).toLocaleString(
+          {},
+          {
+            month: "short",
+            day: "numeric",
+            hour12: false,
+            hour: "numeric",
+            minute: "2-digit",
+          }
+        )}
+      </Box>
+      {showUser && user && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <Avatar sx={{ width: "2rem", height: "2rem" }}>
+            {user.username[0]}
+          </Avatar>{" "}
+          {user.username}
+        </Box>
+      )}
     </Box>
   );
 }
