@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { isSameDay } from "date-fns";
 
 import { selectProjectChat } from "../../store/chatSlice";
 import { selectUserById, selectUserId } from "../../store/usersSlice";
@@ -134,7 +135,7 @@ export function ProjectChat(props) {
             padding: 0,
             overflow: "scroll",
             backgroundColor: "chat.bg",
-            padding: "0 1.5rem",
+            paddingTop: "3rem",
           }}
         >
           {state.loadError ? (
@@ -142,7 +143,7 @@ export function ProjectChat(props) {
               variant="h5"
               component="div"
               align="center"
-              sx={{ fontWeight: "light", paddingTop: "3rem" }}
+              sx={{ fontWeight: "light" }}
             >
               Failed to load messages
             </Typography>
@@ -168,7 +169,7 @@ export function ProjectChat(props) {
               <Box ref={chatboxBottom} sx={{ height: "1rem" }} />
             </>
           ) : (
-            <Box sx={{ paddingTop: "3rem", textAlign: "center" }}>
+            <Box sx={{ textAlign: "center" }}>
               <CircularProgress />
             </Box>
           )}
@@ -226,12 +227,12 @@ function Message(props) {
   const self = message.user === selfId;
 
   function parseTime(s) {
+    let today = new Date();
     let d = new Date(s);
     let formatted = d.toLocaleString(
       {},
       {
-        month: "short",
-        day: "numeric",
+        ...(!isSameDay(today, d) && { month: "short", day: "numeric" }),
         hour12: false,
         hour: "numeric",
         minute: "2-digit",
@@ -241,44 +242,37 @@ function Message(props) {
   }
 
   return (
-    <Fade in={true}>
-      <Box
-        sx={{
-          marginTop: unread ? 0 : samePrevUser ? "0.2rem" : "1rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: self ? "flex-end" : "flex-start",
-        }}
-      >
-        {unread && (
-          <Typography
-            variant="body1"
-            component="div"
-            align="center"
-            sx={{
-              alignSelf: "stretch",
-              marginBlock: "1rem",
-              backgroundColor: "action.focus",
-              marginInline: "-1.5rem",
-            }}
-          >
-            New messages
-          </Typography>
-        )}
+    <>
+      {unread && (
+        <Typography
+          variant="body1"
+          component="div"
+          align="center"
+          sx={{
+            alignSelf: "stretch",
+            marginBlock: "0.4rem",
+            backgroundColor: "action.focus",
+            marginInline: "-1.5rem",
+          }}
+        >
+          New messages
+        </Typography>
+      )}
 
+      <Fade in={true}>
         <Box
           sx={{
-            maxWidth: "80%",
+            marginTop: unread ? 0 : samePrevUser ? "0.2rem" : "0.4rem",
             display: "flex",
+            flexDirection: self ? "row-reverse" : "row",
+            alignItems: "flex-start",
             gap: "0.5rem",
-            ...(self && {
-              flexDirection: "row-reverse",
-              justifyContent: "start",
-            }),
+            paddingLeft: self ? "20%" : "2%",
+            paddingRight: self ? "2%" : "20%",
           }}
         >
           {!self && (
-            <Box sx={{ width: "40px" }}>
+            <Box sx={{ width: "40px", flexShrink: 0 }}>
               {(!samePrevUser || unread) && (
                 <Avatar>{user.username[0] || ""}</Avatar>
               )}
@@ -288,23 +282,20 @@ function Message(props) {
           <Card
             sx={{
               backgroundColor: "chat.msg",
-              padding: "0.4rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: self ? "flex-end" : "flex-start",
-              borderRadius: "0.8rem",
+              padding: "0.5rem",
+              borderRadius: "1rem",
               ...(self && {
-                borderTopRightRadius: "0.25rem",
-                paddingLeft: "0.8rem",
+                borderTopRightRadius: "0.5rem",
+                paddingLeft: "1rem",
               }),
               ...(self &&
-                sameNextUser && { borderBottomRightRadius: "0.25rem" }),
+                sameNextUser && { borderBottomRightRadius: "0.5rem" }),
               ...(!self && {
-                borderTopLeftRadius: "0.25rem",
-                paddingRight: "0.8rem",
+                borderTopLeftRadius: "0.5rem",
+                paddingRight: "1rem",
               }),
               ...(!self &&
-                sameNextUser && { borderBottomLeftRadius: "0.25rem" }),
+                sameNextUser && { borderBottomLeftRadius: "0.5rem" }),
             }}
           >
             {(!samePrevUser || unread) && (
@@ -314,27 +305,45 @@ function Message(props) {
                   fontWeight: "bold",
                   color: "primary.dark",
                   marginBottom: "0.2rem",
+                  textAlign: self ? "right" : "left",
                 }}
               >
                 {user.username}
               </Box>
             )}
 
-            <Box>{message.text}</Box>
-
             <Box
               sx={{
-                marginTop: "0.5rem",
-                alignSelf: "flex-end",
-                fontSize: "0.8rem",
-                color: "text.secondary",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                flexWrap: "wrap",
+                rowGap: "0.2rem",
+                columnGap: "0.5rem",
               }}
             >
-              {parseTime(message.time)}
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  textAlign: "left",
+                }}
+              >
+                {message.text}
+              </Box>
+
+              <Box
+                sx={{
+                  alignSelf: "flex-end",
+                  fontSize: "0.7rem",
+                  color: "text.secondary",
+                }}
+              >
+                {parseTime(message.time)}
+              </Box>
             </Box>
           </Card>
         </Box>
-      </Box>
-    </Fade>
+      </Fade>
+    </>
   );
 }
