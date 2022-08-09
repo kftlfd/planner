@@ -13,6 +13,7 @@ import {
   Checkbox,
   Collapse,
 } from "@mui/material";
+import { BaseSkeleton } from "../../layout/Loading";
 
 const timeFormat = [
   {},
@@ -149,4 +150,8 @@ export function BoardTask(props) {
       </Card>
     </Collapse>
   );
+}
+
+export function CardSkeleton(props) {
+  return <BaseSkeleton height={"56px"} sx={{ marginBottom: "0.5rem" }} />;
 }

@@ -3,9 +3,8 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
-import { TaskCard } from "./TaskCard";
+import { CardSkeleton, TaskCard } from "./TaskCard";
 import { NoTasks } from "./Tasks";
-import { BaseSkeleton } from "../../layout/Loading";
 
 import { Container, Box } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
@@ -121,11 +120,7 @@ function LoadingList() {
       <TaskCreateForm loading={true} />
       <TaskListWrapper>
         {[...Array(4).keys()].map((x) => (
-          <BaseSkeleton
-            key={x}
-            height={"56px"}
-            sx={{ marginBottom: "0.5rem" }}
-          />
+          <CardSkeleton key={x} />
         ))}
       </TaskListWrapper>
     </>
