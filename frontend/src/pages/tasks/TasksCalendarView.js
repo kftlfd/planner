@@ -12,10 +12,17 @@ import {
 } from "date-fns";
 
 import { selectAllTasks } from "../../store/tasksSlice";
-import { TaskCard } from "./TaskCard";
+import { TaskCard, CardSkeleton } from "./TaskCard";
 import { CreateTaskWithDate } from "./TaskCreateForm";
 
-import { Container, Card, Box, Typography, IconButton } from "@mui/material";
+import {
+  Container,
+  Card,
+  Box,
+  Typography,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
 import WestIcon from "@mui/icons-material/West";
 import TodayIcon from "@mui/icons-material/Today";
 
@@ -28,7 +35,7 @@ const weekendColor = {
 };
 
 export function TasksCalendarView(props) {
-  const { setSelectedTask, taskDetailsToggle } = props;
+  const { setSelectedTask, taskDetailsToggle, tasksLoaded } = props;
   const { projectId } = useParams();
   const allTasks = useSelector(selectAllTasks);
   const tasks = Object.keys(allTasks)
@@ -87,6 +94,7 @@ export function TasksCalendarView(props) {
           notCurrentMonth={!isCurrMonth}
           doneCount={doneCount}
           notDoneCount={notDoneCount}
+          tasksLoaded={tasksLoaded}
         />
       );
     });
@@ -205,23 +213,32 @@ export function TasksCalendarView(props) {
         maxWidth="md"
         sx={{ marginTop: "1.5rem", marginBottom: "3rem" }}
       >
-        {(() => {
-          let tasks =
-            tasksByDate[state.selectedDate.toLocaleString(...format)] || [];
+        {tasksLoaded ? (
+          <>
+            {(() => {
+              let tasks =
+                tasksByDate[state.selectedDate.toLocaleString(...format)] || [];
 
-          return tasks.map((task) => (
-            <TaskCard
-              key={"caltask" + task.id}
-              taskId={task.id}
-              openDetails={() => {
-                setSelectedTask(task.id);
-                taskDetailsToggle();
-              }}
+              return tasks.map((task) => (
+                <TaskCard
+                  key={"caltask" + task.id}
+                  taskId={task.id}
+                  openDetails={() => {
+                    setSelectedTask(task.id);
+                    taskDetailsToggle();
+                  }}
+                />
+              ));
+            })()}
+
+            <CreateTaskWithDate
+              projectId={projectId}
+              due={state.selectedDate}
             />
-          ));
-        })()}
-
-        <CreateTaskWithDate projectId={projectId} due={state.selectedDate} />
+          </>
+        ) : (
+          <CardSkeleton />
+        )}
       </Container>
     </>
   );
@@ -239,8 +256,15 @@ const tasksCountStyle = {
 };
 
 function Day(props) {
-  const { day, notCurrentMonth, isSelected, onClick, doneCount, notDoneCount } =
-    props;
+  const {
+    day,
+    notCurrentMonth,
+    isSelected,
+    onClick,
+    doneCount,
+    notDoneCount,
+    tasksLoaded,
+  } = props;
 
   const today = new Date().setHours(0, 0, 0, 0);
 
@@ -268,47 +292,51 @@ function Day(props) {
         }}
       >
         {day.getDate()}
-        <Box
-          sx={{
-            alignSelf: "stretch",
-            height: "1.25rem",
-            display: "flex",
-            justifyContent: "center",
-            paddingInline: "3px",
-          }}
-        >
-          {doneCount > 0 && (
-            <Box
-              sx={{
-                ...tasksCountStyle,
-                backgroundColor: "action.disabledBackground",
-              }}
-            >
-              {doneCount}
-            </Box>
-          )}
-          {doneCount > 0 && notDoneCount > 0 && (
-            <Box
-              sx={{
-                flexBasis: "0.5rem",
-                flexShrink: 1,
-              }}
-            />
-          )}
-          {notDoneCount > 0 && (
-            <Box
-              sx={{
-                ...tasksCountStyle,
-                ...(isBefore(day, today) && {
-                  backgroundColor: "error.main",
-                  color: "error.contrastText",
-                }),
-              }}
-            >
-              {notDoneCount}
-            </Box>
-          )}
-        </Box>
+        {tasksLoaded ? (
+          <Box
+            sx={{
+              alignSelf: "stretch",
+              height: "1.25rem",
+              display: "flex",
+              justifyContent: "center",
+              paddingInline: "3px",
+            }}
+          >
+            {doneCount > 0 && (
+              <Box
+                sx={{
+                  ...tasksCountStyle,
+                  backgroundColor: "action.disabledBackground",
+                }}
+              >
+                {doneCount}
+              </Box>
+            )}
+            {doneCount > 0 && notDoneCount > 0 && (
+              <Box
+                sx={{
+                  flexBasis: "0.5rem",
+                  flexShrink: 1,
+                }}
+              />
+            )}
+            {notDoneCount > 0 && (
+              <Box
+                sx={{
+                  ...tasksCountStyle,
+                  ...(isBefore(day, today) && {
+                    backgroundColor: "error.main",
+                    color: "error.contrastText",
+                  }),
+                }}
+              >
+                {notDoneCount}
+              </Box>
+            )}
+          </Box>
+        ) : (
+          <Skeleton height={"1.25rem"} width={"50%"} />
+        )}
       </Box>
     </Box>
   );
