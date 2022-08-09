@@ -154,34 +154,18 @@ export function TaskDetails(props) {
               rows={4}
             />
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <MobileDateTimePicker
-                  name="due"
-                  label={"Due"}
-                  value={taskState.newDue}
-                  ampm={false}
-                  onChange={(newValue) => {
-                    setTaskState((prev) => ({
-                      ...prev,
-                      newDue: newValue,
-                    }));
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} sx={{ flexGrow: 1 }} />
-                  )}
-                />
-              </LocalizationProvider>
-
-              <IconButton
-                disabled={taskState.newDue === null}
-                onClick={() =>
-                  setTaskState((prev) => ({ ...prev, newDue: null }))
-                }
-              >
-                <CancelIcon />
-              </IconButton>
-            </Box>
+            <DueForm
+              value={taskState.newDue}
+              onChange={(newValue) =>
+                setTaskState((prev) => ({
+                  ...prev,
+                  newDue: newValue,
+                }))
+              }
+              onClear={() =>
+                setTaskState((prev) => ({ ...prev, newDue: null }))
+              }
+            />
 
             <Box
               sx={{ display: "flex", justifyContent: "end", marginTop: "2rem" }}
@@ -225,5 +209,32 @@ function TaskDeleteModal(props) {
         <Button onClick={onClose}>Cancel</Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+export function DueForm(props) {
+  const { value, onChange, onClear, boxSx } = props;
+
+  return (
+    <Box
+      sx={{ display: "flex", alignItems: "center", gap: "0.5rem", ...boxSx }}
+    >
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <MobileDateTimePicker
+          name="due"
+          label={"Due"}
+          value={value}
+          ampm={false}
+          onChange={onChange}
+          renderInput={(params) => (
+            <TextField {...params} sx={{ flexGrow: 1 }} />
+          )}
+        />
+      </LocalizationProvider>
+
+      <IconButton disabled={value === null} onClick={onClear}>
+        <CancelIcon />
+      </IconButton>
+    </Box>
   );
 }

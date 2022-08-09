@@ -13,6 +13,7 @@ import {
 
 import { selectAllTasks } from "../../store/tasksSlice";
 import { TaskCard } from "./TaskCard";
+import { CreateTaskWithDate } from "./TaskCreateForm";
 
 import { Container, Card, Box, Typography, IconButton } from "@mui/material";
 import WestIcon from "@mui/icons-material/West";
@@ -139,6 +140,11 @@ export function TasksCalendarView(props) {
               return [...Array(days).keys()]
                 .map((i) => {
                   let day = addDays(lastDay, -i);
+                  let tasks = tasksByDate[day.toLocaleString(...format)] || [];
+                  let doneCount = tasks.filter(
+                    (task) => task.done === true
+                  ).length;
+                  let notDoneCount = tasks.length - doneCount;
 
                   return (
                     <Day
@@ -146,6 +152,8 @@ export function TasksCalendarView(props) {
                       day={day}
                       notCurrentMonth={true}
                       onClick={() => selectDate(day)}
+                      doneCount={doneCount}
+                      notDoneCount={notDoneCount}
                     />
                   );
                 })
@@ -185,6 +193,11 @@ export function TasksCalendarView(props) {
 
               return [...Array(days).keys()].map((i) => {
                 let day = addDays(lastDay, 1 + i);
+                let tasks = tasksByDate[day.toLocaleString(...format)] || [];
+                let doneCount = tasks.filter(
+                  (task) => task.done === true
+                ).length;
+                let notDoneCount = tasks.length - doneCount;
 
                 return (
                   <Day
@@ -192,6 +205,8 @@ export function TasksCalendarView(props) {
                     day={day}
                     notCurrentMonth={true}
                     onClick={() => selectDate(day)}
+                    doneCount={doneCount}
+                    notDoneCount={notDoneCount}
                   />
                 );
               });
@@ -219,6 +234,8 @@ export function TasksCalendarView(props) {
             />
           ));
         })()}
+
+        <CreateTaskWithDate projectId={projectId} due={state.selectedDate} />
       </Container>
     </>
   );
@@ -265,7 +282,15 @@ function Day(props) {
         }}
       >
         {day.getDate()}
-        <Box sx={{ height: "1.25rem", display: "flex", gap: "0.5rem" }}>
+        <Box
+          sx={{
+            alignSelf: "stretch",
+            height: "1.25rem",
+            display: "flex",
+            justifyContent: "center",
+            paddingInline: "3px",
+          }}
+        >
           {doneCount > 0 && (
             <Box
               sx={{
@@ -275,6 +300,14 @@ function Day(props) {
             >
               {doneCount}
             </Box>
+          )}
+          {doneCount > 0 && notDoneCount > 0 && (
+            <Box
+              sx={{
+                flexBasis: "0.5rem",
+                flexShrink: 1,
+              }}
+            />
           )}
           {notDoneCount > 0 && (
             <Box
