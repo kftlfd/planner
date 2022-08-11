@@ -52,6 +52,18 @@ class UserConsumer(AsyncWebsocketConsumer):
                 'groups': [g for g in self.groups]
             }))
 
+        # broadcast to all user's groups
+        elif data.get('group') == 'all':
+            for group in self.groups:
+                await self.channel_layer.group_send(
+                    group,
+                    {
+                        'type': 'message',
+                        'sender': self.user,
+                        'data': text_data
+                    }
+                )
+
         # broadcast to group
         elif data['group'] in self.groups:
             await self.channel_layer.group_send(
