@@ -60,7 +60,7 @@ class UserConsumer(AsyncWebsocketConsumer):
                     {
                         'type': 'message',
                         'sender': self.user,
-                        'data': text_data
+                        'data': json.dumps({**data, "group": group}),
                     }
                 )
 
