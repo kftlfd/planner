@@ -38,6 +38,10 @@ export const user = {
   async projects() {
     return await query(urls.user.projects, methods.get);
   },
+
+  async deleteAccount() {
+    return await queryNoResponse(urls.user.details, methods.delete);
+  },
 };
 
 //

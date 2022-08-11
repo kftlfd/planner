@@ -93,6 +93,12 @@ export default function ProvideActions(props) {
         api.user.update({ sharedProjectsOrder: newOrder });
       }
     },
+
+    async deleteAccount() {
+      ws.send("project/removeMember", "all", { userId });
+      api.user.deleteAccount();
+      window.location.replace("/");
+    },
   };
 
   //
@@ -108,6 +114,7 @@ export default function ProvideActions(props) {
     async create(name) {
       const p = await api.project.create(name);
       dispatch(projectsSlice.addProject(p));
+      ws.join([p.id]);
       return p.id;
     },
 
@@ -312,7 +319,7 @@ export default function ProvideActions(props) {
           case "project/removeMember":
             dispatch(
               projectsSlice.removeMember({
-                projectId: message.projectId,
+                projectId: message.group,
                 userId: message.userId,
               })
             );
