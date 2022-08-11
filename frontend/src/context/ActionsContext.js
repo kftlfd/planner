@@ -73,6 +73,17 @@ export default function ProvideActions(props) {
   //
 
   const user = {
+    async update(userUpdate) {
+      const updatedUser = await api.user.update(userUpdate);
+      dispatch(usersSlice.updateUser(updatedUser));
+      ws.send("user/update", "all", { user: updatedUser });
+      return updatedUser;
+    },
+
+    async changePassword(passwords) {
+      return await api.user.password(passwords);
+    },
+
     async updateProjectsOrder(type, newOrder) {
       if (type === "owned") {
         dispatch(projectsSlice.changeOwnedIdsOrder(newOrder));
@@ -324,6 +335,10 @@ export default function ProvideActions(props) {
 
           case "chat/newMessage":
             dispatch(chatSlice.addMessage(message));
+            break;
+
+          case "user/update":
+            dispatch(usersSlice.updateUser(message.user));
             break;
         }
       };
