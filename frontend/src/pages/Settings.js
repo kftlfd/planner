@@ -1,7 +1,12 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
+import { useColorMode } from "../context/ThemeContext";
 import { useActions } from "../context/ActionsContext";
+import {
+  selectHideDoneTasks,
+  selectBoardColumnWidth,
+} from "../store/settingsSlice";
 import { selectUser } from "../store/usersSlice";
 import { MainHeader, MainBody } from "../layout/Main";
 import { SimpleModal } from "../layout/Modal";
@@ -14,6 +19,8 @@ import {
   Button,
   Collapse,
   Checkbox,
+  Switch,
+  Slider,
 } from "@mui/material";
 
 export function Settings(props) {
@@ -24,6 +31,7 @@ export function Settings(props) {
       <MainBody>
         <Container maxWidth="sm">
           <AccountSettings />
+          <InterfaceSettings />
           <DeleteAccount />
         </Container>
       </MainBody>
@@ -302,6 +310,69 @@ function AccountSettings(props) {
           <Collapse in={state.passwordChangeSuccess}>
             <Box sx={successMsg}>Password changed!</Box>
           </Collapse>
+        </Box>
+      </Box>
+    </SettingWrapper>
+  );
+}
+
+function InterfaceSettings(props) {
+  const colorMode = useColorMode();
+  const actions = useActions();
+  const hideDoneTasks = useSelector(selectHideDoneTasks);
+  const boardColumnWidth = useSelector(selectBoardColumnWidth);
+
+  const [sliderValue, setSliderValue] = React.useState(boardColumnWidth);
+
+  const wrapper = {
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    flexWrap: "wrap",
+    rowGap: "0.5rem",
+  };
+
+  return (
+    <SettingWrapper header="Interface">
+      <Box sx={wrapper}>
+        <Box sx={{ flexGrow: 1 }}>Use Dark theme</Box>
+        <Switch
+          checked={colorMode.mode === "dark"}
+          onClick={colorMode.toggleColorMode}
+        />
+      </Box>
+      <Box sx={wrapper}>
+        <Box sx={{ flexGrow: 1 }}>Hide done Tasks</Box>
+        <Switch
+          checked={hideDoneTasks}
+          onClick={actions.settings.toggleHideDoneTasks}
+        />
+      </Box>
+      <Box sx={wrapper}>
+        <Box sx={{ flexGrow: 1 }}>Board columns width</Box>
+        <Box
+          sx={{
+            paddingInline: "1rem",
+            flexBasis: "40%",
+            flexShrink: 0,
+            flexGrow: 1,
+            maxWidth: "100%",
+            display: "grid",
+            alignItems: "center",
+          }}
+        >
+          <Slider
+            defaultValue={boardColumnWidth}
+            value={sliderValue}
+            min={180}
+            max={320}
+            step={35}
+            marks
+            onChange={(e) => setSliderValue(e.target.value)}
+            onChangeCommitted={() =>
+              actions.settings.setBoardColumnWidth(sliderValue)
+            }
+          />
         </Box>
       </Box>
     </SettingWrapper>
