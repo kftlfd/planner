@@ -107,7 +107,7 @@ export function TasksCalendarView(props) {
 
   return (
     <>
-      <Container maxWidth="lg">
+      <Container maxWidth="md">
         <Box
           sx={{
             marginBlock: "1rem",
