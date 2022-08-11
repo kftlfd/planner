@@ -31,6 +31,10 @@ export const user = {
     return await query(urls.user.details, methods.patch, userUpdate);
   },
 
+  async password(passwords) {
+    return await query(urls.user.password, methods.post, passwords);
+  },
+
   async projects() {
     return await query(urls.user.projects, methods.get);
   },

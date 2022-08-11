@@ -26,6 +26,7 @@ export const urls = {
   user: {
     details: `/api/user/`,
     projects: `/api/user/projects/`,
+    password: `/api/user/password/`,
   },
 
   project: {
