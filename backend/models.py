@@ -41,9 +41,9 @@ class Task(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name='tasks')
     userCreated = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='tasks_created')
+        User, on_delete=models.SET_NULL, null=True, related_name='tasks_created')
     userModified = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='tasks_modified')
+        User, on_delete=models.SET_NULL, null=True, related_name='tasks_modified')
     title = models.CharField(max_length=150)
     done = models.BooleanField(default=False)
     notes = models.TextField(blank=True, default='')
