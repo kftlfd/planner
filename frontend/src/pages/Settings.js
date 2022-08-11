@@ -348,32 +348,28 @@ function InterfaceSettings(props) {
           onClick={actions.settings.toggleHideDoneTasks}
         />
       </Box>
-      <Box sx={wrapper}>
-        <Box sx={{ flexGrow: 1 }}>Board columns width</Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <Box>Board columns width</Box>
         <Box
           sx={{
-            paddingInline: "1rem",
-            flexBasis: "40%",
-            flexShrink: 0,
-            flexGrow: 1,
-            maxWidth: "100%",
-            display: "grid",
-            alignItems: "center",
+            height: "0.5rem",
+            width: `${sliderValue}px`,
+            borderRadius: "0.25rem",
+            backgroundColor: "text.disabled",
           }}
-        >
-          <Slider
-            defaultValue={boardColumnWidth}
-            value={sliderValue}
-            min={180}
-            max={320}
-            step={35}
-            marks
-            onChange={(e) => setSliderValue(e.target.value)}
-            onChangeCommitted={() =>
-              actions.settings.setBoardColumnWidth(sliderValue)
-            }
-          />
-        </Box>
+        />
+        <Slider
+          defaultValue={boardColumnWidth}
+          value={sliderValue}
+          min={150}
+          max={350}
+          step={25}
+          marks
+          onChange={(e) => setSliderValue(e.target.value)}
+          onChangeCommitted={() =>
+            actions.settings.setBoardColumnWidth(sliderValue)
+          }
+        />
       </Box>
     </SettingWrapper>
   );
