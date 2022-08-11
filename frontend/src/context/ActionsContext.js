@@ -96,7 +96,7 @@ export default function ProvideActions(props) {
 
     async deleteAccount() {
       ws.send("project/removeMember", "all", { userId });
-      api.user.deleteAccount();
+      await api.user.deleteAccount();
       window.location.replace("/");
     },
   };

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useActions } from "../context/ActionsContext";
 import { selectUser } from "../store/usersSlice";
 import { MainHeader, MainBody } from "../layout/Main";
+import { SimpleModal } from "../layout/Modal";
 
 import {
   Container,
@@ -308,13 +309,38 @@ function AccountSettings(props) {
 }
 
 function DeleteAccount(props) {
+  const actions = useActions();
+
+  const [state, setState] = React.useState({
+    modalOpen: false,
+  });
+
+  function handleDeleteAccount() {
+    actions.user.deleteAccount();
+  }
+
   return (
     <SettingWrapper header="Delete Account">
       <Box>
-        <Button color="error" variant="contained">
+        <Button
+          color="error"
+          variant="contained"
+          onClick={() => setState((prev) => ({ ...prev, modalOpen: true }))}
+        >
           Delete
         </Button>
       </Box>
+
+      <SimpleModal
+        open={state.modalOpen}
+        onConfirm={handleDeleteAccount}
+        onClose={() => setState((prev) => ({ ...prev, modalOpen: false }))}
+        title={"Delete account?"}
+        content={
+          "Can't restore, projects deleted, content in shared projects will remain"
+        }
+        action={"Delete"}
+      />
     </SettingWrapper>
   );
 }
