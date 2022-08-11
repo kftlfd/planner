@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import { selectProjectBoard } from "../../store/projectsSlice";
+import { selectBoardColumnWidth } from "../../store/settingsSlice";
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
 import { BoardTask } from "./TaskCard";
@@ -33,7 +34,7 @@ export function TasksBoardView(props) {
   } = props;
   const board = useSelector(selectProjectBoard(projectId));
   const actions = useActions();
-  const columnWidth = 250;
+  const columnWidth = useSelector(selectBoardColumnWidth);
 
   const [boardEdit, setBoardEdit] = React.useState(false);
   const toggleBoardEdit = () => setBoardEdit((x) => !x);

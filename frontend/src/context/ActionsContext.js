@@ -275,6 +275,10 @@ export default function ProvideActions(props) {
     setProjectView(view) {
       dispatch(settingsSlice.setProjectView(view));
     },
+
+    setBoardColumnWidth(width) {
+      dispatch(settingsSlice.setBoardColumnWidth(width));
+    },
   };
 
   //

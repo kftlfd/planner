@@ -13,6 +13,9 @@ const settingsSlice = createSlice({
     hideDoneTasks:
       window.localStorage.getItem("hideDoneTasks") === "true" ? true : false,
     projectView: window.localStorage.getItem("projectView") || "list",
+    boardColumnWidth: window.localStorage.getItem("boardColumnWidth")
+      ? Number(window.localStorage.getItem("boardColumnWidth"))
+      : 250,
   },
 
   reducers: {
@@ -33,11 +36,21 @@ const settingsSlice = createSlice({
       state.projectView = view;
       window.localStorage.setItem("projectView", view);
     },
+
+    setBoardColumnWidth(state, action) {
+      const width = action.payload;
+      state.boardColumnWidth = width;
+      window.localStorage.setItem("boardColumnWidth", width);
+    },
   },
 });
 
-export const { toggleNavDrawer, toggleHideDoneTasks, setProjectView } =
-  settingsSlice.actions;
+export const {
+  toggleNavDrawer,
+  toggleHideDoneTasks,
+  setProjectView,
+  setBoardColumnWidth,
+} = settingsSlice.actions;
 
 export default settingsSlice.reducer;
 
@@ -50,3 +63,6 @@ export const selectNavDrawerOpen = (state) => state.settings.navDrawerOpen;
 export const selectHideDoneTasks = (state) => state.settings.hideDoneTasks;
 
 export const selectProjectView = (state) => state.settings.projectView;
+
+export const selectBoardColumnWidth = (state) =>
+  state.settings.boardColumnWidth;
