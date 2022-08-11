@@ -9,6 +9,7 @@ urlpatterns = [
 
     path('user/', views.User_Details.as_view()),
     path('user/projects/', views.user_projects),
+    path('user/password/', views.user_password),
 
     path('project/', views.Project_Create.as_view()),
     path('project/<int:pk>/', views.Project_Details.as_view()),
