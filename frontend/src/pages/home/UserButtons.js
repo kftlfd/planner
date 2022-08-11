@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { useActions } from "../../context/ActionsContext";
@@ -18,6 +19,8 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 export function UserButtons(props) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector(selectUser);
   const actions = useActions();
 
@@ -40,7 +43,13 @@ export function UserButtons(props) {
 
       <Collapse in={nestedListOpen} timeout="auto">
         <List component="div" disablePadding>
-          <ListItemButton key="settings-button">
+          <ListItemButton
+            key="settings-button"
+            onClick={() => {
+              if (location.pathname !== "/settings") navigate("/settings");
+              props.drawerToggle();
+            }}
+          >
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>

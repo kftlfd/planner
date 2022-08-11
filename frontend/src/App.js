@@ -14,6 +14,7 @@ import Invite from "./pages/Invite";
 import Welcome from "./pages/Welcome";
 import { Register, Login } from "./pages/Auth";
 import Error from "./pages/Error";
+import { Settings } from "./pages/Settings";
 
 export default function App() {
   const user = useSelector(selectUser);
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="project" element={<Project />}>
               <Route path=":projectId" element={<Tasks />} />
             </Route>
+            <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="/" element={<Navbar />}>
             <Route path="invite/:inviteCode" element={<Invite />} />
