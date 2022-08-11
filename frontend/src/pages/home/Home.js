@@ -52,7 +52,7 @@ export default function Home(props) {
         smallScreen={smallScreen}
       >
         <Divider />
-        <UserButtons drawerToggle={drawerToggle} />
+        <UserButtons drawerToggle={handleCloseDrawer} />
         <Divider />
 
         {ownedProjectIds.length > 0 ? (
