@@ -67,7 +67,8 @@ export function ProjectChat(props) {
       setState((prev) => ({ ...prev, viewingNow: true }));
     } else if (state.viewingNow) {
       setState((prev) => ({ ...prev, viewingNow: false }));
-      if (projectChat?.unreadIndex) actions.chat.resetUnread(projectId);
+      if (projectChat?.unreadIndex !== null)
+        actions.chat.resetUnread(projectId);
     }
   }, [state.chatOpen]);
 
@@ -220,9 +221,7 @@ export function ProjectChat(props) {
 
 function Message(props) {
   const { message, samePrevUser, sameNextUser, unread } = props;
-  const user = useSelector(selectUserById(message.user)) || {
-    username: "[deleted]",
-  };
+  const user = useSelector(selectUserById(message.user));
   const selfId = useSelector(selectUserId);
   const self = message.user === selfId;
 
@@ -274,7 +273,7 @@ function Message(props) {
           {!self && (
             <Box sx={{ width: "40px", flexShrink: 0 }}>
               {(!samePrevUser || unread) && (
-                <Avatar>{user.username[0] || ""}</Avatar>
+                <Avatar>{user?.username[0] || ""}</Avatar>
               )}
             </Box>
           )}
@@ -282,7 +281,7 @@ function Message(props) {
           <Card
             sx={{
               backgroundColor: "chat.msg",
-              padding: "0.5rem",
+              padding: "0.5rem 1rem",
               borderRadius: "1rem",
               ...(self && {
                 borderTopRightRadius: "0.5rem",
@@ -308,7 +307,7 @@ function Message(props) {
                   textAlign: self ? "right" : "left",
                 }}
               >
-                {user.username}
+                {user?.username || "[deleted]"}
               </Box>
             )}
 
