@@ -1,2 +1,2 @@
-release: ./prodsetup.sh
+release: ./setup_prod.sh
 web: daphne planner.asgi:application
