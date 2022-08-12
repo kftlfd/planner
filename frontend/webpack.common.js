@@ -1,8 +1,9 @@
 const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: {
-    app: "./src/index.js",
+    app: "./frontend/src/index.js",
   },
 
   output: {
@@ -24,6 +25,21 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.(sa|sc|c)ss$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
+          "sass-loader",
+        ],
+      },
     ],
   },
+
+  plugins: [new MiniCssExtractPlugin()],
 };

@@ -1,31 +1,27 @@
 #!/bin/bash
 
 # check for python venv
-if [[ ! -d /.venv ]]
+if [[ ! -d /py_venv ]]
 then
     echo '--- creating python environment ---'
-    python3 -m venv .venv
+    python3 -m venv py_venv
 fi
 
 echo '--- activate python virtual environment ---'
-source .venv/bin/activate
+source py_venv/bin/activate
 
 echo '--- instlling python modules ---'
 pip install -r requirements.txt
 
-cd frontend
+echo '--- preparing database ---'
+python3 manage.py makemigrations backend
+python3 manage.py migrate
 
 echo '--- installing npm packages ---'
 npm i --force
 
 echo '--- building frontend ---'
 npm run build
-
-cd ..
-
-echo '--- preparing database ---'
-python3 manage.py makemigrations backend
-python3 manage.py migrate
 
 echo '--- collecting static files ---'
 python3 manage.py collectstatic --noinput

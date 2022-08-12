@@ -8,24 +8,15 @@ module.exports = merge(common, {
 
   devtool: "inline-source-map",
 
-  module: {
-    rules: [
-      {
-        test: /\.(sa|sc|c)ss$/i,
-        use: ["style-loader", "css-loader", "sass-loader"],
-      },
-    ],
-  },
-
   plugins: [
     new HtmlWebpackPlugin({
-      template: "templates/dev.html",
+      template: "frontend/templates/dev.html",
     }),
   ],
 
   devServer: {
     static: {
-      directory: path.join(__dirname, "static"),
+      directory: path.join(__dirname, "frontend/static"),
       publicPath: "/",
     },
     port: 8080,
