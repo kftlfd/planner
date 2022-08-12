@@ -11,6 +11,7 @@ npm run build
 cd ..
 
 echo '--- preparing database ---'
+rm db.sqlite3
 python3 manage.py makemigrations backend
 python3 manage.py migrate
 
