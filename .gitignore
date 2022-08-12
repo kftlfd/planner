@@ -4,7 +4,6 @@ __pycache__
 migrations
 *.sqlite3
 
-package-lock.json
 node_modules
 dist
 

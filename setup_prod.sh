@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo '--- installing npm packages ---'
-npm i --force
+npm i --legacy-peer-deps
 
 echo '--- building frontend ---'
 npm run build
