@@ -16,7 +16,7 @@ module.exports = merge(common, {
 
   devServer: {
     static: {
-      directory: path.join(__dirname, "frontend/static"),
+      directory: path.join(__dirname, "static"),
       publicPath: "/",
     },
     port: 8080,
