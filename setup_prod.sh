@@ -1,6 +1,22 @@
 #!/bin/bash
 
+# check for python venv
+if [[ ! -d /.venv ]]
+then
+    echo '--- creating python environment ---'
+    python3 -m venv .venv
+fi
+
+echo '--- activate python virtual environment ---'
+source .venv/bin/activate
+
+echo '--- instlling python modules ---'
+pip install -r requirements.txt
+
 cd frontend
+
+echo '--- installing npm packages ---'
+npm i --force
 
 echo '--- building frontend ---'
 npm run build
