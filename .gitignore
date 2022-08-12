@@ -6,3 +6,6 @@ migrations
 
 node_modules
 dist
+
+/static
+!/static/.placeholder
