@@ -15,7 +15,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'insecure-key-12389-&*#!')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.environ.get('HOST_LOCATION', '*')]
+ALLOWED_HOSTS = [os.environ.get('HOST_LOCATION')]
+CSRF_TRUSTED_ORIGINS = [os.environ.get('HOST_LOCATION')]
 
 
 # Application definition
