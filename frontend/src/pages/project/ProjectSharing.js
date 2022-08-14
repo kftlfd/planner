@@ -211,6 +211,9 @@ function InviteLink(props) {
 
   const [tooltipOpen, setTooltipOpen] = React.useState(false);
 
+  const [loadingRecreate, setLoadingRecreate] = React.useState(false);
+  const [loadingDelete, setLoadingDelete] = React.useState(false);
+
   function copyInviteLinkToClipboard() {
     navigator.clipboard.writeText(inviteLink);
     setTooltipOpen(true);
@@ -218,18 +221,24 @@ function InviteLink(props) {
   }
 
   async function handleInviteRecreate() {
+    setLoadingRecreate(true);
     try {
       await actions.project.sharing.recreateInvite(projectId);
+      setLoadingRecreate(false);
     } catch (error) {
       console.error("Invite recreate: ", error);
+      setLoadingRecreate(false);
     }
   }
 
   async function handleInviteDelete() {
+    setLoadingDelete(true);
     try {
       await actions.project.sharing.deleteInvite(projectId);
+      setLoadingDelete(false);
     } catch (error) {
       console.error("Invite delete: ", error);
+      setLoadingDelete(false);
     }
   }
 
@@ -293,12 +302,26 @@ function InviteLink(props) {
 
       {props.canEdit && (
         <>
-          <IconButton onClick={handleInviteRecreate}>
+          <IconButton
+            onClick={handleInviteRecreate}
+            disabled={loadingRecreate}
+            sx={{ position: "relative" }}
+          >
             <ChangeCircleIcon />
+            {loadingRecreate && (
+              <CircularProgress size={30} sx={{ position: "absolute" }} />
+            )}
           </IconButton>
 
-          <IconButton onClick={handleInviteDelete} disabled={!inviteCode}>
+          <IconButton
+            onClick={handleInviteDelete}
+            disabled={!inviteCode || loadingDelete}
+            sx={{ position: "relative" }}
+          >
             <CancelIcon />
+            {loadingDelete && (
+              <CircularProgress size={30} sx={{ position: "absolute" }} />
+            )}
           </IconButton>
         </>
       )}
