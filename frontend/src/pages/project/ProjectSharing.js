@@ -12,6 +12,7 @@ import { selectUserById } from "../../store/usersSlice";
 import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { SimpleModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 
 import {
   Typography,
@@ -23,6 +24,7 @@ import {
   Checkbox,
   Tooltip,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
@@ -42,34 +44,46 @@ export function ProjectSharing(props) {
     setSidebarOpen((x) => !x);
   };
 
-  const [projectSharing, setProjectSharing] = useState(project.sharing);
-  const projectSharingToggle = () => setProjectSharing((x) => !x);
+  const [sharingToggle, setSharingToggle] = useState(project.sharing);
+
+  const [loadingSharing, setLoadingSharing] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
   const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
 
   useEffect(() => {
-    setProjectSharing(project.sharing);
+    setSharingToggle(project.sharing);
   }, [project]);
 
   async function handleEnableSharing() {
-    projectSharingToggle();
+    setSharingToggle(true);
+    setLoadingSharing(true);
     try {
       await actions.project.sharing.enable(projectId);
+      setLoadingSharing(false);
     } catch (error) {
       console.error("Failed to start sharing: ", error);
-      setProjectSharing(false);
+      setSharingToggle(false);
+      setLoadingSharing(false);
+      setError("Can't enable sharing");
     }
   }
 
   async function handleDisableSharing() {
-    stopSharingDialogToggle();
-    projectSharingToggle();
+    setLoading(true);
     try {
       await actions.project.sharing.disable(projectId);
+      setLoading(false);
+      setSharingToggle(false);
+      stopSharingDialogToggle();
     } catch (error) {
       console.error("Failed to stop sharing: ", error);
-      setProjectSharing(true);
+      setLoading(false);
+      setSharingToggle(true);
+      setError("Can't update sharing");
     }
   }
 
@@ -83,11 +97,17 @@ export function ProjectSharing(props) {
     </Typography>
   );
 
+  const sharingLoading = (
+    <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <CircularProgress size={50} />
+    </Box>
+  );
+
   return (
     <>
       <MenuListItem onClick={toggleSidebar}>
         {isOwned ? "Project sharing" : "Project info"}
-        {isOwned && <Checkbox color="primary" checked={projectSharing} />}
+        {isOwned && <Checkbox color="primary" checked={sharingToggle} />}
       </MenuListItem>
 
       <Sidebar open={sidebarOpen} toggle={toggleSidebar}>
@@ -96,19 +116,39 @@ export function ProjectSharing(props) {
           toggle={toggleSidebar}
         >
           {isOwned && (
-            <SharingSwitch
-              checked={projectSharing}
-              onChange={
-                projectSharing ? stopSharingDialogToggle : handleEnableSharing
-              }
-            />
+            <>
+              <SharingSwitch
+                checked={sharingToggle}
+                onChange={
+                  sharingToggle ? stopSharingDialogToggle : handleEnableSharing
+                }
+              />
+
+              <SimpleModal
+                open={stopSharingDialogOpen}
+                onClose={stopSharingDialogToggle}
+                onConfirm={handleDisableSharing}
+                title={"Stop sharing project?"}
+                content={"It will do something unreversible."}
+                action={"Stop sharing"}
+                loading={loading}
+              />
+
+              <ErrorAlert
+                open={error !== null}
+                toggle={() => setError(null)}
+                message={error}
+              />
+            </>
           )}
         </SidebarHeader>
 
         <SidebarBody
           sx={{ display: "flex", flexDirection: "column", gap: "2rem" }}
         >
-          {!projectSharing ? (
+          {loadingSharing ? (
+            <>{sharingLoading}</>
+          ) : !sharingToggle ? (
             <>{sharingDisabled}</>
           ) : (
             <>
@@ -122,17 +162,6 @@ export function ProjectSharing(props) {
             </>
           )}
         </SidebarBody>
-
-        {isOwned && (
-          <SimpleModal
-            open={stopSharingDialogOpen}
-            onClose={stopSharingDialogToggle}
-            onConfirm={handleDisableSharing}
-            title={"Stop sharing project?"}
-            content={"It will do something unreversible."}
-            action={"Stop sharing"}
-          />
-        )}
       </Sidebar>
     </>
   );
