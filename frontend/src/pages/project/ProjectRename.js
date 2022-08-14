@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import { ErrorAlert } from "../../layout/Alert";
+
 import {
   selectProjectById,
   selectSharedProjectIds,
@@ -26,12 +28,19 @@ export function ProjectRename(props) {
   const [renameValue, setRenameValue] = useState(project.name);
   const handleRenameChange = (e) => setRenameValue(e.target.value);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   async function handleRename() {
+    setLoading(true);
     try {
       await actions.project.update(projectId, { name: renameValue });
       toggleRenameDialog();
+      setLoading(false);
     } catch (error) {
       console.error("Failed to rename project: ", error);
+      setLoading(false);
+      setError("Can't rename project");
     }
   }
 
@@ -49,6 +58,13 @@ export function ProjectRename(props) {
         action={"Rename"}
         inputValue={renameValue}
         inputChange={handleRenameChange}
+        loading={loading}
+      />
+
+      <ErrorAlert
+        open={error !== null}
+        toggle={() => setError(null)}
+        message={error}
       />
     </>
   );
