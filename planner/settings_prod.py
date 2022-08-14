@@ -1,3 +1,4 @@
+import django_heroku
 import os
 from pathlib import Path
 
@@ -68,6 +69,7 @@ WSGI_APPLICATION = 'planner.wsgi.application'
 ASGI_APPLICATION = "planner.asgi.application"
 CHANNEL_LAYERS = {
     # TODO? change to Redis
+    # Heroku requires credit card verification :(
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
@@ -80,8 +82,8 @@ CHANNEL_LAYERS = {
 DATABASES = {
     # TODO? change to Postgres
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'planer_app',
     }
 }
 
@@ -134,3 +136,5 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+django_heroku.settings(locals())

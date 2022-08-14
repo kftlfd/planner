@@ -1,13 +1,8 @@
 #!/bin/bash
 
-echo '--- installing npm packages ---'
-npm i --legacy-peer-deps
-
-echo '--- building frontend ---'
-npm run build
+# for deployment on Heroku
 
 echo '--- preparing database ---'
-rm db.sqlite3
 python3 manage.py makemigrations backend
 python3 manage.py migrate
 
