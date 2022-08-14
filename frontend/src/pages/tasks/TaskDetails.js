@@ -11,6 +11,8 @@ import {
 import { selectUserById } from "../../store/usersSlice";
 import { selectTaskById } from "../../store/tasksSlice";
 import { SidebarHeader, SidebarBody } from "../../layout/Sidebar";
+import { SimpleModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 
 import {
   Box,
@@ -18,14 +20,10 @@ import {
   Checkbox,
   TextField,
   FormControlLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   CircularProgress,
   IconButton,
   Avatar,
+  Collapse,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -46,6 +44,7 @@ export function TaskDetails(props) {
   const actions = useActions();
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [taskState, setTaskState] = useState({});
 
@@ -83,21 +82,27 @@ export function TaskDetails(props) {
     };
     try {
       await actions.task.update(taskId, taskUpdate);
+      setLoading(false);
       sidebarToggle();
     } catch (error) {
       console.error("Failed to update task: ", error);
+      setLoading(false);
+      setError("Can't update task");
     }
-    setLoading(false);
   }
 
   async function handleTaskDelete() {
+    setLoading(true);
     try {
       await actions.task.delete(task.project, task.id);
+      setLoading(false);
       sidebarToggle();
       setTaskSelected(null);
       toggleDeleteModal();
     } catch (error) {
       console.error("Failed to delete task: ", error);
+      setLoading(false);
+      setError("Can't delete task");
     }
   }
 
@@ -106,9 +111,7 @@ export function TaskDetails(props) {
       <SidebarHeader title="Task details" toggle={sidebarToggle}>
         {taskId && task && (
           <Button
-            endIcon={
-              loading ? <CircularProgress size={"100%"} /> : <SaveIcon />
-            }
+            endIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
             disabled={
               loading ||
               [
@@ -198,17 +201,28 @@ export function TaskDetails(props) {
                   variant="contained"
                   color="error"
                   onClick={toggleDeleteModal}
+                  disabled={loading}
                 >
                   Delete task
                 </Button>
 
-                <TaskDeleteModal
+                <SimpleModal
                   open={deleteModalOpen}
-                  onClose={toggleDeleteModal}
                   onConfirm={handleTaskDelete}
+                  onClose={toggleDeleteModal}
+                  title={"Delete task?"}
+                  content={"This action cannot be undone."}
+                  action={"Delete"}
+                  loading={loading}
                 />
               </Box>
             )}
+
+            <ErrorAlert
+              open={error !== null}
+              toggle={() => setError(null)}
+              message={error}
+            />
           </Box>
         ) : (
           "Task not found"
@@ -218,32 +232,11 @@ export function TaskDetails(props) {
   );
 }
 
-function TaskDeleteModal(props) {
-  const { open, onClose, onConfirm } = props;
-
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Delete task?</DialogTitle>
-      <DialogContent>
-        <DialogContentText>This action cannot be undone.</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onConfirm} color={"error"}>
-          Delete
-        </Button>
-        <Button onClick={onClose}>Cancel</Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 export function DueForm(props) {
-  const { value, onChange, onClear, boxSx } = props;
+  const { value, onChange, onClear, boxSx, disabled } = props;
 
   return (
-    <Box
-      sx={{ display: "flex", alignItems: "center", gap: "0.5rem", ...boxSx }}
-    >
+    <Box sx={{ display: "flex", alignItems: "center", ...boxSx }}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <MobileDateTimePicker
           name="due"
@@ -254,12 +247,19 @@ export function DueForm(props) {
           renderInput={(params) => (
             <TextField {...params} sx={{ flexGrow: 1 }} />
           )}
+          disabled={disabled}
         />
       </LocalizationProvider>
 
-      <IconButton disabled={value === null} onClick={onClear}>
-        <CancelIcon />
-      </IconButton>
+      <Collapse in={value !== null} orientation="horizontal">
+        <IconButton
+          disabled={value === null || disabled}
+          onClick={onClear}
+          sx={{ marginLeft: "0.5rem" }}
+        >
+          <CancelIcon />
+        </IconButton>
+      </Collapse>
     </Box>
   );
 }
