@@ -32,8 +32,8 @@ const tasksSlice = createSlice({
     },
 
     deleteTask(state, action) {
-      const task = action.payload;
-      delete state.items[task.id];
+      const taskId = action.payload;
+      delete state.items[taskId];
     },
   },
 });

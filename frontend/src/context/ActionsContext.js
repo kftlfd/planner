@@ -221,11 +221,11 @@ export default function ProvideActions(props) {
       dispatch(tasksSlice.updateTask(task));
     },
 
-    async delete(taskId) {
+    async delete(projectId, taskId) {
       await api.task.delete(taskId);
-      ws.send("task/delete", `${task.project}`, { task });
-      dispatch(tasksSlice.deleteTask(task));
-      dispatch(projectsSlice.deleteTask(task));
+      ws.send("task/delete", `${projectId}`, { projectId, taskId });
+      dispatch(tasksSlice.deleteTask(taskId));
+      dispatch(projectsSlice.deleteTask({ projectId, taskId }));
     },
   };
 
@@ -340,8 +340,13 @@ export default function ProvideActions(props) {
             dispatch(tasksSlice.updateTask(message.task));
             break;
           case "task/delete":
-            dispatch(tasksSlice.deleteTask(message.task));
-            dispatch(projectsSlice.deleteTask(message.task));
+            dispatch(tasksSlice.deleteTask(message.taskId));
+            dispatch(
+              projectsSlice.deleteTask({
+                projectId: message.projectId,
+                taskId: message.taskId,
+              })
+            );
             break;
 
           case "chat/newMessage":

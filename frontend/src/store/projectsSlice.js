@@ -81,17 +81,20 @@ const projectsSlice = createSlice({
       state.items[task.project].board.none.push(task.id);
     },
     deleteTask(state, action) {
-      const task = action.payload;
-      state.items[task.project].tasksOrder = state.items[
-        task.project
-      ].tasksOrder.filter((id) => id !== task.id);
-      state.items[task.project].board.none = state.items[
-        task.project
-      ].board.none.filter((id) => id !== task.id);
-      Object.keys(state.items[task.project].board.columns).forEach((col) => {
-        state.items[task.project].board.columns[col] = state.items[
-          task.project
-        ].board.columns[col].filter((id) => id !== task.id);
+      const { projectId, taskId } = action.payload;
+
+      state.items[projectId].tasksOrder = state.items[
+        projectId
+      ].tasksOrder.filter((id) => id !== taskId);
+
+      state.items[projectId].board.none = state.items[
+        projectId
+      ].board.none.filter((id) => id !== taskId);
+
+      Object.keys(state.items[projectId].board.columns).forEach((col) => {
+        state.items[projectId].board.columns[col].taskIds = state.items[
+          projectId
+        ].board.columns[col].taskIds.filter((id) => id !== taskId);
       });
     },
 

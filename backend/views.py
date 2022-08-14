@@ -298,7 +298,7 @@ class Task_Details(generics.RetrieveUpdateDestroyAPIView):
         if t_id in p.tasksOrder:
             p.tasksOrder.remove(t_id)
 
-        if t_id in p.board['none'][col]:
+        if t_id in p.board['none']:
             p.board['none'].remove(t_id)
 
         for col in p.board['columns']:
