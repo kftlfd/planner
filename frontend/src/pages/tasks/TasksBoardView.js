@@ -9,6 +9,7 @@ import { TaskCreateForm } from "./TaskCreateForm";
 import { BoardTask } from "./TaskCard";
 import { NoTasks } from "./Tasks";
 import { InputModal, SimpleModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 import { BaseSkeleton } from "../../layout/Loading";
 
 import {
@@ -289,14 +290,8 @@ function BoardEdit(props) {
   const [newColName, setNewColName] = React.useState("");
   const changeColName = (e) => setNewColName(e.target.value);
 
-  async function resetBoard() {
-    const updBoard = { ...board, order: [], columns: {} };
-
-    await actions.project.updateTasksOrder({
-      id: projectId,
-      board: updBoard,
-    });
-  }
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   async function createNewColumn() {
     const newCol = {
@@ -318,15 +313,21 @@ function BoardEdit(props) {
       lastColId: board.lastColId + 1,
     };
 
+    setLoading(true);
     try {
       await actions.project.updateTasksOrder({
         id: projectId,
         board: newBoard,
       });
-      setNewColName("");
-      toggleModal();
+      setTimeout(() => {
+        setLoading(false);
+        setNewColName("");
+        toggleModal();
+      }, 2000);
     } catch (error) {
       console.error("Failed to update board: ", error);
+      setLoading(false);
+      setError("Can't create new column");
     }
   }
 
@@ -365,8 +366,16 @@ function BoardEdit(props) {
         title={"Add new column"}
         content={null}
         action={"Add"}
+        inputLabel={"Column name"}
         inputValue={newColName}
         inputChange={changeColName}
+        loading={loading}
+      />
+
+      <ErrorAlert
+        open={error !== null}
+        toggle={() => setError(null)}
+        message={error}
       />
     </Paper>
   );
@@ -386,6 +395,10 @@ function BoardColumn(props) {
   const [newColName, setNewColName] = React.useState(title);
   const changeColName = (e) => setNewColName(e.target.value);
 
+  const [loading, setLoading] = React.useState(false);
+  const [loadingDelete, setLoadingDelete] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
   async function handleColumnRename() {
     const newBoard = {
       ...board,
@@ -398,14 +411,18 @@ function BoardColumn(props) {
       },
     };
 
+    setLoading(true);
     try {
       await actions.project.updateTasksOrder({
         id: projectId,
         board: newBoard,
       });
+      setLoading(false);
       toggleEditDialog();
     } catch (error) {
       console.error("Failed to rename column: ", error);
+      setLoading(false);
+      setError("Can't update column");
     }
   }
 
@@ -420,6 +437,7 @@ function BoardColumn(props) {
       order: board.order.filter((col) => col !== colId),
     };
 
+    setLoadingDelete(true);
     try {
       await actions.project.updateTasksOrder({
         id: projectId,
@@ -427,8 +445,11 @@ function BoardColumn(props) {
       });
       setEditDialogOpen(false);
       setDeleteDialogOpen(false);
+      setLoadingDelete(false);
     } catch (error) {
       console.error("Failed to delete column: ", error);
+      setLoadingDelete(false);
+      setError("Can't delete column");
     }
   }
 
@@ -522,6 +543,8 @@ function BoardColumn(props) {
                           ? handleColumnDelete
                           : toggleDeleteDialog
                       }
+                      disabled={loading || loadingDelete}
+                      endIcon={loadingDelete && <CircularProgress size={20} />}
                     >
                       Delete
                     </Button>
@@ -532,10 +555,18 @@ function BoardColumn(props) {
                       title={`Delete column "${title}"?`}
                       content={`Tasks will be moved to default column`}
                       action={"Delete"}
+                      loading={loadingDelete}
                     />
                     <Box sx={{ flexGrow: 1 }} />
                   </>
                 }
+                loading={loading}
+              />
+
+              <ErrorAlert
+                open={error !== null}
+                toggle={() => setError(null)}
+                message={error}
               />
             </Collapse>
           </Box>
