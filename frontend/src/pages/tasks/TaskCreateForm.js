@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useActions } from "../../context/ActionsContext";
 import { BaseSkeleton } from "../../layout/Loading";
 import { InputModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 import { DueForm } from "./TaskDetails";
 
 import {
@@ -12,8 +13,10 @@ import {
   IconButton,
   Paper,
   InputBase,
+  CircularProgress,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import AddIcon from "@mui/icons-material/Add";
 
 export function TaskCreateForm(props) {
   const { projectId } = props;
@@ -26,13 +29,20 @@ export function TaskCreateForm(props) {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   async function handleCreateTask(event) {
     event.preventDefault();
+    setLoading(true);
     try {
       await actions.task.create(projectId, { title: taskCreateTitle });
+      setLoading(false);
       setTaskCreateTitle("");
     } catch (error) {
       console.error("Failed to create task: ", error);
+      setLoading(false);
+      setError("Can't create task");
     }
   }
 
@@ -67,15 +77,22 @@ export function TaskCreateForm(props) {
           componentsProps={{
             input: { sx: { padding: "0" } },
           }}
+          disabled={loading}
         />
         <Button
           type={"submit"}
-          disabled={!taskCreateTitle}
+          disabled={!taskCreateTitle || loading}
           size={"small"}
           sx={{ flexShrink: 0 }}
+          startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
         >
-          + Add task
+          Add task
         </Button>
+        <ErrorAlert
+          open={error !== null}
+          toggle={() => setError(null)}
+          message={error}
+        />
       </Paper>
       {props.children}
     </CreateFormWrapper>
@@ -109,6 +126,9 @@ export function CreateTaskWithDate(props) {
     taskDue: props.due || null,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   React.useEffect(() => {
     setState((prev) => ({ ...prev, taskDue: props.due }));
   }, [props.due]);
@@ -122,14 +142,18 @@ export function CreateTaskWithDate(props) {
   }
 
   async function handleCreate() {
+    setLoading(true);
     try {
       await actions.task.create(props.projectId, {
         title: state.taskTitle,
         ...(state.taskDue && { due: state.taskDue.toISOString() }),
       });
+      setLoading(false);
       handleClose();
     } catch (error) {
       console.error("Failed to create task: ", error);
+      setLoading(false);
+      setError("Can't create task");
     }
   }
 
@@ -158,8 +182,15 @@ export function CreateTaskWithDate(props) {
             }
             onClear={() => setState((prev) => ({ ...prev, taskDue: null }))}
             boxSx={{ marginTop: "1rem" }}
+            disabled={loading}
           />
         }
+        loading={loading}
+      />
+      <ErrorAlert
+        open={error !== null}
+        toggle={() => setError(null)}
+        message={error}
       />
     </Box>
   );
