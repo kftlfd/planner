@@ -2,7 +2,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-import { selectProjectBoard } from "../../store/projectsSlice";
+import {
+  selectProjectBoard,
+  selectSharedProjectIds,
+} from "../../store/projectsSlice";
 import { selectBoardColumnWidth } from "../../store/settingsSlice";
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
@@ -36,6 +39,9 @@ export function TasksBoardView(props) {
   const board = useSelector(selectProjectBoard(projectId));
   const actions = useActions();
   const columnWidth = useSelector(selectBoardColumnWidth);
+
+  const sharedIds = useSelector(selectSharedProjectIds);
+  const isOwned = !sharedIds.includes(Number(projectId));
 
   const [boardEdit, setBoardEdit] = React.useState(false);
   const toggleBoardEdit = () => setBoardEdit((x) => !x);
@@ -116,12 +122,14 @@ export function TasksBoardView(props) {
   return (
     <>
       <TaskCreateForm projectId={projectId}>
-        <BoardEdit
-          projectId={projectId}
-          board={board}
-          boardEdit={boardEdit}
-          toggleBoardEdit={toggleBoardEdit}
-        />
+        {isOwned && (
+          <BoardEdit
+            projectId={projectId}
+            board={board}
+            boardEdit={boardEdit}
+            toggleBoardEdit={toggleBoardEdit}
+          />
+        )}
       </TaskCreateForm>
 
       {taskIds.length === 0 ? (
@@ -319,11 +327,9 @@ function BoardEdit(props) {
         id: projectId,
         board: newBoard,
       });
-      setTimeout(() => {
-        setLoading(false);
-        setNewColName("");
-        toggleModal();
-      }, 2000);
+      setLoading(false);
+      setNewColName("");
+      toggleModal();
     } catch (error) {
       console.error("Failed to update board: ", error);
       setLoading(false);
