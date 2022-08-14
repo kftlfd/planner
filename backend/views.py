@@ -302,8 +302,8 @@ class Task_Details(generics.RetrieveUpdateDestroyAPIView):
             p.board['none'].remove(t_id)
 
         for col in p.board['columns']:
-            if t_id in p.board['columns'][col]:
-                p.board['columns'][col].remove(t_id)
+            if t_id in p.board['columns'][col]['taskIds']:
+                p.board['columns'][col]['taskIds'].remove(t_id)
 
         p.save()
         instance.delete()
