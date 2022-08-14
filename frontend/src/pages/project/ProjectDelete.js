@@ -9,6 +9,7 @@ import {
 } from "../../store/projectsSlice";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { SimpleModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 
 export function ProjectDelete(props) {
   const { closeOptionsMenu } = props;
@@ -25,11 +26,18 @@ export function ProjectDelete(props) {
     setDeleteDialogOpen((x) => !x);
   };
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   async function handleDelete() {
+    setLoading(true);
     try {
       await actions.project.delete(projectId);
+      setLoading(false);
     } catch (error) {
       console.error("Failed to delete project: ", error);
+      setLoading(false);
+      setError("Can't delete project");
     }
   }
 
@@ -48,6 +56,13 @@ export function ProjectDelete(props) {
           "This action cannot be undone, all tasks in project will be deleted too."
         }
         action={"Delete"}
+        loading={loading}
+      />
+
+      <ErrorAlert
+        open={error !== null}
+        toggle={() => setError(null)}
+        message={error}
       />
     </>
   );
