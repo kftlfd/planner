@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useActions } from "../../context/ActionsContext";
 import { InputModal } from "../../layout/Modal";
+import { ErrorAlert } from "../../layout/Alert";
 
 import {
   List,
@@ -22,14 +23,22 @@ export function ProjectCreateButton(props) {
   const [nameValue, setNameValue] = useState("");
   const handleNameChange = (e) => setNameValue(e.target.value);
 
-  async function handleCreateProject(event) {
-    event.preventDefault();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleCreateProject() {
+    setLoading(true);
     try {
       const newProjectId = await actions.project.create(nameValue);
-      navigate(`/project/${newProjectId}`);
+      setLoading(false);
       toggleCreateDialog();
+      props.drawerToggle();
+      setNameValue("");
+      navigate(`/project/${newProjectId}`);
     } catch (error) {
+      setLoading(false);
       console.error("Failed to create project: ", error);
+      setError("Can't create project");
     }
   }
 
@@ -54,6 +63,13 @@ export function ProjectCreateButton(props) {
         inputLabel={"Project Name"}
         inputValue={nameValue}
         inputChange={handleNameChange}
+        loading={loading}
+      />
+
+      <ErrorAlert
+        open={error !== null}
+        toggle={() => setError(null)}
+        message={error}
       />
     </List>
   );

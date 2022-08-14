@@ -73,7 +73,7 @@ export default function Home(props) {
           />
         ) : null}
 
-        <ProjectCreateButton />
+        <ProjectCreateButton drawerToggle={handleCloseDrawer} />
 
         <div style={{ flexGrow: 1 }} />
         <Divider />
