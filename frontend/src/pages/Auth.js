@@ -56,6 +56,7 @@ export function Register() {
       setState((prev) => ({ ...prev, loading: false, success: true }));
       setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
     } else {
+      console.error(resp);
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -150,7 +151,7 @@ export function Register() {
             )}
             {state.errorStatus === 400 && (
               <>
-                <AlertTitle>{state.errorMsg}</AlertTitle>
+                <AlertTitle>Error</AlertTitle>
               </>
             )}
           </Alert>
@@ -195,6 +196,7 @@ export function Login() {
       setState((prev) => ({ ...prev, loading: false, success: true }));
       setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
     } else {
+      console.error(resp);
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -261,7 +263,7 @@ export function Login() {
 
         {state.error && state.errorStatus !== 404 && (
           <Alert severity="warning">
-            <AlertTitle>{state.errorMsg}</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
           </Alert>
         )}
 
