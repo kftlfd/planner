@@ -1,20 +1,36 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+function readLocalStorage(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch (err) {
+    console.error(err);
+    return undefined;
+  }
+}
+
+function setLocalStorage(key, val) {
+  try {
+    return window.localStorage.setItem(key, val);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 const settingsSlice = createSlice({
   name: "settings",
 
   initialState: {
     navDrawerOpen:
-      window.localStorage.getItem("navDrawerOpen") === "true"
+      readLocalStorage("navDrawerOpen") === "true"
         ? true
-        : window.localStorage.getItem("navDrawerOpen") === "false"
+        : readLocalStorage("navDrawerOpen") === "false"
         ? false
         : null,
-    hideDoneTasks:
-      window.localStorage.getItem("hideDoneTasks") === "true" ? true : false,
-    projectView: window.localStorage.getItem("projectView") || "list",
-    boardColumnWidth: window.localStorage.getItem("boardColumnWidth")
-      ? Number(window.localStorage.getItem("boardColumnWidth"))
+    hideDoneTasks: readLocalStorage("hideDoneTasks") === "true" ? true : false,
+    projectView: readLocalStorage("projectView") || "list",
+    boardColumnWidth: readLocalStorage("boardColumnWidth")
+      ? Number(readLocalStorage("boardColumnWidth"))
       : 250,
   },
 
@@ -22,25 +38,25 @@ const settingsSlice = createSlice({
     toggleNavDrawer(state) {
       const open = !state.navDrawerOpen;
       state.navDrawerOpen = open;
-      window.localStorage.setItem("navDrawerOpen", open);
+      setLocalStorage("navDrawerOpen", open);
     },
 
     toggleHideDoneTasks(state) {
       const newVal = !state.hideDoneTasks;
       state.hideDoneTasks = newVal;
-      window.localStorage.setItem("hideDoneTasks", newVal ? "true" : "false");
+      setLocalStorage("hideDoneTasks", newVal ? "true" : "false");
     },
 
     setProjectView(state, action) {
       const view = action.payload;
       state.projectView = view;
-      window.localStorage.setItem("projectView", view);
+      setLocalStorage("projectView", view);
     },
 
     setBoardColumnWidth(state, action) {
       const width = action.payload;
       state.boardColumnWidth = width;
-      window.localStorage.setItem("boardColumnWidth", width);
+      setLocalStorage("boardColumnWidth", width);
     },
   },
 });
