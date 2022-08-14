@@ -124,7 +124,6 @@ export function BoardTask(props) {
       >
         <Box
           sx={{
-            padding: "1rem",
             transition: "all 0.3s ease",
             "&:hover": {
               backgroundColor: "action.hover",
@@ -135,7 +134,7 @@ export function BoardTask(props) {
             }),
           }}
         >
-          <Box onClick={onClick}>
+          <Box onClick={onClick} sx={{ padding: "1rem" }}>
             <Typography variant="body1">{task.title}</Typography>
             <Typography variant="caption" component="div">
               {task.notes}

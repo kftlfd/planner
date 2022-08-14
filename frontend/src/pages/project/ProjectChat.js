@@ -251,7 +251,6 @@ function Message(props) {
             alignSelf: "stretch",
             marginBlock: "0.4rem",
             backgroundColor: "action.focus",
-            marginInline: "-1.5rem",
           }}
         >
           New messages
