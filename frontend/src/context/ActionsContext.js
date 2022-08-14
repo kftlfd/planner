@@ -210,7 +210,7 @@ export default function ProvideActions(props) {
 
     async create(projectId, task) {
       const newTask = await api.task.create(projectId, task);
-      ws.send("task/create", `${task.project}`, { newTask });
+      ws.send("task/create", `${newTask.project}`, { newTask });
       dispatch(tasksSlice.addTask(newTask));
       dispatch(projectsSlice.addNewTask(newTask));
     },
@@ -333,8 +333,8 @@ export default function ProvideActions(props) {
             break;
 
           case "task/create":
-            dispatch(tasksSlice.addTask(message.task));
-            dispatch(projectsSlice.addNewTask(message.task));
+            dispatch(tasksSlice.addTask(message.newTask));
+            dispatch(projectsSlice.addNewTask(message.newTask));
             break;
           case "task/update":
             dispatch(tasksSlice.updateTask(message.task));
