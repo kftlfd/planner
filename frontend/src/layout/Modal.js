@@ -9,11 +9,12 @@ import {
   DialogContentText,
   DialogActions,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 export function SimpleModal(props) {
-  const { open, onConfirm, onClose, title, content, action } = props;
+  const { open, onConfirm, onClose, title, content, action, loading } = props;
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -34,7 +35,12 @@ export function SimpleModal(props) {
         <DialogContentText>{content}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onConfirm} color={"error"}>
+        <Button
+          onClick={onConfirm}
+          color={"error"}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
+          disabled={loading}
+        >
           {action}
         </Button>
         <Button onClick={onClose}>Cancel</Button>
@@ -57,6 +63,7 @@ export function InputModal(props) {
     inputChange,
     formChildren,
     actionsChildren,
+    loading,
   } = props;
 
   return (
@@ -98,6 +105,7 @@ export function InputModal(props) {
             placeholder={inputPlaceholder}
             value={inputValue}
             onChange={inputChange}
+            disabled={loading}
             fullWidth
             autoFocus
           />
@@ -107,7 +115,11 @@ export function InputModal(props) {
 
       <DialogActions>
         {actionsChildren}
-        <Button onClick={onConfirm} disabled={!inputValue}>
+        <Button
+          onClick={onConfirm}
+          disabled={!inputValue || loading}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
+        >
           {action}
         </Button>
         <Button onClick={onClose}>Cancel</Button>
