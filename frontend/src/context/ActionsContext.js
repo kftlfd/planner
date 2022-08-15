@@ -99,7 +99,7 @@ export default function ProvideActions(props) {
 
   const ws = {
     send(action, group, data) {
-      if (webSocket.readyState === 1) {
+      if (webSocket && webSocket.readyState === 1) {
         webSocket.send(
           JSON.stringify({
             action,
@@ -124,8 +124,8 @@ export default function ProvideActions(props) {
   }, [userId]);
 
   React.useEffect(() => {
-    if (!projectsLoading) ws.join(sharingOnIds);
-  }, [projectsLoading]);
+    if (sharingOnIds) ws.join(sharingOnIds);
+  }, [sharingOnIds]);
 
   //
   // Auth
