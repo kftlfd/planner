@@ -26,7 +26,11 @@ export default function ProvideActions(props) {
   //
 
   function getWebSocket() {
-    const socket = new WebSocket(`ws://${window.location.host}/ws/`);
+    const socket = new WebSocket(
+      `${window.location.protocol === "https" ? "wss" : "ws"}://${
+        window.location.host
+      }/ws/`
+    );
     socket.onopen = (e) => console.info("WS open", e);
     socket.onerror = (e) => console.info("WS error", e);
     socket.onclose = (e) => console.info("WS closed", e);
