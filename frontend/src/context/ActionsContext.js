@@ -27,7 +27,7 @@ export default function ProvideActions(props) {
 
   function getWebSocket() {
     const socket = new WebSocket(
-      `${window.location.protocol === "https" ? "wss" : "ws"}://${
+      `${window.location.protocol === "https:" ? "wss" : "ws"}://${
         window.location.host
       }/ws/`
     );
