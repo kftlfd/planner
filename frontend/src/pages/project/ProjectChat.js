@@ -134,7 +134,8 @@ export function ProjectChat(props) {
           sx={{
             flexGrow: 1,
             padding: 0,
-            overflow: "scroll",
+            overflowX: "hidden",
+            overflowY: "scroll",
             backgroundColor: "chat.bg",
             paddingTop: "3rem",
           }}
