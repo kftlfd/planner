@@ -21,6 +21,76 @@ export default function ProvideActions(props) {
   const sharingOnIds = useSelector(projectsSlice.selectSharingOnIds);
   const dispatch = useDispatch();
 
+  //
+  // WebSocket
+  //
+
+  function getWebSocket() {
+    const socket = new WebSocket(`ws://${window.location.host}/ws/`);
+    socket.onopen = (e) => console.info("WS open", e);
+    socket.onerror = (e) => console.info("WS error", e);
+    socket.onclose = (e) => console.info("WS closed", e);
+
+    socket.onmessage = ({ data }) => {
+      const message = JSON.parse(data);
+
+      switch (message.action) {
+        case "project/update":
+          dispatch(projectsSlice.updateProject(message.project));
+          break;
+        case "project/addMember":
+          dispatch(
+            projectsSlice.addMember({
+              projectId: message.projectId,
+              userId: message.userId,
+            })
+          );
+          dispatch(
+            usersSlice.loadUsers({ [message.userObj.id]: message.userObj })
+          );
+          break;
+        case "project/removeMember":
+          dispatch(
+            projectsSlice.removeMember({
+              projectId: message.group,
+              userId: message.userId,
+            })
+          );
+          break;
+        case "project/stopSharing":
+          dispatch(projectsSlice.deleteProject(message.projectId));
+          break;
+
+        case "task/create":
+          dispatch(tasksSlice.addTask(message.newTask));
+          dispatch(projectsSlice.addNewTask(message.newTask));
+          break;
+        case "task/update":
+          dispatch(tasksSlice.updateTask(message.task));
+          break;
+        case "task/delete":
+          dispatch(tasksSlice.deleteTask(message.taskId));
+          dispatch(
+            projectsSlice.deleteTask({
+              projectId: message.projectId,
+              taskId: message.taskId,
+            })
+          );
+          break;
+
+        case "chat/newMessage":
+          dispatch(chatSlice.addMessage(message));
+          break;
+
+        case "user/update":
+          dispatch(usersSlice.updateUser(message.user));
+          break;
+      }
+    };
+
+    return socket;
+  }
+
   const [webSocket, setWebSocket] = React.useState(null);
 
   const ws = {
@@ -44,6 +114,14 @@ export default function ProvideActions(props) {
       this.send("group/leave", "", { groups: projectIds });
     },
   };
+
+  React.useEffect(() => {
+    if (userId && !webSocket) setWebSocket(getWebSocket());
+  }, [userId]);
+
+  React.useEffect(() => {
+    if (!projectsLoading) ws.join(sharingOnIds);
+  }, [projectsLoading]);
 
   //
   // Auth
@@ -114,7 +192,6 @@ export default function ProvideActions(props) {
     async create(name) {
       const p = await api.project.create(name);
       dispatch(projectsSlice.addProject(p));
-      ws.join([p.id]);
       return p.id;
     },
 
@@ -280,92 +357,6 @@ export default function ProvideActions(props) {
       dispatch(settingsSlice.setBoardColumnWidth(width));
     },
   };
-
-  //
-  // WebSocket
-  //
-
-  React.useEffect(() => {
-    if (webSocket) webSocket.close();
-
-    if (userId !== null && !projectsLoading) {
-      const ws = new WebSocket(`ws://${window.location.host}/ws/`);
-
-      // join groups on connection
-      ws.onopen = (e) => {
-        console.info("WS open");
-        ws.send(
-          JSON.stringify({
-            action: "group/join",
-            groups: sharingOnIds,
-          })
-        );
-      };
-
-      ws.onmessage = ({ data }) => {
-        const message = JSON.parse(data);
-
-        switch (message.action) {
-          case "project/update":
-            dispatch(projectsSlice.updateProject(message.project));
-            break;
-          case "project/addMember":
-            dispatch(
-              projectsSlice.addMember({
-                projectId: message.projectId,
-                userId: message.userId,
-              })
-            );
-            dispatch(
-              usersSlice.loadUsers({ [message.userObj.id]: message.userObj })
-            );
-            break;
-          case "project/removeMember":
-            dispatch(
-              projectsSlice.removeMember({
-                projectId: message.group,
-                userId: message.userId,
-              })
-            );
-            break;
-          case "project/stopSharing":
-            dispatch(projectsSlice.deleteProject(message.projectId));
-            break;
-
-          case "task/create":
-            dispatch(tasksSlice.addTask(message.newTask));
-            dispatch(projectsSlice.addNewTask(message.newTask));
-            break;
-          case "task/update":
-            dispatch(tasksSlice.updateTask(message.task));
-            break;
-          case "task/delete":
-            dispatch(tasksSlice.deleteTask(message.taskId));
-            dispatch(
-              projectsSlice.deleteTask({
-                projectId: message.projectId,
-                taskId: message.taskId,
-              })
-            );
-            break;
-
-          case "chat/newMessage":
-            dispatch(chatSlice.addMessage(message));
-            break;
-
-          case "user/update":
-            dispatch(usersSlice.updateUser(message.user));
-            break;
-        }
-      };
-
-      ws.onerror = (e) => console.info("WS error: ", e);
-
-      ws.onclose = (e) => console.info("WS closed");
-
-      setWebSocket(ws);
-    }
-  }, [userId, projectsLoading]);
 
   return (
     <ActionsContext.Provider
