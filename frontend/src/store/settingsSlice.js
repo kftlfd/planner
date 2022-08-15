@@ -4,7 +4,7 @@ function readLocalStorage(key) {
   try {
     return window.localStorage.getItem(key);
   } catch (err) {
-    console.error(err);
+    console.info(err.message);
     return undefined;
   }
 }
@@ -13,7 +13,7 @@ function setLocalStorage(key, val) {
   try {
     return window.localStorage.setItem(key, val);
   } catch (err) {
-    console.error(err);
+    console.info(err.message);
   }
 }
 
@@ -21,20 +21,30 @@ const settingsSlice = createSlice({
   name: "settings",
 
   initialState: {
+    theme: readLocalStorage("theme"),
+
     navDrawerOpen:
       readLocalStorage("navDrawerOpen") === "true"
         ? true
         : readLocalStorage("navDrawerOpen") === "false"
         ? false
         : null,
+
     hideDoneTasks: readLocalStorage("hideDoneTasks") === "true" ? true : false,
+
     projectView: readLocalStorage("projectView") || "list",
+
     boardColumnWidth: readLocalStorage("boardColumnWidth")
       ? Number(readLocalStorage("boardColumnWidth"))
       : 250,
   },
 
   reducers: {
+    setTheme(state, action) {
+      state.theme = action.payload;
+      setLocalStorage("theme", action.payload);
+    },
+
     toggleNavDrawer(state) {
       const open = !state.navDrawerOpen;
       state.navDrawerOpen = open;
@@ -62,6 +72,7 @@ const settingsSlice = createSlice({
 });
 
 export const {
+  setTheme,
   toggleNavDrawer,
   toggleHideDoneTasks,
   setProjectView,
@@ -73,6 +84,8 @@ export default settingsSlice.reducer;
 //
 // selectors
 //
+
+export const selectTheme = (state) => state.settings.theme;
 
 export const selectNavDrawerOpen = (state) => state.settings.navDrawerOpen;
 

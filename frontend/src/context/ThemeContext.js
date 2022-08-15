@@ -1,4 +1,7 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+
+import { selectTheme, setTheme } from "../store/settingsSlice";
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -11,7 +14,8 @@ export function useColorMode() {
 
 export default function ProvideTheme({ children }) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const localStorageTheme = window.localStorage.getItem("theme");
+  const localStorageTheme = useSelector(selectTheme);
+  const dispatch = useDispatch();
 
   const initialColorMode = localStorageTheme
     ? localStorageTheme
@@ -24,11 +28,9 @@ export default function ProvideTheme({ children }) {
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {
-        setMode((prev) => (prev === "light" ? "dark" : "light"));
-        window.localStorage.setItem(
-          "theme",
-          mode === "light" ? "dark" : "light"
-        );
+        const newTheme = mode === "light" ? "dark" : "light";
+        setMode(newTheme);
+        dispatch(setTheme(newTheme));
       },
       mode: mode,
     }),
