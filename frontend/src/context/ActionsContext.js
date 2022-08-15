@@ -17,23 +17,31 @@ export function useActions() {
 export default function ProvideActions(props) {
   const userObj = useSelector(usersSlice.selectUser);
   const userId = useSelector(usersSlice.selectUserId);
-  const projectsLoading = useSelector(projectsSlice.selectLoadingProjects);
-  const sharingOnIds = useSelector(projectsSlice.selectSharingOnIds);
   const dispatch = useDispatch();
 
   //
   // WebSocket
   //
 
-  function getWebSocket() {
+  const [webSocket, setWebSocket] = React.useState(null);
+
+  async function getWebSocket(idsToJoin) {
     const socket = new WebSocket(
       `${window.location.protocol === "https:" ? "wss" : "ws"}://${
         window.location.host
       }/ws/`
     );
-    socket.onopen = (e) => console.info("WS open", e);
-    socket.onerror = (e) => console.info("WS error", e);
-    socket.onclose = (e) => console.info("WS closed", e);
+
+    socket.onopen = (e) => {
+      console.info("WS open");
+      socket.send(
+        JSON.stringify({
+          action: "group/join",
+          group: "",
+          groups: idsToJoin,
+        })
+      );
+    };
 
     socket.onmessage = ({ data }) => {
       const message = JSON.parse(data);
@@ -92,14 +100,15 @@ export default function ProvideActions(props) {
       }
     };
 
-    return socket;
+    socket.onerror = (e) => console.info("WS error", e);
+    socket.onclose = (e) => console.info("WS closed");
+
+    setWebSocket(socket);
   }
 
-  const [webSocket, setWebSocket] = React.useState(null);
-
   const ws = {
-    send(action, group, data) {
-      if (webSocket && webSocket.readyState === 1) {
+    send(action, group, data, retry = 1) {
+      try {
         webSocket.send(
           JSON.stringify({
             action,
@@ -107,6 +116,12 @@ export default function ProvideActions(props) {
             ...data,
           })
         );
+      } catch (error) {
+        if (retry > 0) {
+          setTimeout(() => {
+            this.send(action, group, data, retry - 1);
+          }, 2000);
+        }
       }
     },
 
@@ -118,14 +133,6 @@ export default function ProvideActions(props) {
       this.send("group/leave", "", { groups: projectIds });
     },
   };
-
-  React.useEffect(() => {
-    if (userId && !webSocket) setWebSocket(getWebSocket());
-  }, [userId]);
-
-  React.useEffect(() => {
-    if (sharingOnIds) ws.join(sharingOnIds);
-  }, [sharingOnIds]);
 
   //
   // Auth
@@ -191,6 +198,10 @@ export default function ProvideActions(props) {
     async loadProjects() {
       const response = await api.user.projects();
       dispatch(projectsSlice.loadProjects(response));
+      let sharingOn = Object.keys(response.projects).filter(
+        (id) => response.projects[id].sharing
+      );
+      getWebSocket(sharingOn);
     },
 
     async create(name) {
