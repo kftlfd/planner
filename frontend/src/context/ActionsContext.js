@@ -252,11 +252,13 @@ export default function ProvideActions(props) {
       async recreateInvite(projectId) {
         const project = await api.project.invite.recreate(projectId);
         dispatch(projectsSlice.updateProject(project));
+        ws.send("project/update", `${projectId}`, { project });
       },
 
       async deleteInvite(projectId) {
         const project = await api.project.invite.delete(projectId);
         dispatch(projectsSlice.updateProject(project));
+        ws.send("project/update", `${projectId}`, { project });
       },
     },
 
