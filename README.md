@@ -65,8 +65,8 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
   ```
   $ export DJANGO_SETTINGS_MODULE=backend.settings_prod
-  $ export SECRET_KEY=`[your secret key]
-  $ export HOST_LOCATION=`[your host location]
+  $ export SECRET_KEY=[your secret key]
+  $ export HOST_LOCATION=[your host location]
   ```
 
 - make a frontend build
@@ -90,3 +90,7 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 # Credits
 
 Logo is a Memo emoji by [Tweemoji](https://twemoji.twitter.com/).
+
+# License
+
+GNU GPL v3, details at LICENSE.txt
