@@ -54,8 +54,8 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
 - prepare and start backend (at `locahost:8000`)
   ```
-  $ python manage.py makemigrations backend`
-  $ python manage.py migrate`
+  $ python manage.py makemigrations backend
+  $ python manage.py migrate
   $ python manage.py runserver
   ```
 
@@ -64,7 +64,7 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 - before running in production expose environment variables:
 
   ```
-  $ export DJANGO_SETTINGS_MODULE=backend.settings_prod`
+  $ export DJANGO_SETTINGS_MODULE=backend.settings_prod
   $ export SECRET_KEY=`[your secret key]
   $ export HOST_LOCATION=`[your host location]
   ```
