@@ -1,31 +1,32 @@
-from django.urls import path, re_path, include
-from rest_framework.urlpatterns import format_suffix_patterns
+"""planner URL Configuration
 
-from . import views
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.0/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.middleware import csrf
+from django.shortcuts import render
+from django.urls import path, re_path, include
+
+
+def index(request):
+    request.scope['cookies']['csrftoken'] = csrf.get_token(request)
+    return render(request, 'index.html')
 
 
 urlpatterns = [
-    path('api-auth/', include('rest_framework.urls')),
-
-    path('user/', views.User_Details.as_view()),
-    path('user/projects/', views.user_projects),
-    path('user/password/', views.user_password),
-
-    path('project/', views.Project_Create.as_view()),
-    path('project/<int:pk>/', views.Project_Details.as_view()),
-    path('project/<int:pk>/tasks/', views.project_tasks),
-    path('project/<int:pk>/chat/', views.project_chat),
-    path('project/<int:pk>/sharing/', views.project_sharing),
-    path('project/<int:pk>/leave/', views.project_leave),
-
-    path('invite/<str:code>/', views.invite_details),
-
-    path('task/', views.Task_Create.as_view()),
-    path('task/<int:pk>/', views.Task_Details.as_view()),
-
-    path('chat/', views.ChatMessage_Create.as_view()),
-
-    re_path('.*', views.bad_request),
+    path('admin/', admin.site.urls),
+    path('auth/', include('backend.auth')),
+    path('api/', include('backend.api_urls')),
+    re_path(r'.*', index)
 ]
-
-urlpatterns = format_suffix_patterns(urlpatterns)

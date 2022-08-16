@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'planner.urls'
+ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
     {
@@ -64,10 +64,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'planner.wsgi.application'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Channels
-ASGI_APPLICATION = "planner.asgi.application"
+ASGI_APPLICATION = "backend.asgi.application"
 CHANNEL_LAYERS = {
     # TODO? change to Redis
     # Heroku requires credit card verification :(
