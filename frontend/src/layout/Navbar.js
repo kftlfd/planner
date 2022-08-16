@@ -91,6 +91,7 @@ export default function Navbar(props) {
                 display: "flex",
                 alignSelf: user ? "center" : "start",
                 alignItems: "center",
+                justifyContent: "end",
                 gap: "1rem",
                 flexWrap: user ? "nowrap" : "wrap",
               }}
