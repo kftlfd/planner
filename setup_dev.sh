@@ -20,8 +20,11 @@ python3 manage.py migrate
 echo '--- installing npm packages ---'
 npm i --legacy-peer-deps
 
-echo '--- building frontend ---'
-npm run build
-
-echo '--- collecting static files ---'
-python3 manage.py collectstatic --noinput
+echo ''
+echo '--- setup completed ---'
+echo ''
+echo 'start frontend devserver with:'
+echo '$ npm run start'
+echo ''
+echo 'start backend with: (make sure the python venv is enabled)'
+echo '$ python manage.py runserver'
