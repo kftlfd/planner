@@ -41,7 +41,7 @@ export default function Welcome(props) {
           </Typography>
 
           <Link
-            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            href="https://www.youtube.com/watch?v=1GzO4nYecYU"
             target="_blank"
             rel="noreferrer"
             underline="none"
