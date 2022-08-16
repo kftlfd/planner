@@ -11,6 +11,7 @@ import { useColorMode } from "../context/ThemeContext";
 import { useActions } from "../context/ActionsContext";
 import { selectUser } from "../store/usersSlice";
 import { Main } from "./Main";
+import { Footer } from "./Footer";
 
 import {
   Container,
@@ -182,6 +183,8 @@ export default function Navbar(props) {
       </nav>
 
       <Outlet />
+
+      <Footer />
     </Main>
   );
 }
