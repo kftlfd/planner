@@ -22,54 +22,70 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
 - enable Python virtual environment
 
-  > `$ python3 -m venv py_venv`
-  >
-  > `$ source py_venv/bin/activate`
+  ```
+  $ python3 -m venv py_venv
+  $ source py_venv/bin/activate
+  ```
 
 - install Python dependencies
 
-  > `$ pip install -r requirements.txt`
+  ```
+  $ pip install -r requirements.txt
+  ```
 
 - install Node dependencies
 
-  > `$ npm install`
+  ```
+  $ npm install
+  ```
 
 - prepare frontend
 
   - start Webpack DevServer (running at `localost:8080`)
 
-    > `$ npm run start`
+    ```
+    $ npm run start
+    ```
 
   - or make a Webpack bundle
-    > `$ npm run build`
+    ```
+    $ npm run build
+    ```
 
 - prepare and start backend (at `locahost:8000`)
-  > `$ python manage.py makemigrations backend`
-  >
-  > `$ python manage.py migrate`
-  >
-  > `$ python manage.py runserver`
+  ```
+  $ python manage.py makemigrations backend`
+  $ python manage.py migrate`
+  $ python manage.py runserver
+  ```
 
 ## Production
 
 - before running in production expose environment variables:
 
-  > `$ export DJANGO_SETTINGS_MODULE=backend.settings_prod`
-  >
-  > `$ export SECRET_KEY=`[your secret key]
-  >
-  > `$ export HOST_LOCATION=`[your host location]
+  ```
+  $ export DJANGO_SETTINGS_MODULE=backend.settings_prod`
+  $ export SECRET_KEY=`[your secret key]
+  $ export HOST_LOCATION=`[your host location]
+  ```
 
 - make a frontend build
 
-  > `$ npm run build`
+  ```
+  $ npm run build
+  ```
 
 - collect static files
 
-  > `$ python manage.py collectstatic`
+  ```
+  $ python manage.py collectstatic
+  ```
 
 - run production server
-  > `$ daphne backend.asgi:application`
+
+  ```
+  $ daphne backend.asgi:application
+  ```
 
 # Credits
 
