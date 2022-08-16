@@ -227,6 +227,7 @@ export function Login() {
           fullWidth={true}
           autoComplete="false"
           error={state.error}
+          onChange={() => setState((prev) => ({ ...prev, error: false }))}
         />
         <TextField
           name="password"
@@ -237,6 +238,7 @@ export function Login() {
           fullWidth={true}
           error={state.error}
           helperText={state.errorStatus === 404 ? state.errorMsg : null}
+          onChange={() => setState((prev) => ({ ...prev, error: false }))}
         />
         <Button
           type="submit"
@@ -263,7 +265,7 @@ export function Login() {
 
         {state.error && state.errorStatus !== 404 && (
           <Alert severity="warning">
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Connection Error</AlertTitle>
           </Alert>
         )}
 
