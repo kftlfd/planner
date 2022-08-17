@@ -30,7 +30,7 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 - install Python dependencies
 
   ```
-  $ pip install -r requirements_dev.txt
+  (py_venv) $ pip install -r requirements_dev.txt
   ```
 
 - install Node dependencies
@@ -54,9 +54,9 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
 - prepare and start backend (at `locahost:8000`)
   ```
-  $ python manage.py makemigrations backend
-  $ python manage.py migrate
-  $ python manage.py runserver
+  (py_venv) $ python manage.py makemigrations backend
+  (py_venv) $ python manage.py migrate
+  (py_venv) $ python manage.py runserver
   ```
 
 ## Production
@@ -71,8 +71,8 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
   ```
   $ export DJANGO_SETTINGS_MODULE=backend.settings_prod
-  $ export SECRET_KEY=[your secret key]
-  $ export HOST_LOCATION=[your host location]
+  $ export SECRET_KEY=(your secret key)
+  $ export HOST_LOCATION=(your host location)
   ```
 
 - make a frontend build
@@ -90,7 +90,7 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 - run production server
 
   ```
-  $ daphne backend.asgi:application
+  $ daphne backend.asgi:application [-b (ip address) -p (port)]
   ```
 
 # Credits
