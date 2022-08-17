@@ -19,14 +19,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
 django_asgi_app = get_asgi_application()
 
+ws_stack = AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
+
+if os.environ.get('DJANGO_SETTINGS_MODULE') != 'backend.settings':
+    # allowed hosts / csrf check only in production
+    ws_stack = AllowedHostsOriginValidator(ws_stack)
+
 
 application = ProtocolTypeRouter({
     "http": AuthMiddlewareStack(django_asgi_app),
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                routing.websocket_urlpatterns
-            )
-        )
-    ),
+    "websocket": ws_stack,
 })

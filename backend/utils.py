@@ -1,3 +1,5 @@
+from django.utils.deprecation import MiddlewareMixin
+
 from random import choice as rand_choice
 
 from .apps import BackendConfig
@@ -20,3 +22,8 @@ def new_invite_code():
     while Project.objects.filter(invite=code):
         code = rand_invite_code()
     return code
+
+
+class DisableCSRFMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        setattr(request, "_dont_enforce_csrf_checks", True)
