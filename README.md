@@ -30,7 +30,7 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 - install Python dependencies
 
   ```
-  $ pip install -r requirements.txt
+  $ pip install -r requirements_dev.txt
   ```
 
 - install Node dependencies
@@ -61,7 +61,13 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
 ## Production
 
-- before running in production expose environment variables:
+- before running in production install additional Python dependencies:
+
+  ```
+  $ pip install -r requirements.txt
+  ```
+
+- expose environment variables:
 
   ```
   $ export DJANGO_SETTINGS_MODULE=backend.settings_prod
