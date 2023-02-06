@@ -1,3 +1,7 @@
+Version 1, how it was originally submited as final project for CS50-Web in late August - early September 2022.
+
+---
+
 # Planner
 
 Task tracking app with real-time collaboration, build with Django and React JS.
