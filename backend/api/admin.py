@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, Project, Task
+from api.models import User, Project, Task
+
+
+admin.site.register(Project)
+admin.site.register(Task)
 
 
 class ProjectOwnershipInline(admin.TabularInline):
@@ -30,7 +34,3 @@ class CustomUserAdmin(UserAdmin):
             "fields": ("last_login", "date_joined")
         }),
     )
-
-
-admin.site.register(Project)
-admin.site.register(Task)

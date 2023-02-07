@@ -1,10 +1,15 @@
-py_venv
-__pycache__
+### project root
+.vscode
+.db
+static
 
+### backend
+__venv__
+__pycache__
+py_venv
 migrations
 *.sqlite3
 
+### frontend
 node_modules
 dist
-
-/static

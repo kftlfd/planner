@@ -1,13 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import path
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import User
-from .serializers import UserBasicSerializer
+from api.models import User
+from api.serializers import UserBasicSerializer
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -29,7 +28,8 @@ def register_view(request):
             login(request, new_user)
             return Response(UserBasicSerializer(new_user).data)
         except:
-            return Response('Failed to create new user', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response('Failed to create new user',
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(form.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
@@ -53,10 +53,3 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return Response({'details': 'Logged out'})
-
-
-urlpatterns = [
-    path('register/', register_view),
-    path('login/', login_view),
-    path('logout/', logout_view),
-]

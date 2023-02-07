@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Project, Task, ChatMessage
+from api.models import User, Project, Task, ChatMessage
 
 
 class UserBasicSerializer(serializers.ModelSerializer):
