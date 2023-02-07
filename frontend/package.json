@@ -1,20 +1,12 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "planner-frontend",
+  "version": "2.0.0",
   "private": "true",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --config frontend/webpack.dev.js",
-    "build": "webpack --config frontend/webpack.prod.js"
+    "start": "webpack serve --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "engines": {
-    "npm": "6.x"
-  },
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@babel/core": "^7.18.5",
     "@babel/preset-env": "^7.18.2",

@@ -152,7 +152,7 @@ export default function Navbar(props) {
                       {user.username}
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={actions.user.logout}>
+                    <MenuItem onClick={actions.auth.logout}>
                       <ListItemIcon>
                         <Logout fontSize="small" />
                       </ListItemIcon>

@@ -18,9 +18,9 @@ function csrftoken() {
 
 export const urls = {
   auth: {
-    register: `/auth/register/`,
-    login: `/auth/login/`,
-    logout: `/auth/logout/`,
+    register: `/api/auth/register/`,
+    login: `/api/auth/login/`,
+    logout: `/api/auth/logout/`,
   },
 
   user: {
@@ -36,9 +36,8 @@ export const urls = {
     chat: (id) => `/api/project/${id}/chat/`,
     sharing: (id) => `/api/project/${id}/sharing/`,
     leave: (id) => `/api/project/${id}/leave/`,
+    join: (code) => `/api/project/join/${code}/`,
   },
-
-  invite: (code) => `/api/invite/${code}/`,
 
   task: {
     create: `/api/task/`,

@@ -117,11 +117,11 @@ export const project = {
 
 export const invite = {
   async get(inviteCode) {
-    return await query(urls.invite(inviteCode), methods.get);
+    return await query(urls.project.join(inviteCode), methods.get);
   },
 
   async join(inviteCode) {
-    return await query(urls.invite(inviteCode), methods.post);
+    return await query(urls.project.join(inviteCode), methods.post);
   },
 };
 
