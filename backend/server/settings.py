@@ -16,6 +16,7 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -100,10 +101,10 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BACKEND / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DB_URL'),
+        conn_max_age=300
+    )
 }
 
 AUTH_USER_MODEL = 'api.User'

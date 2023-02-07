@@ -9,6 +9,7 @@ __pycache__
 py_venv
 migrations
 *.sqlite3
+backend/.env
 
 ### frontend
 node_modules
