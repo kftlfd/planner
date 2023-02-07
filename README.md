@@ -16,82 +16,82 @@ Frontend is a [React](https://reactjs.org/) app with [React-router](https://reac
 
 ## Development
 
-- install Python >=v.3.8, NodeJS >=v.16
+Script: `./setup.sh --dev`
 
-- download / git clone source code
+### Backend
 
-- enable Python virtual environment
+```bash
+# move to backend dir
+cd backend
 
-  ```
-  $ python3 -m venv py_venv
-  $ source py_venv/bin/activate
-  ```
+# enable python virtual environment
+python3 -m venv __venv__
+source __venv__/bin/activate
 
-- install Python dependencies
+# install dependencies
+pip install -r requirements.txt
 
-  ```
-  (py_venv) $ pip install -r requirements_dev.txt
-  ```
+# make database migrations
+python manage.py makemigrations api
+python manage.py migrate
 
-- install Node dependencies
+# start server
+python manage.py runserver
 
-  ```
-  $ npm install
-  ```
+# http://localhost:8000
+```
 
-- prepare frontend
+### Frontend
 
-  - start Webpack DevServer (running at `localost:8080`)
+```bash
+# move to frontend dir
+cd frontend
 
-    ```
-    $ npm run start
-    ```
+# install dependencies
+yarn
 
-  - or make a Webpack bundle
-    ```
-    $ npm run build
-    ```
+# start devserver
+yarn start
 
-- prepare and start backend (at `locahost:8000`)
-  ```
-  (py_venv) $ python manage.py makemigrations backend
-  (py_venv) $ python manage.py migrate
-  (py_venv) $ python manage.py runserver
-  ```
+# http://localhost:8080
+```
 
 ## Production
 
-- before running in production install additional Python dependencies:
+Script: `./setup.sh --prod`
 
-  ```
-  $ pip install -r requirements.txt
-  ```
+```bash
+# move to frontend dir
+cd frontend
 
-- expose environment variables:
+# install dependencies
+yarn
 
-  ```
-  $ export DJANGO_SETTINGS_MODULE=backend.settings_prod
-  $ export SECRET_KEY=(your secret key)
-  $ export HOST_LOCATION=(your host location)
-  ```
+# make a production bundle
+yarn build
 
-- make a frontend build
+# move to backend dir
+cd ../backend
 
-  ```
-  $ npm run build
-  ```
+# enable python virtual environment
+python3 -m venv __venv__
+source __venv__/bin/activate
 
-- collect static files
+# install dependencies
+pip install -r requirements.txt
 
-  ```
-  $ python manage.py collectstatic
-  ```
+# make database migrations
+python manage.py makemigrations api
+python manage.py migrate
 
-- run production server
+# collect static files
+python manage.py collectstatic
 
-  ```
-  $ daphne backend.asgi:application [-b (ip address) -p (port)]
-  ```
+# !!! update .env, or remove it and set environment variables directly
+
+# start production server, for example:
+daphne server.asgi:application -v2 --port $PORT --bind $IP
+```
 
 # Credits
 
