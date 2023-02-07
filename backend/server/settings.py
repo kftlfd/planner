@@ -152,6 +152,8 @@ STATICFILES_DIRS = [
     FRONTEND / 'static',
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 for path in [STATIC_ROOT, *STATICFILES_DIRS]:
     os.makedirs(path, exist_ok=True)
 
