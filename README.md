@@ -6,13 +6,15 @@ Video demo: [https://www.youtube.com/watch?v=1GzO4nYecYU](https://www.youtube.co
 
 ## Backend
 
-Backend is done with [Django](https://www.djangoproject.com/), [Django REST Framework](https://www.django-rest-framework.org/) for api calls to database, and [Django Channels](https://channels.readthedocs.io/en/stable/) for WebSocket connections for real-time collaboration.
+Backend is done with [Django](https://www.djangoproject.com/), [Django REST Framework](https://www.django-rest-framework.org/) for api calls to database, and [Django Channels](https://channels.readthedocs.io/en/stable/) for WebSocket connections for real-time collaboration. Database is PostgreSQL in Docker container.
 
 ## Frontend
 
 Frontend is a [React](https://reactjs.org/) app with [React-router](https://reactrouter.com/), [Redux](https://redux.js.org/), [React-beutiful-dnd](https://www.npmjs.com/package/react-beautiful-dnd) for drag & drop, and [Material UI](https://mui.com/).
 
 # Setup
+
+Launch Database with `docker compose up -d`, or use some other DB (configure `DB_URL` in `.env`).
 
 ## Development
 

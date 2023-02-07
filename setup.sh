@@ -56,6 +56,8 @@ setup-dev() {
     echo "$ source __venv__/bin/activate";
     echo "(__venv__) $ python manage.py runserver";
     echo "";
+    echo "Don't forget to configure/launch database!";
+    echo "";
 
     exit 0;
 }
@@ -84,6 +86,8 @@ setup-prod() {
     echo ""
     echo "App is ready for deployment."
     echo "$ ./setup.sh --deploy";
+    echo "";
+    echo "Don't forget to configure/launch database!";
     echo ""
 
     exit 0;
