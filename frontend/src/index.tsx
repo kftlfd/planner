@@ -14,7 +14,7 @@ import "./index.scss";
 
 let cookiesDisabled = !navigator.cookieEnabled;
 
-const root = ReactDOM.createRoot(document.querySelector("#root"));
+const root = ReactDOM.createRoot(document.querySelector("#root")!);
 root.render(
   cookiesDisabled ? (
     <CookieError />
