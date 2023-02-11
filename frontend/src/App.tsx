@@ -1,26 +1,26 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 
-import { selectLoadingUser, fetchUser, selectUser } from "./store/usersSlice";
-import { selectLoadingProjects } from "./store/projectsSlice";
-import { useActions } from "./context/ActionsContext";
-import { SplashScreen } from "./layout/Loading";
-import Home from "./pages/home/Home";
-import Project from "./pages/project/Project";
-import Tasks from "./pages/tasks/Tasks";
-import Navbar from "./layout/Navbar";
-import Invite from "./pages/Invite";
-import Welcome from "./pages/Welcome";
-import { Register, Login } from "./pages/Auth";
-import Error from "./pages/Error";
-import { Settings } from "./pages/Settings";
+import { useAppSelector, useAppDispatch } from "app/store/hooks";
+import { selectLoadingUser, fetchUser, selectUser } from "app/store/usersSlice";
+import { selectLoadingProjects } from "app/store/projectsSlice";
+import { useActions } from "app/context/ActionsContext";
+import { SplashScreen } from "app/layout/Loading";
+import Home from "app/pages/home/Home";
+import Project from "app/pages/project/Project";
+import Tasks from "app/pages/tasks/Tasks";
+import Navbar from "app/layout/Navbar";
+import Invite from "app/pages/Invite";
+import Welcome from "app/pages/Welcome";
+import { Register, Login } from "app/pages/Auth";
+import Error from "app/pages/Error";
+import { Settings } from "app/pages/Settings";
 
 export default function App() {
-  const user = useSelector(selectUser);
-  const loadingUser = useSelector(selectLoadingUser);
-  const loadingProjects = useSelector(selectLoadingProjects);
-  const dispatch = useDispatch();
+  const user = useAppSelector(selectUser);
+  const loadingUser = useAppSelector(selectLoadingUser);
+  const loadingProjects = useAppSelector(selectLoadingProjects);
+  const dispatch = useAppDispatch();
   const actions = useActions();
 
   React.useEffect(() => {
