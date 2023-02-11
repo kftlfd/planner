@@ -23,7 +23,7 @@ import {
   Slider,
 } from "@mui/material";
 
-export function Settings(props) {
+export function Settings() {
   return (
     <>
       <MainHeader title="Settings" />
@@ -39,7 +39,7 @@ export function Settings(props) {
   );
 }
 
-function SettingWrapper(props) {
+function SettingWrapper(props: { header: string; children: React.ReactNode }) {
   return (
     <Box
       sx={{
@@ -60,7 +60,7 @@ function SettingWrapper(props) {
   );
 }
 
-function AccountSettings(props) {
+function AccountSettings() {
   const user = useSelector(selectUser);
   const actions = useActions();
 
@@ -91,7 +91,7 @@ function AccountSettings(props) {
     } catch (error) {
       console.error("Failed to update user: ", error);
       try {
-        const parsedError = JSON.parse(error.message);
+        const parsedError = JSON.parse((error as Error).message);
         setState((prev) => ({
           ...prev,
           usernameError: parsedError.username ? parsedError.username : "Error",
@@ -121,7 +121,7 @@ function AccountSettings(props) {
     } catch (error) {
       console.error("Password change error: ", error);
       try {
-        const parsedError = JSON.parse(error.message);
+        const parsedError = JSON.parse((error as Error).message);
         setState((prev) => ({
           ...prev,
           ...(parsedError.oldPassword && {
@@ -316,7 +316,7 @@ function AccountSettings(props) {
   );
 }
 
-function InterfaceSettings(props) {
+function InterfaceSettings() {
   const colorMode = useColorMode();
   const actions = useActions();
   const hideDoneTasks = useSelector(selectHideDoneTasks);
@@ -365,7 +365,9 @@ function InterfaceSettings(props) {
           max={350}
           step={25}
           marks
-          onChange={(e) => setSliderValue(e.target.value)}
+          onChange={(e, val) =>
+            setSliderValue(val instanceof Array ? val[0] : val)
+          }
           onChangeCommitted={() =>
             actions.settings.setBoardColumnWidth(sliderValue)
           }
@@ -375,7 +377,7 @@ function InterfaceSettings(props) {
   );
 }
 
-function DeleteAccount(props) {
+function DeleteAccount() {
   const actions = useActions();
 
   const [state, setState] = React.useState({

@@ -44,10 +44,10 @@ export function Register() {
     error: false,
     errorMsg: null,
     errorStatus: null,
-    formErrors: {},
+    formErrors: {} as any,
   });
 
-  async function handleRegister(event) {
+  async function handleRegister(event: any) {
     event.preventDefault();
     setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
@@ -78,7 +78,7 @@ export function Register() {
         Sign Up
       </Typography>
 
-      <form style={AuthFormStyle} onSubmit={handleRegister}>
+      <form style={AuthFormStyle as {}} onSubmit={handleRegister}>
         <TextField
           name="username"
           type="text"
@@ -187,7 +187,7 @@ export function Login() {
     errorStatus: null,
   });
 
-  async function handleLogin(event) {
+  async function handleLogin(event: any) {
     event.preventDefault();
     setState((prev) => ({ ...prev, loading: true }));
     let formData = new FormData(event.target);
@@ -217,7 +217,7 @@ export function Login() {
         Log In
       </Typography>
 
-      <form style={AuthFormStyle} onSubmit={handleLogin}>
+      <form style={AuthFormStyle as {}} onSubmit={handleLogin}>
         <TextField
           name="username"
           type="text"
