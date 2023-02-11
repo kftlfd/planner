@@ -7,7 +7,7 @@ import { Logo } from "../layout/Logo";
 import { Box, Button, Link, Typography } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-export default function Welcome(props) {
+export default function Welcome() {
   const navigate = useNavigate();
 
   return (
@@ -29,12 +29,9 @@ export default function Welcome(props) {
             gap: "1rem",
           }}
         >
-          <Typography variant="h2" conponent="div">
-            Planner
-          </Typography>
+          <Typography variant="h2">Planner</Typography>
           <Typography
             variant="h5"
-            conponent="div"
             sx={{ textAlign: { xs: "center", sm: "left" } }}
           >
             Task tracking with real-time collaboration

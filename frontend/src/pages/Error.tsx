@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Typography, Button, Box, Card } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-export default function Error(props) {
+export default function Error() {
   const navigate = useNavigate();
 
   return (
@@ -32,7 +32,7 @@ export default function Error(props) {
   );
 }
 
-export function CookieError(props) {
+export function CookieError() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   return (

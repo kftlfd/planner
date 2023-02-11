@@ -28,16 +28,16 @@ export default function Invite() {
   const actions = useActions();
   const navigate = useNavigate();
 
-  const projectsStatus = useSelector((state) => state.projects.status);
+  // const projectsStatus = useSelector((state) => state.projects.status);
   const ownedProjects = useSelector(selectProjectIds);
   const sharedProjects = useSelector(selectSharedProjectIds);
 
   const [loading, setLoading] = React.useState(true);
-  const [projectInfo, setProjectInfo] = React.useState({});
+  const [projectInfo, setProjectInfo] = React.useState<any>({});
 
   React.useEffect(() => {
     if (user && !loadingProjects) loadProjectInfo();
-  }, [user, projectsStatus]);
+  }, [user, /* projectsStatus, */ loadingProjects]);
 
   async function loadProjectInfo() {
     try {
@@ -59,13 +59,13 @@ export default function Invite() {
   }
 
   async function handleJoin() {
-    setProjectInfo((prev) => ({
+    setProjectInfo((prev: any) => ({
       ...prev,
       loading: true,
     }));
     try {
       const p = await actions.invite.join(inviteCode);
-      setProjectInfo((prev) => ({
+      setProjectInfo((prev: any) => ({
         ...prev,
         joined: true,
         loading: false,
@@ -75,7 +75,7 @@ export default function Invite() {
       }, 1000);
     } catch (error) {
       console.error("Failed to join project: ", error);
-      setProjectInfo((prev) => ({
+      setProjectInfo((prev: any) => ({
         ...prev,
         joined: false,
         loading: false,
@@ -202,7 +202,7 @@ export default function Invite() {
   );
 }
 
-function ProjectInfoDisplay(props) {
+function ProjectInfoDisplay(props: { title: string; text: string }) {
   return (
     <>
       <Typography variant="body1" component="div">
