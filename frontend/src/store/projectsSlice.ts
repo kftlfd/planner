@@ -1,28 +1,51 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "app/store/store";
+import type { IProject } from "app/types/projects.types";
+
+export type ProjectsState = {
+  items: { [projectId: IProject["id"]]: IProject };
+  ownedIds: IProject["id"][];
+  sharedIds: IProject["id"][];
+  sharingOnIds: string[];
+  projectsTasksLoaded: IProject["id"][];
+  loading: boolean;
+  error: null | string;
+  selectedCalDate: { [projectId: IProject["id"]]: string };
+};
+
+const initialState: ProjectsState = {
+  items: {},
+  ownedIds: [],
+  sharedIds: [],
+  sharingOnIds: [],
+  projectsTasksLoaded: [],
+  loading: true,
+  error: null,
+  selectedCalDate: {},
+};
 
 const projectsSlice = createSlice({
   name: "projects",
 
-  initialState: {
-    items: {},
-    ownedIds: [],
-    sharedIds: [],
-    sharingOnIds: [],
-    projectsTasksLoaded: [],
-    loading: true,
-    error: null,
-    selectedCalDate: {},
-  },
+  initialState,
 
   reducers: {
-    loadProjects(state, action) {
+    loadProjects(
+      state,
+      action: PayloadAction<{
+        projects: IProject[];
+        ownedIds: IProject["id"][];
+        sharedIds: IProject["id"][];
+      }>
+    ) {
       const { projects, ownedIds, sharedIds } = action.payload;
       state.loading = false;
       state.items = projects;
       state.ownedIds = ownedIds;
       state.sharedIds = sharedIds;
       state.sharingOnIds = Object.keys(projects).filter(
-        (id) => projects[id].sharing
+        (id) => projects[Number(id)].sharing
       );
     },
 
@@ -138,27 +161,34 @@ export default projectsSlice.reducer;
 // selectors
 //
 
-export const selectLoadingProjects = (state) => state.projects.loading;
+export const selectLoadingProjects = (state: RootState) =>
+  state.projects.loading;
 
-export const selectProjectaTasksLoaded = (state) =>
+export const selectProjectaTasksLoaded = (state: RootState) =>
   state.projects.projectsTasksLoaded;
 
-export const selectAllProjects = (state) => state.projects.items;
+export const selectAllProjects = (state: RootState) => state.projects.items;
 
-export const selectProjectIds = (state) => state.projects.ownedIds;
+export const selectProjectIds = (state: RootState) => state.projects.ownedIds;
 
-export const selectSharedProjectIds = (state) => state.projects.sharedIds;
+export const selectSharedProjectIds = (state: RootState) =>
+  state.projects.sharedIds;
 
-export const selectSharingOnIds = (state) => state.projects.sharingOnIds;
+export const selectSharingOnIds = (state: RootState) =>
+  state.projects.sharingOnIds;
 
-export const selectProjectById = (projectId) => (state) =>
-  state.projects.items[projectId];
+export const selectProjectById =
+  (projectId: IProject["id"]) => (state: RootState) =>
+    state.projects.items[projectId];
 
-export const selectProjectTasksIds = (projectId) => (state) =>
-  state.projects.items[projectId].tasksOrder;
+export const selectProjectTasksIds =
+  (projectId: IProject["id"]) => (state: RootState) =>
+    state.projects.items[projectId].tasksOrder;
 
-export const selectProjectBoard = (projectId) => (state) =>
-  state.projects.items[projectId].board;
+export const selectProjectBoard =
+  (projectId: IProject["id"]) => (state: RootState) =>
+    state.projects.items[projectId].board;
 
-export const selectSelectedCalDate = (projectId) => (state) =>
-  state.projects.selectedCalDate[projectId];
+export const selectSelectedCalDate =
+  (projectId: IProject["id"]) => (state: RootState) =>
+    state.projects.selectedCalDate[projectId];
