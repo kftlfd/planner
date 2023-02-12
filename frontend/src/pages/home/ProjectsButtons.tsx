@@ -1,6 +1,11 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  OnDragEndResponder,
+} from "react-beautiful-dnd";
 import { useSelector } from "react-redux";
 
 import { selectProjectById } from "../../store/projectsSlice";
@@ -17,12 +22,17 @@ import {
 import ListIcon from "@mui/icons-material/List";
 import PeopleIcon from "@mui/icons-material/People";
 
-export function ProjectsButtons(props) {
+export function ProjectsButtons(props: {
+  type: string;
+  header: string;
+  projectIds: number[];
+  drawerToggle: () => void;
+}) {
   const { type, projectIds, drawerToggle } = props;
   const { projectId } = useParams();
   const actions = useActions();
 
-  function onDragEnd(result) {
+  const onDragEnd: OnDragEndResponder = (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -38,7 +48,7 @@ export function ProjectsButtons(props) {
     newOrder.splice(destination.index, 0, Number(draggableId));
 
     actions.user.updateProjectsOrder(type, newOrder);
-  }
+  };
 
   const bgFix = { background: "inherit" };
 
@@ -83,7 +93,11 @@ export function ProjectsButtons(props) {
   );
 }
 
-function ProjectButton(props) {
+function ProjectButton(props: {
+  projectId: number;
+  selected: boolean;
+  drawerToggle: () => void;
+}) {
   const { projectId, selected, drawerToggle } = props;
   const project = useSelector(selectProjectById(projectId));
   const navigate = useNavigate();

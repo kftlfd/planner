@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-export function ProjectCreateButton(props) {
+export function ProjectCreateButton(props: { drawerToggle: () => void }) {
   const actions = useActions();
   const navigate = useNavigate();
 
@@ -21,10 +21,10 @@ export function ProjectCreateButton(props) {
   const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
 
   const [nameValue, setNameValue] = useState("");
-  const handleNameChange = (e) => setNameValue(e.target.value);
+  const handleNameChange = (e: any) => setNameValue(e.target.value);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleCreateProject() {
     setLoading(true);
