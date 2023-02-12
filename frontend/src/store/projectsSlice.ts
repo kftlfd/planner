@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "app/store/store";
 import type { IProject } from "app/types/projects.types";
+import { IUser } from "app/types/users.types";
+import { ITask } from "app/types/tasks.types";
 
 export type ProjectsState = {
   items: { [projectId: IProject["id"]]: IProject };
@@ -11,7 +13,7 @@ export type ProjectsState = {
   projectsTasksLoaded: IProject["id"][];
   loading: boolean;
   error: null | string;
-  selectedCalDate: { [projectId: IProject["id"]]: string };
+  selectedCalDate: { [projectId: IProject["id"]]: Date };
 };
 
 const initialState: ProjectsState = {
@@ -49,23 +51,23 @@ const projectsSlice = createSlice({
       );
     },
 
-    updateTasksLoaded(state, action) {
+    updateTasksLoaded(state, action: PayloadAction<IProject["id"]>) {
       const projectId = action.payload;
       state.projectsTasksLoaded.push(Number(projectId));
     },
 
-    addProject(state, action) {
+    addProject(state, action: PayloadAction<IProject>) {
       const project = action.payload;
       state.items[project.id] = project;
       state.ownedIds.push(project.id);
     },
-    addSharedProject(state, action) {
+    addSharedProject(state, action: PayloadAction<IProject>) {
       const project = action.payload;
       state.items[project.id] = project;
       state.sharedIds.push(project.id);
     },
 
-    updateProject(state, action) {
+    updateProject(state, action: PayloadAction<IProject>) {
       const project = action.payload;
       state.items[project.id] = {
         ...state.items[project.id],
@@ -73,37 +75,46 @@ const projectsSlice = createSlice({
       };
     },
 
-    deleteProject(state, action) {
+    deleteProject(state, action: PayloadAction<IProject["id"]>) {
       const projectId = Number(action.payload);
       delete state.items[projectId];
       state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
       state.sharedIds = state.sharedIds.filter((id) => id !== projectId);
     },
 
-    addMember(state, action) {
+    addMember(
+      state,
+      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>
+    ) {
       const { projectId, userId } = action.payload;
       state.items[projectId].members.push(Number(userId));
     },
-    removeMember(state, action) {
+    removeMember(
+      state,
+      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>
+    ) {
       const { projectId, userId } = action.payload;
       state.items[projectId].members = state.items[projectId].members.filter(
         (id) => id !== Number(userId)
       );
     },
 
-    changeOwnedIdsOrder(state, action) {
+    changeOwnedIdsOrder(state, action: PayloadAction<IProject["id"][]>) {
       state.ownedIds = action.payload;
     },
-    changeSharedIdsOrder(state, action) {
+    changeSharedIdsOrder(state, action: PayloadAction<IProject["id"][]>) {
       state.sharedIds = action.payload;
     },
 
-    addNewTask(state, action) {
+    addNewTask(state, action: PayloadAction<ITask>) {
       const task = action.payload;
       state.items[task.project].tasksOrder.push(task.id);
       state.items[task.project].board.none.push(task.id);
     },
-    deleteTask(state, action) {
+    deleteTask(
+      state,
+      action: PayloadAction<{ projectId: IProject["id"]; taskId: ITask["id"] }>
+    ) {
       const { projectId, taskId } = action.payload;
 
       state.items[projectId].tasksOrder = state.items[
@@ -121,16 +132,31 @@ const projectsSlice = createSlice({
       });
     },
 
-    updateTasksOrder(state, action) {
+    updateTasksOrder(
+      state,
+      action: PayloadAction<{
+        projectId: IProject["id"];
+        tasksOrder: ITask["id"][];
+      }>
+    ) {
       const { projectId, tasksOrder } = action.payload;
       state.items[projectId].tasksOrder = tasksOrder;
     },
-    updateTasksBoard(state, action) {
+    updateTasksBoard(
+      state,
+      action: PayloadAction<{
+        projectId: IProject["id"];
+        board: IProject["board"];
+      }>
+    ) {
       const { projectId, board } = action.payload;
       state.items[projectId].board = board;
     },
 
-    selectCalDate(state, action) {
+    selectCalDate(
+      state,
+      action: PayloadAction<{ projectId: IProject["id"]; date: Date }>
+    ) {
       const { projectId, date } = action.payload;
       state.selectedCalDate[projectId] = date;
     },
