@@ -28,7 +28,10 @@ import {
 import WestIcon from "@mui/icons-material/West";
 import TodayIcon from "@mui/icons-material/Today";
 
-const format = [{}, { dateStyle: "short" }];
+import type { ITask } from "app/types/tasks.types";
+import type { TasksViewProps } from "./Tasks";
+
+const format: Intl.DateTimeFormatOptions = { dateStyle: "short" };
 
 const weekend = { backgroundColor: "action.hover" };
 const weekendColor = {
@@ -36,26 +39,28 @@ const weekendColor = {
   "&:nth-of-type(7n)": weekend,
 };
 
-export function TasksCalendarView(props) {
+export function TasksCalendarView(props: TasksViewProps) {
   const { setSelectedTask, taskDetailsToggle, tasksLoaded } = props;
   const actions = useActions();
-  const { projectId } = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
   const selectedDate =
-    useSelector(selectSelectedCalDate(projectId)) || new Date();
+    useSelector(selectSelectedCalDate(Number(projectId))) || new Date();
   const allTasks = useSelector(selectAllTasks);
   const tasks = Object.keys(allTasks)
-    .filter((taskId) => allTasks[taskId].project === Number(projectId))
-    .map((taskId) => allTasks[taskId]);
+    .filter(
+      (taskId: string) => allTasks[Number(taskId)].project === Number(projectId)
+    )
+    .map((taskId: string) => allTasks[Number(taskId)]);
 
-  const tasksByDate = {};
+  const tasksByDate: { [timstamp: string]: ITask[] } = {};
   tasks.forEach((task) => {
     if (!task.due) return;
-    const d = new Date(task.due).toLocaleString(...format);
+    const d = new Date(task.due).toLocaleString(undefined, format);
     if (!tasksByDate[d]) tasksByDate[d] = [];
     tasksByDate[d].push(task);
   });
   Object.keys(tasksByDate).forEach((d) =>
-    tasksByDate[d].sort((a, b) => a.due > b.due)
+    tasksByDate[d].sort((a: ITask, b: ITask) => (a.due! > b.due! ? 1 : -1))
   );
 
   function goToPrevMonth() {
@@ -72,36 +77,43 @@ export function TasksCalendarView(props) {
     actions.project.selectCalDate(projectId, new Date());
   }
 
-  function selectDate(day) {
+  function selectDate(day: Date) {
     actions.project.selectCalDate(projectId, day);
   }
 
-  function MonthDays(props) {
+  function MonthDays(props: {
+    firstDay: Date;
+    nDays: number;
+    isPrevMonth: boolean;
+    isCurrMonth: boolean;
+  }) {
     const { firstDay, nDays, isPrevMonth, isCurrMonth } = props;
 
-    let days = [...Array(nDays).keys()].map((i) => {
-      let day = addDays(firstDay, isPrevMonth ? -i : i);
-      let tasks = tasksByDate[day.toLocaleString(...format)] || [];
-      let doneCount = tasks.filter((task) => task.done === true).length;
-      let notDoneCount = tasks.length - doneCount;
-      return (
-        <Day
-          key={`${day.toISOString()}`}
-          day={day}
-          isSelected={isSameDay(day, selectedDate)}
-          onClick={() => selectDate(day)}
-          notCurrentMonth={!isCurrMonth}
-          doneCount={doneCount}
-          notDoneCount={notDoneCount}
-          tasksLoaded={tasksLoaded}
-        />
-      );
-    });
+    let days = Array(nDays)
+      .fill(0)
+      .map((_, i) => {
+        let day = addDays(firstDay, isPrevMonth ? -i : i);
+        let tasks = tasksByDate[day.toLocaleString(undefined, format)] || [];
+        let doneCount = tasks.filter((task) => task.done === true).length;
+        let notDoneCount = tasks.length - doneCount;
+        return (
+          <Day
+            key={`${day.toISOString()}`}
+            day={day}
+            isSelected={isSameDay(day, selectedDate)}
+            onClick={() => selectDate(day)}
+            notCurrentMonth={!isCurrMonth}
+            doneCount={doneCount}
+            notDoneCount={notDoneCount}
+            tasksLoaded={tasksLoaded}
+          />
+        );
+      });
 
     if (isPrevMonth) {
-      return days.reverse();
+      return <>{days.reverse()}</>;
     } else {
-      return days;
+      return <>{days}</>;
     }
   }
 
@@ -128,10 +140,10 @@ export function TasksCalendarView(props) {
             align="center"
             sx={{ flexBasis: "15rem", color: "text.primary" }}
           >
-            {selectedDate.toLocaleString(
-              {},
-              { month: "long", year: "numeric" }
-            )}
+            {selectedDate.toLocaleString(undefined, {
+              month: "long",
+              year: "numeric",
+            })}
           </Typography>
 
           <IconButton onClick={() => goToNextMonth()}>
@@ -216,7 +228,8 @@ export function TasksCalendarView(props) {
           <>
             {(() => {
               let tasks =
-                tasksByDate[selectedDate.toLocaleString(...format)] || [];
+                tasksByDate[selectedDate.toLocaleString(undefined, format)] ||
+                [];
 
               return tasks.map((task) => (
                 <TaskCard
@@ -230,7 +243,10 @@ export function TasksCalendarView(props) {
               ));
             })()}
 
-            <CreateTaskWithDate projectId={projectId} due={selectedDate} />
+            <CreateTaskWithDate
+              projectId={Number(projectId)}
+              due={selectedDate}
+            />
           </>
         ) : (
           <CardSkeleton />
@@ -251,7 +267,15 @@ const tasksCountStyle = {
   color: "primary.contrastText",
 };
 
-function Day(props) {
+function Day(props: {
+  day: Date;
+  notCurrentMonth: boolean;
+  isSelected: boolean;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+  doneCount: number;
+  notDoneCount: number;
+  tasksLoaded: boolean;
+}) {
   const {
     day,
     notCurrentMonth,

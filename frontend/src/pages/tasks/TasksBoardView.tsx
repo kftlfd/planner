@@ -1,6 +1,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  OnDragEndResponder,
+  DraggableProvidedDraggableProps,
+  DraggableProvidedDragHandleProps,
+  DroppableProvidedProps,
+} from "react-beautiful-dnd";
 
 import {
   selectProjectBoard,
@@ -20,15 +28,18 @@ import {
   Container,
   Box,
   Button,
-  Card,
   Paper,
   Collapse,
+  CircularProgress,
 } from "@mui/material";
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 import EditIcon from "@mui/icons-material/Edit";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
-export function TasksBoardView(props) {
+import type { IProject } from "app/types/projects.types";
+import type { TasksViewProps } from "./Tasks";
+
+export function TasksBoardView(props: TasksViewProps) {
   const {
     projectId,
     tasksLoaded,
@@ -46,7 +57,7 @@ export function TasksBoardView(props) {
   const [boardEdit, setBoardEdit] = React.useState(false);
   const toggleBoardEdit = () => setBoardEdit((x) => !x);
 
-  async function updateBoard(result) {
+  const updateBoard: OnDragEndResponder = async (result) => {
     const { destination, source, draggableId, type } = result;
 
     if (
@@ -115,7 +126,7 @@ export function TasksBoardView(props) {
     } catch (error) {
       console.error("Failed to update board: ", error);
     }
-  }
+  };
 
   if (!tasksLoaded) return <LoadingBoard columnWidth={columnWidth} />;
 
@@ -141,6 +152,8 @@ export function TasksBoardView(props) {
               {(dropProvided, snapshot) => (
                 <BoardColumn
                   columnWidth={columnWidth}
+                  board={board}
+                  colId="none"
                   dropProps={{
                     ref: dropProvided.innerRef,
                     ...dropProvided.droppableProps,
@@ -264,7 +277,7 @@ export function TasksBoardView(props) {
   );
 }
 
-function BoardWrapper({ children }) {
+function BoardWrapper({ children }: { children?: React.ReactNode }) {
   return (
     <Container
       sx={{
@@ -288,7 +301,12 @@ function BoardWrapper({ children }) {
   );
 }
 
-function BoardEdit(props) {
+function BoardEdit(props: {
+  projectId: number;
+  board: IProject["board"];
+  boardEdit: boolean;
+  toggleBoardEdit: () => void;
+}) {
   const { projectId, board, boardEdit, toggleBoardEdit } = props;
   const actions = useActions();
 
@@ -296,10 +314,11 @@ function BoardEdit(props) {
   const toggleModal = () => setModalOpen((x) => !x);
 
   const [newColName, setNewColName] = React.useState("");
-  const changeColName = (e) => setNewColName(e.target.value);
+  const changeColName = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setNewColName(e.target.value);
 
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   async function createNewColumn() {
     const newCol = {
@@ -359,7 +378,7 @@ function BoardEdit(props) {
       <Button
         size={"small"}
         sx={{ height: "2.5rem", minWidth: 0, aspectRatio: "1/1", padding: 0 }}
-        variant={boardEdit ? "contained" : "default"}
+        variant={boardEdit ? "contained" : "text"}
         onClick={toggleBoardEdit}
       >
         <EditIcon />
@@ -387,7 +406,22 @@ function BoardEdit(props) {
   );
 }
 
-function BoardColumn(props) {
+function BoardColumn(props: {
+  title?: string;
+  canEdit?: boolean;
+  boardEdit?: boolean;
+  board: IProject["board"];
+  colId: string;
+  children?: React.ReactNode;
+  projectId?: number;
+  columnWidth: number;
+
+  isDragging?: boolean;
+  isDraggingOver?: boolean;
+  dragProps?: DraggableProvidedDraggableProps | any;
+  dragHandle?: DraggableProvidedDragHandleProps | any;
+  dropProps?: DroppableProvidedProps | any;
+}) {
   const { title, canEdit, boardEdit, board, colId, children, projectId } =
     props;
   const actions = useActions();
@@ -399,11 +433,12 @@ function BoardColumn(props) {
   const toggleDeleteDialog = () => setDeleteDialogOpen((x) => !x);
 
   const [newColName, setNewColName] = React.useState(title);
-  const changeColName = (e) => setNewColName(e.target.value);
+  const changeColName = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setNewColName(e.target.value);
 
   const [loading, setLoading] = React.useState(false);
   const [loadingDelete, setLoadingDelete] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   async function handleColumnRename() {
     const newBoard = {
@@ -585,8 +620,8 @@ function BoardColumn(props) {
   );
 }
 
-function LoadingBoard(props) {
-  function skeleton(height) {
+function LoadingBoard(props: { columnWidth: number }) {
+  function skeleton(height: string) {
     return (
       <BaseSkeleton
         width={`${props.columnWidth}px`}

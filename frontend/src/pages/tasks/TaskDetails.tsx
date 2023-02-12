@@ -24,6 +24,7 @@ import {
   IconButton,
   Avatar,
   Collapse,
+  BoxProps,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -32,21 +33,38 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers";
 
-export function TaskDetails(props) {
+export function TaskDetails(props: {
+  open: boolean;
+  taskId: number | null;
+  sidebarToggle: () => void;
+  setTaskSelected: (taskId: number | null) => void;
+}) {
   const { open, taskId, sidebarToggle, setTaskSelected } = props;
 
-  const { projectId } = useParams();
-  const project = useSelector(selectProjectById(projectId));
+  const { projectId } = useParams<{ projectId: string }>();
+  const project = useSelector(selectProjectById(Number(projectId)));
   const sharedIds = useSelector(selectSharedProjectIds);
   const isShared = sharedIds.includes(Number(projectId));
 
-  const task = useSelector(selectTaskById(taskId));
+  const task = useSelector(selectTaskById(taskId || -1));
   const actions = useActions();
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [taskState, setTaskState] = useState({});
+  const [taskState, setTaskState] = useState<{
+    done: boolean;
+    title: string;
+    notes: string;
+    due: Date | null;
+    newDue: Date | null;
+  }>({
+    done: false,
+    title: "",
+    notes: "",
+    due: null,
+    newDue: null,
+  });
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const toggleDeleteModal = () => setDeleteModalOpen((x) => !x);
@@ -61,10 +79,10 @@ export function TaskDetails(props) {
     });
   }, [open, task]);
 
-  function updateTaskState(e) {
+  function updateTaskState(e: React.ChangeEvent<HTMLInputElement>) {
     let { name, value } = e.target;
     if (name === "done") {
-      value = !taskState.done;
+      value = `${!taskState.done}`;
     }
     setTaskState((prev) => ({
       ...prev,
@@ -232,14 +250,20 @@ export function TaskDetails(props) {
   );
 }
 
-export function DueForm(props) {
+export function DueForm(props: {
+  value: Date | null;
+  onChange: (value: any, keyboardInputValue?: string | undefined) => void;
+  onClear: () => void;
+  boxSx?: BoxProps["sx"];
+  disabled?: boolean;
+}) {
   const { value, onChange, onClear, boxSx, disabled } = props;
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", ...boxSx }}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <MobileDateTimePicker
-          name="due"
+          // name="due"
           label={"Due"}
           value={value}
           ampm={false}
@@ -264,7 +288,11 @@ export function DueForm(props) {
   );
 }
 
-function LastModified(props) {
+function LastModified(props: {
+  timestamp: string;
+  userId: number;
+  showUser: boolean;
+}) {
   const { timestamp, userId, showUser } = props;
   const user = useSelector(selectUserById(userId));
 
@@ -279,16 +307,13 @@ function LastModified(props) {
     >
       <Box>Last modified</Box>
       <Box>
-        {new Date(timestamp).toLocaleString(
-          {},
-          {
-            month: "short",
-            day: "numeric",
-            hour12: false,
-            hour: "numeric",
-            minute: "2-digit",
-          }
-        )}
+        {new Date(timestamp).toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          hour12: false,
+          hour: "numeric",
+          minute: "2-digit",
+        })}
       </Box>
       {showUser && user && (
         <Box
