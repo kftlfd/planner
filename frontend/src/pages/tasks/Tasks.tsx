@@ -15,16 +15,24 @@ import { TaskDetails } from "./TaskDetails";
 
 import { Typography } from "@mui/material";
 
-export default function Tasks(props) {
-  const { projectId } = useParams();
-  const { view } = useOutletContext();
+export type TasksViewProps = {
+  tasksLoaded: boolean;
+  projectId: number;
+  taskIds: number[];
+  setSelectedTask: (taskId: number) => void;
+  taskDetailsToggle: () => void;
+};
+
+export default function Tasks() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const { view }: { view: string } = useOutletContext();
   const projectsTasksLoaded = useSelector(selectProjectaTasksLoaded);
-  const taskIds = useSelector(selectProjectTasksIds(projectId));
+  const taskIds = useSelector(selectProjectTasksIds(Number(projectId)));
   const actions = useActions();
 
   const tasksLoaded = projectsTasksLoaded.includes(Number(projectId));
 
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
   const taskDetailsToggle = () => {
     setTaskDetailsOpen((x) => !x);
@@ -35,13 +43,13 @@ export default function Tasks(props) {
     if (!tasksLoaded) {
       actions.task
         .loadTasks(projectId)
-        .catch((err) => console.error("Failed loading tasks: ", err));
+        .catch((err: Error) => console.error("Failed loading tasks: ", err));
     }
   }, [projectId]);
 
-  const viewProps = {
+  const viewProps: TasksViewProps = {
     tasksLoaded: tasksLoaded,
-    projectId: projectId,
+    projectId: Number(projectId),
     taskIds: taskIds,
     setSelectedTask: setSelectedTask,
     taskDetailsToggle: taskDetailsToggle,

@@ -18,21 +18,30 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AddIcon from "@mui/icons-material/Add";
 
-export function TaskCreateForm(props) {
+export function TaskCreateForm(props: {
+  projectId?: number;
+  loading?: boolean;
+  sx?: any;
+  children?: React.ReactNode;
+}) {
   const { projectId } = props;
   const actions = useActions();
 
   const [taskCreateTitle, setTaskCreateTitle] = useState("");
-  const handleTaskCreateTitleChange = (e) => {
+  const handleTaskCreateTitleChange: React.ChangeEventHandler<
+    HTMLInputElement
+  > = (e) => {
     if (e.target.value.length <= 150) {
       setTaskCreateTitle(e.target.value);
     }
   };
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleCreateTask(event) {
+  const handleCreateTask: React.FormEventHandler<HTMLFormElement> = async (
+    event
+  ) => {
     event.preventDefault();
     setLoading(true);
     try {
@@ -44,7 +53,7 @@ export function TaskCreateForm(props) {
       setLoading(false);
       setError("Can't create task");
     }
-  }
+  };
 
   if (props.loading) {
     return (
@@ -75,7 +84,7 @@ export function TaskCreateForm(props) {
           size={"small"}
           sx={{ flexGrow: "1" }}
           componentsProps={{
-            input: { sx: { padding: "0" } },
+            input: { style: { padding: "0" } },
           }}
           disabled={loading}
         />
@@ -99,7 +108,7 @@ export function TaskCreateForm(props) {
   );
 }
 
-function CreateFormWrapper({ children }) {
+function CreateFormWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Container
       maxWidth="md"
@@ -117,17 +126,21 @@ function CreateFormWrapper({ children }) {
   );
 }
 
-export function CreateTaskWithDate(props) {
+export function CreateTaskWithDate(props: { projectId: number; due: Date }) {
   const actions = useActions();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = React.useState<{
+    open: boolean;
+    taskTitle: string;
+    taskDue: Date | null;
+  }>({
     open: false,
     taskTitle: "",
     taskDue: props.due || null,
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
     setState((prev) => ({ ...prev, taskDue: props.due }));
@@ -171,7 +184,7 @@ export function CreateTaskWithDate(props) {
         action={"Create"}
         inputLabel={"Task title"}
         inputValue={state.taskTitle}
-        inputChange={(e) =>
+        inputChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           setState((prev) => ({ ...prev, taskTitle: e.target.value }))
         }
         formChildren={

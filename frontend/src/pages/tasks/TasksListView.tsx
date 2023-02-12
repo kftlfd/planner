@@ -1,15 +1,22 @@
 import React from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  OnDragEndResponder,
+} from "react-beautiful-dnd";
 
 import { useActions } from "../../context/ActionsContext";
 import { TaskCreateForm } from "./TaskCreateForm";
 import { CardSkeleton, TaskCard } from "./TaskCard";
 import { NoTasks } from "./Tasks";
 
-import { Container, Box } from "@mui/material";
+import { Container, Box, BoxProps } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
-export function TasksListView(props) {
+import type { TasksViewProps } from "./Tasks";
+
+export function TasksListView(props: TasksViewProps) {
   const {
     projectId,
     tasksLoaded,
@@ -19,7 +26,7 @@ export function TasksListView(props) {
   } = props;
   const actions = useActions();
 
-  function updateTasksOrder(result) {
+  const updateTasksOrder: OnDragEndResponder = (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -35,7 +42,7 @@ export function TasksListView(props) {
     newOrder.splice(destination.index, 0, Number(draggableId));
 
     actions.project.updateTasksOrder({ id: projectId, tasksOrder: newOrder });
-  }
+  };
 
   if (!tasksLoaded) {
     return <LoadingList />;
@@ -88,7 +95,7 @@ export function TasksListView(props) {
   );
 }
 
-function TaskListWrapper({ children }) {
+function TaskListWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Container
       maxWidth="md"
@@ -99,7 +106,7 @@ function TaskListWrapper({ children }) {
   );
 }
 
-function DragHandle(props) {
+function DragHandle(props: BoxProps) {
   return (
     <Box
       {...props}
@@ -119,9 +126,11 @@ function LoadingList() {
     <>
       <TaskCreateForm loading={true} />
       <TaskListWrapper>
-        {[...Array(4).keys()].map((x) => (
-          <CardSkeleton key={x} />
-        ))}
+        {Array(4)
+          .fill(0)
+          .map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
       </TaskListWrapper>
     </>
   );

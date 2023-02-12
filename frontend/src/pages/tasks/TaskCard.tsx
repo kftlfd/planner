@@ -15,18 +15,19 @@ import {
 } from "@mui/material";
 import { BaseSkeleton } from "../../layout/Loading";
 
-const timeFormat = [
-  {},
-  {
-    month: "short",
-    day: "numeric",
-    hour12: false,
-    hour: "numeric",
-    minute: "2-digit",
-  },
-];
+const timeFormat: Intl.DateTimeFormatOptions = {
+  month: "short",
+  day: "numeric",
+  hour12: false,
+  hour: "numeric",
+  minute: "2-digit",
+};
 
-export function TaskCard(props) {
+export function TaskCard(props: {
+  taskId: number;
+  openDetails: () => void;
+  children?: React.ReactNode;
+}) {
   const { taskId, openDetails, children } = props;
   const hideDoneTasks = useSelector(selectHideDoneTasks);
   const task = useSelector(selectTaskById(taskId));
@@ -37,7 +38,7 @@ export function TaskCard(props) {
     const newDoneValue = !doneValue;
     const taskUpdate = { done: newDoneValue };
     setDoneValue(newDoneValue);
-    actions.task.update(taskId, taskUpdate).catch((err) => {
+    actions.task.update(taskId, taskUpdate).catch((err: Error) => {
       console.error("Failed to update task-done status: ", err);
       setDoneValue(!newDoneValue);
     });
@@ -53,7 +54,7 @@ export function TaskCard(props) {
         sx={{
           marginBottom: "0.5rem",
           ...(!doneValue &&
-            Date.parse(task.due) < Date.now() && {
+            Date.parse(task.due!) < Date.now() && {
               backgroundColor: "error.main",
               color: "error.contrastText",
             }),
@@ -92,7 +93,7 @@ export function TaskCard(props) {
             </Typography>
             {task.due && (
               <Typography variant="caption" component="div" align="right">
-                {new Date(task.due).toLocaleString(...timeFormat)}
+                {new Date(task.due).toLocaleString(undefined, timeFormat)}
               </Typography>
             )}
           </Box>
@@ -102,7 +103,13 @@ export function TaskCard(props) {
   );
 }
 
-export function BoardTask(props) {
+export function BoardTask(props: {
+  taskId: number;
+  isDragging: boolean;
+  dragProps: any;
+  dragHandle: any;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+}) {
   const { taskId, isDragging, dragProps, dragHandle, onClick } = props;
   const task = useSelector(selectTaskById(taskId));
   const hide = useSelector(selectHideDoneTasks);
@@ -116,7 +123,7 @@ export function BoardTask(props) {
         sx={{
           marginTop: "0.5rem",
           ...(!task.done &&
-            Date.parse(task.due) < Date.now() && {
+            Date.parse(task.due!) < Date.now() && {
               backgroundColor: "error.main",
               color: "error.contrastText",
             }),
@@ -141,7 +148,7 @@ export function BoardTask(props) {
             </Typography>
             {task.due && (
               <Typography variant="caption" component="div" align="right">
-                {new Date(task.due).toLocaleString(...timeFormat)}
+                {new Date(task.due).toLocaleString(undefined, timeFormat)}
               </Typography>
             )}
           </Box>
@@ -151,6 +158,6 @@ export function BoardTask(props) {
   );
 }
 
-export function CardSkeleton(props) {
+export function CardSkeleton() {
   return <BaseSkeleton height={"56px"} sx={{ marginBottom: "0.5rem" }} />;
 }
