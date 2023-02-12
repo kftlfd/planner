@@ -9,8 +9,8 @@ import { ProjectLeave } from "./ProjectLeave";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-export function ProjectOptionsMenu(props) {
-  const optionsButton = useRef();
+export function ProjectOptionsMenu(props: { children: React.ReactNode }) {
+  const optionsButton = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const openOptionsMenu = () => setMenuOpen(true);
   const closeOptionsMenu = () => setMenuOpen(false);
@@ -49,7 +49,11 @@ export function ProjectOptionsMenu(props) {
   );
 }
 
-export function MenuListItem(props) {
+export function MenuListItem(props: {
+  onClick?: any;
+  sx?: any;
+  children?: React.ReactNode;
+}) {
   return (
     <MenuItem
       onClick={props.onClick}

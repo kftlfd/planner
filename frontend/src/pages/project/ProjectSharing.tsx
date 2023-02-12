@@ -30,11 +30,11 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
-export function ProjectSharing(props) {
+export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
   const { closeOptionsMenu } = props;
-  const { projectId } = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
   const actions = useActions();
-  const project = useSelector(selectProjectById(projectId));
+  const project = useSelector(selectProjectById(Number(projectId)));
   const sharedIds = useSelector(selectSharedProjectIds);
   const isOwned = !sharedIds.includes(Number(projectId));
 
@@ -49,10 +49,12 @@ export function ProjectSharing(props) {
   const [loadingSharing, setLoadingSharing] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [stopSharingDialogOpen, setStopSharingDialogOpen] = useState(false);
-  const stopSharingDialogToggle = () => setStopSharingDialogOpen((x) => !x);
+  const stopSharingDialogToggle = () => {
+    setStopSharingDialogOpen((x) => !x);
+  };
 
   useEffect(() => {
     setSharingToggle(project.sharing);
@@ -153,12 +155,12 @@ export function ProjectSharing(props) {
           ) : (
             <>
               <InviteLink
-                projectId={projectId}
-                inviteCode={project.invite}
+                projectId={Number(projectId)}
+                inviteCode={project.invite || ""}
                 canEdit={isOwned}
               />
 
-              <ProjectMembers projectId={projectId} />
+              <ProjectMembers projectId={Number(projectId)} />
             </>
           )}
         </SidebarBody>
@@ -167,7 +169,7 @@ export function ProjectSharing(props) {
   );
 }
 
-function SharingSwitch(props) {
+function SharingSwitch(props: { checked: boolean; onChange: () => void }) {
   const { checked, onChange } = props;
 
   return (
@@ -203,7 +205,11 @@ function SharingSwitch(props) {
   );
 }
 
-function InviteLink(props) {
+function InviteLink(props: {
+  projectId: number;
+  inviteCode: string;
+  canEdit: boolean;
+}) {
   const { projectId, inviteCode } = props;
   const colorMode = useColorMode();
   const actions = useActions();
@@ -251,7 +257,7 @@ function InviteLink(props) {
         gap: "0.5rem",
       }}
     >
-      <Typography variant="h6" conponent="div">
+      <Typography variant="h6" component="div">
         Link
       </Typography>
 
@@ -329,13 +335,13 @@ function InviteLink(props) {
   );
 }
 
-function ProjectMembers({ projectId }) {
+function ProjectMembers({ projectId }: { projectId: number }) {
   const project = useSelector(selectProjectById(projectId));
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <Typography variant="h6" conponent="div">
+        <Typography variant="h6" component="div">
           Members
         </Typography>
         {project.members.length + 1}
@@ -348,7 +354,13 @@ function ProjectMembers({ projectId }) {
   );
 }
 
-function MemberListItem({ userId, owner }) {
+function MemberListItem({
+  userId,
+  owner,
+}: {
+  userId: number;
+  owner?: boolean;
+}) {
   const user = useSelector(selectUserById(userId));
 
   if (!user) return <div>???</div>;

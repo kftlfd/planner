@@ -23,16 +23,16 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-export default function Project(props) {
-  const { projectId } = useParams();
-  const project = useSelector(selectProjectById(projectId));
+export default function Project() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const project = useSelector(selectProjectById(Number(projectId)));
   const view = useSelector(selectProjectView);
   const actions = useActions();
 
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  function ViewButton(props) {
+  function ViewButton(props: { viewName: string; icon: React.ReactNode }) {
     const { viewName, icon } = props;
     return (
       <Button
@@ -45,7 +45,7 @@ export default function Project(props) {
     );
   }
 
-  function ViewButtonGroup(props) {
+  function ViewButtonGroup(props: { large?: boolean }) {
     return (
       <ButtonGroup
         size={props.hasOwnProperty("large") ? "large" : "small"}
@@ -95,7 +95,7 @@ export default function Project(props) {
   );
 }
 
-function StarterMessage(props) {
+function StarterMessage() {
   const containerStyle = {
     marginTop: "3rem",
     display: "flex",
@@ -114,7 +114,7 @@ function StarterMessage(props) {
   };
 
   function handleClick() {
-    document.getElementById("create-new-project-button").click();
+    document.getElementById("create-new-project-button")?.click();
   }
 
   return (

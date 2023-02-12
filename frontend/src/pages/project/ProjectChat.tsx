@@ -24,9 +24,9 @@ import ChatIcon from "@mui/icons-material/Chat";
 import SendIcon from "@mui/icons-material/Send";
 import Close from "@mui/icons-material/Close";
 
-export function ProjectChat(props) {
-  const { projectId } = useParams();
-  const projectChat = useSelector(selectProjectChat(projectId));
+export function ProjectChat() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const projectChat = useSelector(selectProjectChat(Number(projectId)));
   const actions = useActions();
 
   const [state, setState] = React.useState({
@@ -41,13 +41,13 @@ export function ProjectChat(props) {
     setState((prev) => ({ ...prev, chatOpen: !prev.chatOpen }));
     actions.chat.toggleChatOpen(projectId); // in store if marked open, don't update unread count
   };
-  const newMessageChange = (e) =>
+  const newMessageChange = (e: any) =>
     setState((prev) => ({ ...prev, newMessage: e.target.value }));
 
   //
   // Scroll to bottom of chatbox on receiving message and on load
   //
-  const chatboxBottom = React.useRef();
+  const chatboxBottom = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
     if (!state.chatOpen) {
       chatboxBottom.current?.scrollIntoView(true);
@@ -95,7 +95,7 @@ export function ProjectChat(props) {
     : !state.newMessage
     ? true
     : state.sendLoading || state.sendError;
-  async function sendMessage(e) {
+  const sendMessage: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (sendDisabled) return;
     setState((prev) => ({ ...prev, sendLoading: true }));
@@ -109,7 +109,7 @@ export function ProjectChat(props) {
         setState((prev) => ({ ...prev, sendError: false }));
       }, 5000);
     }
-  }
+  };
 
   return (
     <>
@@ -178,7 +178,7 @@ export function ProjectChat(props) {
         </SidebarBody>
 
         <AppBar
-          color="background"
+          color={"background" as "default"}
           sx={{
             position: "relative",
             padding: "0.5rem 1.5rem",
@@ -220,24 +220,26 @@ export function ProjectChat(props) {
   );
 }
 
-function Message(props) {
+function Message(props: {
+  message: { user: number; text: string; time: string };
+  samePrevUser: boolean;
+  sameNextUser: boolean;
+  unread: boolean;
+}) {
   const { message, samePrevUser, sameNextUser, unread } = props;
   const user = useSelector(selectUserById(message.user));
   const selfId = useSelector(selectUserId);
   const self = message.user === selfId;
 
-  function parseTime(s) {
+  function parseTime(s: string) {
     let today = new Date();
     let d = new Date(s);
-    let formatted = d.toLocaleString(
-      {},
-      {
-        ...(!isSameDay(today, d) && { month: "short", day: "numeric" }),
-        hour12: false,
-        hour: "numeric",
-        minute: "2-digit",
-      }
-    );
+    let formatted = d.toLocaleString(undefined, {
+      ...(!isSameDay(today, d) && { month: "short", day: "numeric" }),
+      hour12: false,
+      hour: "numeric",
+      minute: "2-digit",
+    });
     return formatted;
   }
 

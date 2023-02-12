@@ -12,10 +12,10 @@ import { useActions } from "../../context/ActionsContext";
 import { MenuListItem } from "./ProjectOprionsMenu";
 import { InputModal } from "../../layout/Modal";
 
-export function ProjectRename(props) {
+export function ProjectRename(props: { closeOptionsMenu: () => void }) {
   const { closeOptionsMenu } = props;
   const { projectId } = useParams();
-  const project = useSelector(selectProjectById(projectId));
+  const project = useSelector(selectProjectById(Number(projectId)));
   const sharedIds = useSelector(selectSharedProjectIds);
   const actions = useActions();
 
@@ -26,10 +26,10 @@ export function ProjectRename(props) {
   };
 
   const [renameValue, setRenameValue] = useState(project.name);
-  const handleRenameChange = (e) => setRenameValue(e.target.value);
+  const handleRenameChange = (e: any) => setRenameValue(e.target.value);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleRename() {
     setLoading(true);

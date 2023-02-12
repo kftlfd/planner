@@ -11,12 +11,12 @@ import { MenuListItem } from "./ProjectOprionsMenu";
 import { SimpleModal } from "../../layout/Modal";
 import { ErrorAlert } from "../../layout/Alert";
 
-export function ProjectDelete(props) {
+export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
   const { closeOptionsMenu } = props;
-  const { projectId } = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
   const actions = useActions();
 
-  const project = useSelector(selectProjectById(projectId));
+  const project = useSelector(selectProjectById(Number(projectId)));
   const sharedIds = useSelector(selectSharedProjectIds);
   const isShared = sharedIds.includes(Number(projectId));
 
@@ -27,7 +27,7 @@ export function ProjectDelete(props) {
   };
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleDelete() {
     setLoading(true);
