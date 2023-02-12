@@ -7,7 +7,7 @@ import { MenuListItem } from "./ProjectOprionsMenu";
 
 import { Switch } from "@mui/material";
 
-export function ProjectHideDoneToggle(props) {
+export function ProjectHideDoneToggle() {
   const hideDone = useSelector(selectHideDoneTasks);
   const actions = useActions();
 

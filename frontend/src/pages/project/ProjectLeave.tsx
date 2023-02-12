@@ -10,12 +10,12 @@ import {
 import { SimpleModal } from "../../layout/Modal";
 import { MenuListItem } from "./ProjectOprionsMenu";
 
-export function ProjectLeave(props) {
+export function ProjectLeave(props: { closeOptionsMenu: () => void }) {
   const { closeOptionsMenu } = props;
-  const { projectId } = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
   const actions = useActions();
 
-  const project = useSelector(selectProjectById(projectId));
+  const project = useSelector(selectProjectById(Number(projectId)));
   const sharedIds = useSelector(selectSharedProjectIds);
   const isShared = sharedIds.includes(Number(projectId));
 
