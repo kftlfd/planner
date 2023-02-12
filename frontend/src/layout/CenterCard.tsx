@@ -1,7 +1,12 @@
 import React from "react";
-import { Box, Container, Card } from "@mui/material";
+import { Box, Container, Card, ContainerProps, CardProps } from "@mui/material";
 
-export function CenterCard(props) {
+export function CenterCard(props: {
+  ContainerWidth?: ContainerProps["maxWidth"];
+  sx?: ContainerProps["sx"];
+  cardSx?: CardProps["sx"];
+  children?: React.ReactNode;
+}) {
   return (
     <Container
       maxWidth={props.ContainerWidth || "xs"}

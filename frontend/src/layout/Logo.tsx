@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Logo(props) {
+export function Logo(props: { height: number }) {
   // a Memo emoji by Twemoji
   // https://twemoji.twitter.com/
   // https://github.com/twitter/twemoji

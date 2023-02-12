@@ -123,11 +123,7 @@ export function ProjectChat() {
         </Badge>
       </IconButton>
 
-      <Sidebar
-        open={state.chatOpen}
-        toggle={chatToggle}
-        sx={{ overflow: "hidden" }}
-      >
+      <Sidebar open={state.chatOpen} toggle={chatToggle}>
         <SidebarHeader title={"Chat"} toggle={chatToggle} />
 
         <SidebarBody

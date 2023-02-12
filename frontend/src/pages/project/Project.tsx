@@ -60,7 +60,7 @@ export default function Project() {
 
   return (
     <>
-      <MainHeader title={project ? project.name : null}>
+      <MainHeader title={project ? project.name : ""}>
         {project ? (
           <Box sx={{ display: "flex", gap: "1rem", marginLeft: "1rem" }}>
             {project.sharing && <ProjectChat />}
