@@ -18,7 +18,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
-export function UserButtons(props) {
+export function UserButtons(props: { drawerToggle: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector(selectUser);

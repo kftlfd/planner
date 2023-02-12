@@ -19,7 +19,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Divider } from "@mui/material";
 
-export default function Home(props) {
+export default function Home() {
   const user = useSelector(selectUser);
   const rootPath = useMatch("/");
 
