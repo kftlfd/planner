@@ -2,7 +2,11 @@ import React from "react";
 
 import { Modal, Box, Alert, AlertTitle } from "@mui/material";
 
-export function ErrorAlert(props) {
+export function ErrorAlert(props: {
+  open: boolean;
+  toggle: () => void;
+  message?: string | null;
+}) {
   const { open, toggle, message } = props;
 
   return (

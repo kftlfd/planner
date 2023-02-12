@@ -10,6 +10,7 @@ import {
   AppBar,
   Toolbar,
   IconButton,
+  BoxProps,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -17,7 +18,10 @@ import MenuIcon from "@mui/icons-material/Menu";
 
 const drawerWidth = 240;
 
-export function Main(props) {
+export function Main(props: {
+  sx?: BoxProps["sx"];
+  children?: React.ReactNode;
+}) {
   const colorMode = useColorMode();
 
   return (
@@ -37,7 +41,12 @@ export function Main(props) {
   );
 }
 
-export function MainDrawer(props) {
+export function MainDrawer(props: {
+  drawerOpen: boolean;
+  drawerToggle: () => void;
+  smallScreen: boolean;
+  children?: React.ReactNode;
+}) {
   const { drawerOpen, drawerToggle, smallScreen } = props;
 
   return (
@@ -69,12 +78,18 @@ export function MainDrawer(props) {
   );
 }
 
-export function MainHeader(props) {
-  const { drawerOpen, drawerToggle } = useOutletContext();
+export function MainHeader(props: {
+  title?: string;
+  children?: React.ReactNode;
+}) {
+  const { drawerOpen, drawerToggle } = useOutletContext<{
+    drawerOpen: boolean;
+    drawerToggle: () => void;
+  }>();
 
   return (
     <AppBar
-      color="background"
+      color={"background" as "default"}
       sx={{
         transition: "all 0.3s ease",
         width: { md: drawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%" },
@@ -114,7 +129,7 @@ export function MainHeader(props) {
   );
 }
 
-export function MainBody(props) {
+export function MainBody(props: { children?: React.ReactNode }) {
   return (
     <Box
       sx={{

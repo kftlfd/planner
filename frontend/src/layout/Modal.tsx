@@ -13,7 +13,15 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-export function SimpleModal(props) {
+export function SimpleModal(props: {
+  open: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+  title?: string;
+  content?: string;
+  action?: string;
+  loading?: boolean;
+}) {
   const { open, onConfirm, onClose, title, content, action, loading } = props;
 
   return (
@@ -49,7 +57,21 @@ export function SimpleModal(props) {
   );
 }
 
-export function InputModal(props) {
+export function InputModal(props: {
+  open: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+  title?: string;
+  content?: string | null;
+  action: string;
+  inputLabel?: string;
+  inputPlaceholder?: string;
+  inputValue?: string;
+  inputChange?: React.ChangeEventHandler;
+  formChildren?: React.ReactNode;
+  actionsChildren?: React.ReactNode;
+  loading: boolean;
+}) {
   const {
     open,
     onConfirm,

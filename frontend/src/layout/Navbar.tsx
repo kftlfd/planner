@@ -52,16 +52,16 @@ const NavbarCard = {
   gap: "2rem",
 };
 
-export default function Navbar(props) {
+export default function Navbar() {
   const { mode, toggleColorMode } = useColorMode();
   const user = useSelector(selectUser);
   const actions = useActions();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
   const menuOpen = Boolean(anchorEl);
-  const openMenu = (event) => {
+  const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const closeMenu = () => {

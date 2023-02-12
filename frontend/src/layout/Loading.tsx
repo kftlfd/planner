@@ -4,15 +4,22 @@ import { Main } from "./Main";
 import { CenterCard } from "./CenterCard";
 import { Logo } from "./Logo";
 
-import { Skeleton, Box, Typography, LinearProgress } from "@mui/material";
+import {
+  Skeleton,
+  Box,
+  Typography,
+  LinearProgress,
+  SkeletonProps,
+} from "@mui/material";
 
-export function BaseSkeleton(props) {
+export function BaseSkeleton(props: SkeletonProps) {
   return (
     <Skeleton
-      width={props.width}
-      height={props.height}
+      // width={props.width}
+      // height={props.height}
       variant="rectangular"
       animation="wave"
+      {...props}
       sx={{
         borderRadius: "0.25rem",
         ...props.sx,
@@ -21,7 +28,7 @@ export function BaseSkeleton(props) {
   );
 }
 
-export function SplashScreen(props) {
+export function SplashScreen(props: { message?: string }) {
   const { message } = props;
 
   return (

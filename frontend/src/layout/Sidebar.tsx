@@ -7,11 +7,16 @@ import {
   Toolbar,
   IconButton,
   Box,
+  BoxProps,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 
-export function Sidebar(props) {
+export function Sidebar(props: {
+  open: boolean;
+  toggle: () => void;
+  children?: React.ReactNode;
+}) {
   const theme = useTheme();
   const { open, toggle } = props;
 
@@ -35,12 +40,16 @@ export function Sidebar(props) {
   );
 }
 
-export function SidebarHeader(props) {
+export function SidebarHeader(props: {
+  title: string;
+  toggle: () => void;
+  children?: React.ReactNode;
+}) {
   const theme = useTheme();
 
   return (
     <AppBar
-      color="background"
+      color={"background" as "default"}
       sx={{
         right: 0,
         width: { xs: "100%", sm: theme.breakpoints.values.sm },
@@ -78,7 +87,10 @@ export function SidebarHeader(props) {
   );
 }
 
-export function SidebarBody(props) {
+export function SidebarBody(props: {
+  sx?: BoxProps["sx"];
+  children?: React.ReactNode;
+}) {
   return (
     <>
       <Toolbar />
