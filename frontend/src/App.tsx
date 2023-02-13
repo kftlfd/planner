@@ -11,8 +11,9 @@ import Project from "app/pages/project/Project";
 import Tasks from "app/pages/tasks/Tasks";
 import Navbar from "app/layout/Navbar";
 import Invite from "app/pages/Invite";
-import Welcome from "app/pages/Welcome";
-import { Register, Login } from "app/pages/Auth";
+import Welcome from "app/pages/welcome/";
+import Register from "app/pages/auth/register.component";
+import Login from "app/pages/auth/login.component";
 import Error from "app/pages/Error";
 import { Settings } from "app/pages/Settings";
 
