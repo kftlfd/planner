@@ -5,14 +5,22 @@ import { selectTheme, setTheme } from "../store/settingsSlice";
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { PaletteMode, TypeBackground } from "@mui/material";
 
-const ColorModeContext = React.createContext();
+const ColorModeContext = React.createContext({
+  toggleColorMode: () => {},
+  mode: "light",
+});
 
 export function useColorMode() {
   return React.useContext(ColorModeContext);
 }
 
-export default function ProvideTheme({ children }) {
+export default function ProvideTheme({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const localStorageTheme = useSelector(selectTheme);
   const dispatch = useDispatch();
@@ -39,15 +47,17 @@ export default function ProvideTheme({ children }) {
 
   const theme = React.useMemo(() => {
     const defaultTheme = createTheme({
+      // @ts-ignore
       palette: { mode },
     });
 
     return createTheme({
       palette: {
+        // @ts-ignore
         mode,
         background: {
           light: "aliceblue",
-        },
+        } as Partial<TypeBackground>,
         chat: {
           bg: mode === "light" ? "aliceblue" : "rgba(0,0,0,0.6)",
           msg: mode === "light" ? "white" : defaultTheme.palette.action.hover,

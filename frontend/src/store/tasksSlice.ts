@@ -17,7 +17,7 @@ const tasksSlice = createSlice({
   initialState,
 
   reducers: {
-    loadTasks(state, action: PayloadAction<ITask[]>) {
+    loadTasks(state, action: PayloadAction<{ [taskId: ITask["id"]]: ITask }>) {
       state.items = {
         ...state.items,
         ...action.payload,

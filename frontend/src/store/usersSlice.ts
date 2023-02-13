@@ -30,7 +30,7 @@ const usersSlice = createSlice({
       state.items[user.id] = user;
     },
 
-    loadUsers(state, action: PayloadAction<IUser[]>) {
+    loadUsers(state, action: PayloadAction<{ [userId: IUser["id"]]: IUser }>) {
       state.items = {
         ...state.items,
         ...action.payload,
