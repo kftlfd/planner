@@ -36,9 +36,9 @@ const projectsSlice = createSlice({
     loadProjects(
       state,
       action: PayloadAction<{
-        projects: IProject[];
-        ownedIds: IProject["id"][];
+        projects: { [projectId: IProject["id"]]: IProject };
         sharedIds: IProject["id"][];
+        ownedIds: IProject["id"][];
       }>
     ) {
       const { projects, ownedIds, sharedIds } = action.payload;

@@ -46,7 +46,13 @@ export const user = {
     return await query<IUser>(urls.auth.login, methods.post);
   },
 
-  async update(userUpdate: Partial<IUser>) {
+  async update(
+    userUpdate: Partial<IUser> &
+      Partial<{
+        ownedProjectsOrder: IProject["id"][];
+        sharedProjectsOrder: IProject["id"][];
+      }>
+  ) {
     return await query<IUser>(urls.user.details, methods.patch, userUpdate);
   },
 
@@ -55,7 +61,11 @@ export const user = {
   },
 
   async projects() {
-    return await query<IUser>(urls.user.projects, methods.get);
+    return await query<{
+      projects: { [projectId: IProject["id"]]: IProject };
+      sharedIds: IProject["id"][];
+      ownedIds: IProject["id"][];
+    }>(urls.user.projects, methods.get);
   },
 
   async deleteAccount() {
@@ -90,7 +100,10 @@ export const project = {
   },
 
   async tasks(projectId: IProject["id"]) {
-    return await query<ITask>(urls.project.tasks(`${projectId}`), methods.get);
+    return await query<{
+      tasks: { [taskId: ITask["id"]]: ITask };
+      members: { [userId: IUser["id"]]: IUser };
+    }>(urls.project.tasks(`${projectId}`), methods.get);
   },
 
   async chat(projectId: IProject["id"]) {

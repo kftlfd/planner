@@ -7,14 +7,17 @@ import * as projectsSlice from "../store/projectsSlice";
 import * as tasksSlice from "../store/tasksSlice";
 import * as settingsSlice from "../store/settingsSlice";
 import * as chatSlice from "../store/chatSlice";
+import { IUser } from "app/types/users.types";
+import { IProject } from "app/types/projects.types";
+import { ITask } from "app/types/tasks.types";
 
-const ActionsContext = React.createContext();
+const ActionsContext = React.createContext<any>({});
 
 export function useActions() {
   return React.useContext(ActionsContext);
 }
 
-export default function ProvideActions(props) {
+export default function ProvideActions(props: { children: React.ReactNode }) {
   const userObj = useSelector(usersSlice.selectUser);
   const userId = useSelector(usersSlice.selectUserId);
   const dispatch = useDispatch();
@@ -23,14 +26,10 @@ export default function ProvideActions(props) {
   // WebSocket
   //
 
-  const [webSocket, setWebSocket] = React.useState(null);
+  const [webSocket, setWebSocket] = React.useState<WebSocket | null>(null);
 
-  async function getWebSocket(idsToJoin) {
-    const socket = new WebSocket(
-      `${window.location.protocol === "https:" ? "wss" : "ws"}://${
-        window.location.host
-      }/ws/`
-    );
+  async function getWebSocket(idsToJoin: string[]) {
+    const socket = api.getWS();
 
     socket.onopen = (e) => {
       console.info("WS open");
@@ -107,9 +106,9 @@ export default function ProvideActions(props) {
   }
 
   const ws = {
-    send(action, group, data, retry = 1) {
+    send(action: string, group: string, data: any, retry = 1) {
       try {
-        webSocket.send(
+        webSocket?.send(
           JSON.stringify({
             action,
             group,
@@ -125,11 +124,11 @@ export default function ProvideActions(props) {
       }
     },
 
-    join(projectIds) {
+    join(projectIds: string[]) {
       this.send("group/join", "", { groups: projectIds });
     },
 
-    leave(projectIds) {
+    leave(projectIds: string[]) {
       this.send("group/leave", "", { groups: projectIds });
     },
   };
@@ -139,13 +138,13 @@ export default function ProvideActions(props) {
   //
 
   const auth = {
-    async register(formData) {
+    async register(formData: FormData) {
       const resp = await api.auth.register(formData);
       if (resp.ok) dispatch(usersSlice.setUser(resp.user));
       else return resp;
     },
 
-    async login(formData) {
+    async login(formData: FormData) {
       const resp = await api.auth.login(formData);
       if (resp.ok) dispatch(usersSlice.setUser(resp.user));
       else return resp;
@@ -162,18 +161,21 @@ export default function ProvideActions(props) {
   //
 
   const user = {
-    async update(userUpdate) {
+    async update(userUpdate: Partial<IUser>) {
       const updatedUser = await api.user.update(userUpdate);
       dispatch(usersSlice.updateUser(updatedUser));
       ws.send("user/update", "all", { user: updatedUser });
       return updatedUser;
     },
 
-    async changePassword(passwords) {
+    async changePassword(passwords: {
+      oldPassword: string;
+      newPassword: string;
+    }) {
       return await api.user.password(passwords);
     },
 
-    async updateProjectsOrder(type, newOrder) {
+    async updateProjectsOrder(type: string, newOrder: IProject["id"][]) {
       if (type === "owned") {
         dispatch(projectsSlice.changeOwnedIdsOrder(newOrder));
         api.user.update({ ownedProjectsOrder: newOrder });
@@ -198,37 +200,43 @@ export default function ProvideActions(props) {
     async loadProjects() {
       const response = await api.user.projects();
       dispatch(projectsSlice.loadProjects(response));
-      let sharingOn = Object.keys(response.projects).filter(
-        (id) => response.projects[id].sharing
+      const { projects } = response;
+      const sharingOn = Object.keys(projects).reduce(
+        (arr: string[], id: string) => {
+          const projectId = Number(id);
+          if (projects[projectId].sharing) arr.push(id);
+          return arr;
+        },
+        []
       );
       getWebSocket(sharingOn);
     },
 
-    async create(name) {
+    async create(name: IProject["name"]) {
       const p = await api.project.create(name);
       dispatch(projectsSlice.addProject(p));
       return p.id;
     },
 
-    async update(projectId, update) {
+    async update(projectId: IProject["id"], update: Partial<IProject>) {
       const project = await api.project.update(projectId, update);
       ws.send("project/update", `${projectId}`, { project });
       dispatch(projectsSlice.updateProject(project));
     },
 
-    async updateTasksOrder(project) {
+    async updateTasksOrder(project: IProject) {
       dispatch(projectsSlice.updateProject(project));
       api.project.update(project.id, project);
       ws.send("project/update", `${project.id}`, { project });
     },
 
-    async delete(projectId) {
+    async delete(projectId: IProject["id"]) {
       await api.project.delete(projectId);
       ws.send("project/stopSharing", `${projectId}`, { projectId });
       dispatch(projectsSlice.deleteProject(projectId));
     },
 
-    async leave(projectId) {
+    async leave(projectId: IProject["id"]) {
       await api.project.leave(projectId);
       ws.send("project/removeMember", `${projectId}`, { projectId, userId });
       ws.leave([`${projectId}`]);
@@ -236,33 +244,33 @@ export default function ProvideActions(props) {
     },
 
     sharing: {
-      async enable(projectId) {
+      async enable(projectId: IProject["id"]) {
         const project = await api.project.sharing.enable(projectId);
         ws.join([`${projectId}`]);
         dispatch(projectsSlice.updateProject(project));
       },
 
-      async disable(projectId) {
+      async disable(projectId: IProject["id"]) {
         const project = await api.project.sharing.disable(projectId);
         ws.send("project/stopSharing", `${projectId}`, { projectId });
         ws.leave([`${projectId}`]);
         dispatch(projectsSlice.updateProject(project));
       },
 
-      async recreateInvite(projectId) {
+      async recreateInvite(projectId: IProject["id"]) {
         const project = await api.project.invite.recreate(projectId);
         dispatch(projectsSlice.updateProject(project));
         ws.send("project/update", `${projectId}`, { project });
       },
 
-      async deleteInvite(projectId) {
+      async deleteInvite(projectId: IProject["id"]) {
         const project = await api.project.invite.delete(projectId);
         dispatch(projectsSlice.updateProject(project));
         ws.send("project/update", `${projectId}`, { project });
       },
     },
 
-    selectCalDate(projectId, date) {
+    selectCalDate(projectId: IProject["id"], date: Date) {
       dispatch(projectsSlice.selectCalDate({ projectId, date }));
     },
   };
@@ -272,11 +280,11 @@ export default function ProvideActions(props) {
   //
 
   const invite = {
-    async get(inviteCode) {
+    async get(inviteCode: string) {
       return await api.invite.get(inviteCode);
     },
 
-    async join(inviteCode) {
+    async join(inviteCode: string) {
       const project = await api.invite.join(inviteCode);
       ws.join([`${project.id}`]);
       ws.send("project/addMember", `${project.id}`, {
@@ -294,7 +302,7 @@ export default function ProvideActions(props) {
   //
 
   const task = {
-    async loadTasks(projectId) {
+    async loadTasks(projectId: IProject["id"]) {
       const response = await api.project.tasks(projectId);
       const { tasks, members } = response;
       dispatch(tasksSlice.loadTasks(tasks));
@@ -302,20 +310,20 @@ export default function ProvideActions(props) {
       dispatch(projectsSlice.updateTasksLoaded(projectId));
     },
 
-    async create(projectId, task) {
+    async create(projectId: IProject["id"], task: ITask) {
       const newTask = await api.task.create(projectId, task);
       ws.send("task/create", `${newTask.project}`, { newTask });
       dispatch(tasksSlice.addTask(newTask));
       dispatch(projectsSlice.addNewTask(newTask));
     },
 
-    async update(taskId, taskUpdate) {
+    async update(taskId: ITask["id"], taskUpdate: Partial<ITask>) {
       const task = await api.task.update(taskId, taskUpdate);
       ws.send("task/update", `${task.project}`, { task });
       dispatch(tasksSlice.updateTask(task));
     },
 
-    async delete(projectId, taskId) {
+    async delete(projectId: IProject["id"], taskId: ITask["id"]) {
       await api.task.delete(taskId);
       ws.send("task/delete", `${projectId}`, { projectId, taskId });
       dispatch(tasksSlice.deleteTask(taskId));
@@ -328,12 +336,12 @@ export default function ProvideActions(props) {
   //
 
   const chat = {
-    async load(projectId) {
+    async load(projectId: IProject["id"]) {
       const messages = await api.project.chat(projectId);
       dispatch(chatSlice.loadMessages({ projectId, messages }));
     },
 
-    async newMessage(projectId, text) {
+    async newMessage(projectId: IProject["id"], text: string) {
       const message = await api.chat.createMessage(projectId, text);
       const payload = { projectId, message, fromOthers: false };
       dispatch(chatSlice.addMessage(payload));
@@ -344,11 +352,11 @@ export default function ProvideActions(props) {
       });
     },
 
-    toggleChatOpen(projectId) {
+    toggleChatOpen(projectId: IProject["id"]) {
       dispatch(chatSlice.toggleChatOpen(projectId));
     },
 
-    resetUnread(projectId) {
+    resetUnread(projectId: IProject["id"]) {
       dispatch(chatSlice.resetUnread(projectId));
     },
   };
@@ -366,11 +374,11 @@ export default function ProvideActions(props) {
       dispatch(settingsSlice.toggleHideDoneTasks());
     },
 
-    setProjectView(view) {
+    setProjectView(view: string) {
       dispatch(settingsSlice.setProjectView(view));
     },
 
-    setBoardColumnWidth(width) {
+    setBoardColumnWidth(width: number) {
       dispatch(settingsSlice.setBoardColumnWidth(width));
     },
   };
