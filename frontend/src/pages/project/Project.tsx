@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 
 import { useAppSelector } from "app/store/hooks";
-import { selectProjectView } from "app/store/settingsSlice";
+import { selectProjectView, ProjectView } from "app/store/settingsSlice";
 import { selectProjectById } from "app/store/projectsSlice";
 import { useActions } from "app/context/ActionsContext";
 import { MainHeader, MainBody } from "app/layout/Main";
@@ -29,7 +29,6 @@ import { ProjectChat } from "./ProjectChat";
 const Project: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const project = useAppSelector(selectProjectById(Number(projectId)));
-  const view = useAppSelector(selectProjectView);
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -59,7 +58,7 @@ const Project: React.FC = () => {
         ) : !project ? (
           <Navigate to="/project/" />
         ) : (
-          <Outlet context={{ view }} />
+          <Outlet />
         )}
       </MainBody>
     </>
@@ -68,20 +67,20 @@ const Project: React.FC = () => {
 
 export default Project;
 
-const RightButtonsContainer = styled(Box)({
+const RightButtonsContainer = styled(Box)(({ theme: { spacing } }) => ({
   display: "flex",
-  gap: "1rem",
-  marginLeft: "1rem",
-});
+  gap: spacing(2),
+  marginLeft: spacing(2),
+}));
 
-const OptionsViewsSwitchContainer = styled(Box)({
+const OptionsViewsSwitchContainer = styled(Box)(({ theme: { spacing } }) => ({
   display: "flex",
   justifyContent: "center",
-  paddingBottom: "0.5rem",
-});
+  paddingBottom: spacing(1),
+}));
 
 type ViewButtonProps = {
-  viewName: string;
+  viewName: ProjectView;
   icon: React.ReactNode;
 };
 const ViewButton: React.FC<ViewButtonProps> = ({ viewName, icon }) => {
@@ -127,13 +126,13 @@ const StarterMessage: React.FC = () => {
   );
 };
 
-const StarterMessageContainer = styled(Box)({
-  marginTop: "3rem",
+const StarterMessageContainer = styled(Box)(({ theme: { spacing } }) => ({
+  marginTop: spacing(6),
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "1.5rem",
-});
+  gap: spacing(3),
+}));
 
 const StarterMessageText = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.fontWeightLight,
