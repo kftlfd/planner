@@ -1,85 +1,56 @@
 import React from "react";
 import { useParams, Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-
-import { selectProjectView } from "../../store/settingsSlice";
-import { selectProjectById } from "../../store/projectsSlice";
-import { useActions } from "../../context/ActionsContext";
-import { MainHeader, MainBody } from "../../layout/Main";
-import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
-import { ProjectChat } from "./ProjectChat";
-
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Typography,
   Box,
   IconButton,
   ButtonGroup,
   Button,
+  useTheme,
+  useMediaQuery,
+  styled,
 } from "@mui/material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import {
+  AddCircle,
+  ViewList,
+  ViewColumn,
+  CalendarMonth,
+} from "@mui/icons-material";
 
-export default function Project() {
+import { useAppSelector } from "app/store/hooks";
+import { selectProjectView } from "app/store/settingsSlice";
+import { selectProjectById } from "app/store/projectsSlice";
+import { useActions } from "app/context/ActionsContext";
+import { MainHeader, MainBody } from "app/layout/Main";
+
+import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
+import { ProjectChat } from "./ProjectChat";
+
+const Project: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const project = useSelector(selectProjectById(Number(projectId)));
-  const view = useSelector(selectProjectView);
-  const actions = useActions();
-
+  const project = useAppSelector(selectProjectById(Number(projectId)));
+  const view = useAppSelector(selectProjectView);
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  function ViewButton(props: { viewName: string; icon: React.ReactNode }) {
-    const { viewName, icon } = props;
-    return (
-      <Button
-        value={viewName}
-        variant={view === viewName ? "contained" : "outlined"}
-        onClick={() => actions.settings.setProjectView(viewName)}
-      >
-        {icon}
-      </Button>
-    );
-  }
-
-  function ViewButtonGroup(props: { large?: boolean }) {
-    return (
-      <ButtonGroup
-        size={props.hasOwnProperty("large") ? "large" : "small"}
-        disableElevation
-      >
-        <ViewButton viewName="list" icon={<ViewListIcon />} />
-        <ViewButton viewName="board" icon={<ViewColumnIcon />} />
-        <ViewButton viewName="calendar" icon={<CalendarMonthIcon />} />
-      </ButtonGroup>
-    );
-  }
-
   return (
     <>
-      <MainHeader title={project ? project.name : ""}>
-        {project ? (
-          <Box sx={{ display: "flex", gap: "1rem", marginLeft: "1rem" }}>
+      <MainHeader title={project?.name || ""}>
+        {project && (
+          <RightButtonsContainer>
             {project.sharing && <ProjectChat />}
+
             {!smallScreen && <ViewButtonGroup />}
+
             <ProjectOptionsMenu>
               {smallScreen && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    paddingBottom: "0.5rem",
-                  }}
-                >
+                <OptionsViewsSwitchContainer>
                   <ViewButtonGroup large />
-                </Box>
+                </OptionsViewsSwitchContainer>
               )}
             </ProjectOptionsMenu>
-          </Box>
-        ) : null}
+          </RightButtonsContainer>
+        )}
       </MainHeader>
 
       <MainBody>
@@ -93,47 +64,78 @@ export default function Project() {
       </MainBody>
     </>
   );
-}
+};
 
-function StarterMessage() {
-  const containerStyle = {
-    marginTop: "3rem",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "1.5rem",
-  };
+export default Project;
 
-  const textStyle = {
-    fontWeight: "fontWeightLight",
-    color: "text.primary",
-  };
+const RightButtonsContainer = styled(Box)({
+  display: "flex",
+  gap: "1rem",
+  marginLeft: "1rem",
+});
 
-  const iconStyle = {
-    svg: { fontSize: "10rem" },
-  };
+const OptionsViewsSwitchContainer = styled(Box)({
+  display: "flex",
+  justifyContent: "center",
+  paddingBottom: "0.5rem",
+});
 
+type ViewButtonProps = {
+  viewName: string;
+  icon: React.ReactNode;
+};
+const ViewButton: React.FC<ViewButtonProps> = ({ viewName, icon }) => {
+  const view = useAppSelector(selectProjectView);
+  const actions = useActions();
+
+  return (
+    <Button
+      value={viewName}
+      variant={view === viewName ? "contained" : "outlined"}
+      onClick={() => actions.settings.setProjectView(viewName)}
+    >
+      {icon}
+    </Button>
+  );
+};
+
+type ViewButtonGroupProps = {
+  large?: boolean;
+};
+const ViewButtonGroup: React.FC<ViewButtonGroupProps> = ({ large }) => (
+  <ButtonGroup size={large ? "large" : "small"} disableElevation>
+    <ViewButton viewName="list" icon={<ViewList />} />
+    <ViewButton viewName="board" icon={<ViewColumn />} />
+    <ViewButton viewName="calendar" icon={<CalendarMonth />} />
+  </ButtonGroup>
+);
+
+const StarterMessage: React.FC = () => {
   function handleClick() {
     document.getElementById("create-new-project-button")?.click();
   }
 
   return (
-    <Box sx={containerStyle}>
-      <Typography variant="h4" sx={textStyle}>
-        Select a project
-      </Typography>
-
-      <Typography variant="h6" sx={textStyle}>
-        or
-      </Typography>
-
-      <Typography variant="h5" sx={textStyle}>
-        Create New Project
-      </Typography>
-
-      <IconButton onClick={handleClick} sx={iconStyle}>
-        <AddCircleIcon />
+    <StarterMessageContainer>
+      <StarterMessageText variant="h4">Select a project</StarterMessageText>
+      <StarterMessageText variant="h6">or</StarterMessageText>
+      <StarterMessageText variant="h5">Create New Project</StarterMessageText>
+      <IconButton onClick={handleClick}>
+        <AddCircle sx={{ fontSize: "10rem" }} />
       </IconButton>
-    </Box>
+    </StarterMessageContainer>
   );
-}
+};
+
+const StarterMessageContainer = styled(Box)({
+  marginTop: "3rem",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "1.5rem",
+});
+
+const StarterMessageText = styled(Typography)(({ theme }) => ({
+  fontWeight: theme.typography.fontWeightLight,
+  color: theme.palette.text.primary,
+}));
