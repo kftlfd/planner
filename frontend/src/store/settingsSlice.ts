@@ -23,11 +23,13 @@ function setLocalStorage(key: string, val: string) {
   }
 }
 
+export type ProjectView = "list" | "board" | "calendar";
+
 type SettingsState = {
   theme?: string | null;
   navDrawerOpen: boolean | null;
   hideDoneTasks: boolean;
-  projectView: string;
+  projectView: ProjectView;
   boardColumnWidth: number;
 };
 
@@ -43,7 +45,7 @@ const initialState: SettingsState = {
 
   hideDoneTasks: readLocalStorage("hideDoneTasks") === "true" ? true : false,
 
-  projectView: readLocalStorage("projectView") || "list",
+  projectView: (readLocalStorage("projectView") as ProjectView) || "list",
 
   boardColumnWidth: readLocalStorage("boardColumnWidth")
     ? Number(readLocalStorage("boardColumnWidth"))
@@ -73,7 +75,7 @@ const settingsSlice = createSlice({
       setLocalStorage("hideDoneTasks", `${newVal}`);
     },
 
-    setProjectView(state, action: PayloadAction<string>) {
+    setProjectView(state, action: PayloadAction<ProjectView>) {
       const view = action.payload;
       state.projectView = view;
       setLocalStorage("projectView", view);
