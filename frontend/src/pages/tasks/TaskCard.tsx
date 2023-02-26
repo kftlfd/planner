@@ -15,13 +15,7 @@ import {
 } from "@mui/material";
 import { BaseSkeleton } from "../../layout/Loading";
 
-const timeFormat: Intl.DateTimeFormatOptions = {
-  month: "short",
-  day: "numeric",
-  hour12: false,
-  hour: "numeric",
-  minute: "2-digit",
-};
+import { formatTime } from "./format-time.util";
 
 export function TaskCard(props: {
   taskId: number;
@@ -93,66 +87,11 @@ export function TaskCard(props: {
             </Typography>
             {task.due && (
               <Typography variant="caption" component="div" align="right">
-                {new Date(task.due).toLocaleString(undefined, timeFormat)}
+                {formatTime(task.due)}
               </Typography>
             )}
           </Box>
         </CardActionArea>
-      </Card>
-    </Collapse>
-  );
-}
-
-export function BoardTask(props: {
-  taskId: number;
-  isDragging: boolean;
-  dragProps: any;
-  dragHandle: any;
-  onClick: React.MouseEventHandler<HTMLDivElement>;
-}) {
-  const { taskId, isDragging, dragProps, dragHandle, onClick } = props;
-  const task = useSelector(selectTaskById(taskId));
-  const hide = useSelector(selectHideDoneTasks);
-
-  return (
-    <Collapse in={!(hide && task.done)}>
-      <Card
-        raised={isDragging}
-        {...dragProps}
-        {...dragHandle}
-        sx={{
-          marginTop: "0.5rem",
-          ...(!task.done &&
-            Date.parse(task.due!) < Date.now() && {
-              backgroundColor: "error.main",
-              color: "error.contrastText",
-            }),
-        }}
-      >
-        <Box
-          sx={{
-            transition: "all 0.3s ease",
-            "&:hover": {
-              backgroundColor: "action.hover",
-            },
-            ...(task.done && {
-              opacity: 0.5,
-              textDecoration: "line-through",
-            }),
-          }}
-        >
-          <Box onClick={onClick} sx={{ padding: "1rem" }}>
-            <Typography variant="body1">{task.title}</Typography>
-            <Typography variant="caption" component="div">
-              {task.notes}
-            </Typography>
-            {task.due && (
-              <Typography variant="caption" component="div" align="right">
-                {new Date(task.due).toLocaleString(undefined, timeFormat)}
-              </Typography>
-            )}
-          </Box>
-        </Box>
       </Card>
     </Collapse>
   );

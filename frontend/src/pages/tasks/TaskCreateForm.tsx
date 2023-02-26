@@ -1,11 +1,4 @@
 import React, { useState } from "react";
-
-import { useActions } from "../../context/ActionsContext";
-import { BaseSkeleton } from "../../layout/Loading";
-import { InputModal } from "../../layout/Modal";
-import { ErrorAlert } from "../../layout/Alert";
-import { DueForm } from "./TaskDetails";
-
 import {
   Container,
   Box,
@@ -15,8 +8,17 @@ import {
   InputBase,
   CircularProgress,
 } from "@mui/material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AddIcon from "@mui/icons-material/Add";
+import {
+  Add as AddIcon,
+  AddCircle as AddCircleIcon,
+} from "@mui/icons-material";
+
+import { useActions } from "app/context/ActionsContext";
+import { BaseSkeleton } from "app/layout/Loading";
+import { InputModal } from "app/layout/Modal";
+import { ErrorAlert } from "app/layout/Alert";
+
+import { DueForm } from "./DueForm";
 
 export function TaskCreateForm(props: {
   projectId?: number;
@@ -194,7 +196,7 @@ export function CreateTaskWithDate(props: { projectId: number; due: Date }) {
               setState((prev) => ({ ...prev, taskDue: newVal }))
             }
             onClear={() => setState((prev) => ({ ...prev, taskDue: null }))}
-            boxSx={{ marginTop: "1rem" }}
+            mt
             disabled={loading}
           />
         }

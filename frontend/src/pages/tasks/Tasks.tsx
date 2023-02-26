@@ -1,42 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
-import { useSelector } from "react-redux";
 
-import { useActions } from "../../context/ActionsContext";
-import {
-  selectProjectaTasksLoaded,
-  selectProjectTasksIds,
-} from "../../store/projectsSlice";
-import { TasksListView } from "./TasksListView";
-import { TasksBoardView } from "./TasksBoardView";
-import { TasksCalendarView } from "./TasksCalendarView";
-import { Sidebar } from "../../layout/Sidebar";
-import { TaskDetails } from "./TaskDetails";
+import type { ITask } from "app/types/tasks.types";
+import { useAppSelector } from "app/store/hooks";
+import { selectProjectView } from "app/store/settingsSlice";
+import { useActions } from "app/context/ActionsContext";
 
-import { Typography } from "@mui/material";
+import { useTasks } from "./use-tasks.hook";
+import { TaskDetails } from "./details/";
+import { tasksViews } from "./views";
 
-export type TasksViewProps = {
-  tasksLoaded: boolean;
-  projectId: number;
-  taskIds: number[];
-  setSelectedTask: (taskId: number) => void;
-  taskDetailsToggle: () => void;
-};
-
-export default function Tasks() {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { view }: { view: string } = useOutletContext();
-  const projectsTasksLoaded = useSelector(selectProjectaTasksLoaded);
-  const taskIds = useSelector(selectProjectTasksIds(Number(projectId)));
+const Tasks: React.FC = () => {
+  const view = useAppSelector(selectProjectView);
+  const { projectId, tasksLoaded } = useTasks();
   const actions = useActions();
-
-  const tasksLoaded = projectsTasksLoaded.includes(Number(projectId));
-
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
-  const taskDetailsToggle = () => {
-    setTaskDetailsOpen((x) => !x);
-  };
+  const taskDetailsToggle = () => setTaskDetailsOpen((x) => !x);
 
   useEffect(() => {
     setSelectedTask(null);
@@ -47,48 +26,25 @@ export default function Tasks() {
     }
   }, [projectId]);
 
-  const viewProps: TasksViewProps = {
-    tasksLoaded: tasksLoaded,
-    projectId: Number(projectId),
-    taskIds: taskIds,
-    setSelectedTask: setSelectedTask,
-    taskDetailsToggle: taskDetailsToggle,
+  const TasksView = tasksViews[view] || null;
+
+  const selectTask = (taskId: ITask["id"]) => () => {
+    setSelectedTask(taskId);
+    taskDetailsToggle();
   };
 
   return (
     <>
-      {view === "list" ? (
-        <TasksListView {...viewProps} />
-      ) : view === "board" ? (
-        <TasksBoardView {...viewProps} />
-      ) : view === "calendar" ? (
-        <TasksCalendarView {...viewProps} />
-      ) : null}
+      <TasksView selectTask={selectTask} />
 
-      <Sidebar open={taskDetailsOpen} toggle={taskDetailsToggle}>
-        <TaskDetails
-          open={taskDetailsOpen}
-          taskId={selectedTask}
-          sidebarToggle={taskDetailsToggle}
-          setTaskSelected={setSelectedTask}
-        />
-      </Sidebar>
+      <TaskDetails
+        open={taskDetailsOpen}
+        taskId={selectedTask}
+        sidebarToggle={taskDetailsToggle}
+        setTaskSelected={setSelectedTask}
+      />
     </>
   );
-}
+};
 
-export function NoTasks() {
-  return (
-    <Typography
-      variant="h4"
-      align="center"
-      sx={{
-        marginTop: "3rem",
-        fontWeight: "fontWeightLight",
-        color: "text.primary",
-      }}
-    >
-      No tasks
-    </Typography>
-  );
-}
+export default Tasks;
