@@ -6,13 +6,12 @@ import { Provider as ProvideStore } from "react-redux";
 import { store } from "app/store/store";
 
 import ProvideTheme from "app/context/ThemeContext";
+import BaseStyles from "app/context/BaseStyles";
 import ProvideActions from "app/context/ActionsContext";
 import App from "app/App";
 import { CookieError } from "app/pages/Error";
 
-import "app/index.scss";
-
-let cookiesDisabled = !navigator.cookieEnabled;
+const cookiesDisabled = !navigator.cookieEnabled;
 
 const root = ReactDOM.createRoot(document.querySelector("#root")!);
 root.render(
@@ -23,6 +22,7 @@ root.render(
     <ProvideStore store={store}>
       <ProvideTheme>
         <ProvideActions>
+          <BaseStyles />
           <BrowserRouter>
             <App />
           </BrowserRouter>
