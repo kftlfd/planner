@@ -10,6 +10,7 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     publicPath: "/",
     filename: "[name].js",
+    // chunkFilename: "[name].chunk.js",
     clean: true,
   },
 
@@ -27,29 +28,29 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
-      {
-        test: /\.jsx?$/i,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
-          },
-        },
-      },
-      {
-        test: /\.(sa|sc|c)ss$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              sourceMap: true,
-            },
-          },
-          "sass-loader",
-        ],
-      },
+      // {
+      //   test: /\.jsx?$/i,
+      //   exclude: /node_modules/,
+      //   use: {
+      //     loader: "babel-loader",
+      //     options: {
+      //       presets: ["@babel/preset-env", "@babel/preset-react"],
+      //     },
+      //   },
+      // },
+      // {
+      //   test: /\.(sa|sc|c)ss$/i,
+      //   use: [
+      //     MiniCssExtractPlugin.loader,
+      //     {
+      //       loader: "css-loader",
+      //       options: {
+      //         sourceMap: true,
+      //       },
+      //     },
+      //     "sass-loader",
+      //   ],
+      // },
     ],
   },
 
