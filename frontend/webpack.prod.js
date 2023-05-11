@@ -8,6 +8,10 @@ module.exports = merge(common, {
 
   devtool: "source-map",
 
+  // output: {
+  //   publicPath: "/static/",
+  // },
+
   optimization: {
     minimizer: [`...`, new CssMinimizerPlugin()],
   },

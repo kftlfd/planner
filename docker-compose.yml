@@ -13,5 +13,19 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: passw
 
+  backend:
+    build:
+      context: .
+      dockerfile: app.backend.dockerfile
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend
+    command: ./manage.py runserver 0.0.0.0:8000
+
 volumes:
   db:
