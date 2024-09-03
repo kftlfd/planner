@@ -5,7 +5,7 @@ module.exports = {
     projectService: true,
     tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ["webpack.*.js"],
+  ignorePatterns: [".eslintrc.cjs", "webpack.*.js"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/strict-type-checked",
