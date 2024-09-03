@@ -13,22 +13,29 @@ import { CookieError } from "app/pages/Error";
 
 const cookiesDisabled = !navigator.cookieEnabled;
 
-const root = ReactDOM.createRoot(document.querySelector("#root")!);
+const rootEl = document.querySelector("#root");
+
+if (!rootEl) {
+  throw new Error("Root element not found");
+}
+
+const root = ReactDOM.createRoot(rootEl);
+
 root.render(
   cookiesDisabled ? (
     <CookieError />
   ) : (
-    // <React.StrictMode>
-    <ProvideStore store={store}>
-      <ProvideTheme>
-        <ProvideActions>
-          <BaseStyles />
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ProvideActions>
-      </ProvideTheme>
-    </ProvideStore>
-    // </React.StrictMode>
+    <React.StrictMode>
+      <ProvideStore store={store}>
+        <ProvideTheme>
+          <ProvideActions>
+            <BaseStyles />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ProvideActions>
+        </ProvideTheme>
+      </ProvideStore>
+    </React.StrictMode>
   ),
 );

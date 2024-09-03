@@ -7,6 +7,22 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { PaletteMode, TypeBackground } from "@mui/material";
 
+declare module "@mui/material/styles" {
+  interface Palette {
+    chat: {
+      bg: string;
+      msg: string;
+    };
+  }
+
+  interface PaletteOptions {
+    chat?: {
+      bg: string;
+      msg: string;
+    };
+  }
+}
+
 const ColorModeContext = React.createContext({
   toggleColorMode: () => {},
   mode: "light",
@@ -25,7 +41,7 @@ export default function ProvideTheme({
   const localStorageTheme = useSelector(selectTheme);
   const dispatch = useDispatch();
 
-  const initialColorMode = localStorageTheme
+  const initialColorMode: PaletteMode = localStorageTheme
     ? localStorageTheme
     : prefersDarkMode
       ? "dark"
@@ -47,13 +63,11 @@ export default function ProvideTheme({
 
   const theme = React.useMemo(() => {
     const defaultTheme = createTheme({
-      // @ts-ignore
       palette: { mode },
     });
 
     return createTheme({
       palette: {
-        // @ts-ignore
         mode,
         background: {
           light: "aliceblue",
