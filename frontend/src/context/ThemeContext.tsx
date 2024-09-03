@@ -28,8 +28,8 @@ export default function ProvideTheme({
   const initialColorMode = localStorageTheme
     ? localStorageTheme
     : prefersDarkMode
-    ? "dark"
-    : "light";
+      ? "dark"
+      : "light";
 
   const [mode, setMode] = React.useState(initialColorMode);
 
@@ -42,7 +42,7 @@ export default function ProvideTheme({
       },
       mode: mode,
     }),
-    [mode]
+    [mode],
   );
 
   const theme = React.useMemo(() => {

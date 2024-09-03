@@ -30,5 +30,5 @@ root.render(
       </ProvideTheme>
     </ProvideStore>
     // </React.StrictMode>
-  )
+  ),
 );

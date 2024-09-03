@@ -84,7 +84,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
     "project/update",
     (data: { project: IProject }) => {
       dispatch(projectsSlice.updateProject(data.project));
-    }
+    },
   );
 
   const wsProjectAddMember = WSS.addAction(
@@ -94,10 +94,10 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
         projectsSlice.addMember({
           projectId: data.projectId,
           userId: data.user.id,
-        })
+        }),
       );
       dispatch(usersSlice.loadUsers({ [data.user.id]: data.user }));
-    }
+    },
   );
 
   //
@@ -116,7 +116,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
           action: "group/join",
           group: "",
           groups: idsToJoin,
-        })
+        }),
       );
     };
 
@@ -132,10 +132,10 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
             projectsSlice.addMember({
               projectId: message.projectId,
               userId: message.userId,
-            })
+            }),
           );
           dispatch(
-            usersSlice.loadUsers({ [message.userObj.id]: message.userObj })
+            usersSlice.loadUsers({ [message.userObj.id]: message.userObj }),
           );
           break;
         case "project/removeMember":
@@ -143,7 +143,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
             projectsSlice.removeMember({
               projectId: message.group,
               userId: message.userId,
-            })
+            }),
           );
           break;
         case "project/stopSharing":
@@ -163,7 +163,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
             projectsSlice.deleteTask({
               projectId: message.projectId,
               taskId: message.taskId,
-            })
+            }),
           );
           break;
 
@@ -191,7 +191,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
             action,
             group,
             ...data,
-          })
+          }),
         );
       } catch (error) {
         if (retry > 0) {
@@ -285,7 +285,7 @@ export default function ProvideActions(props: { children: React.ReactNode }) {
           if (projects[projectId].sharing) arr.push(id);
           return arr;
         },
-        []
+        [],
       );
       getWebSocket(sharingOn);
     },

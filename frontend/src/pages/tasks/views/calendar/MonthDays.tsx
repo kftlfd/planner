@@ -29,7 +29,7 @@ export const MonthDays: React.FC<MonthDaysProps> = ({
     firstDate: Date,
     nDays: number,
     isPrev: boolean = false,
-    isCurr: boolean = false
+    isCurr: boolean = false,
   ) {
     let days = Array(nDays)
       .fill(0)
@@ -38,7 +38,7 @@ export const MonthDays: React.FC<MonthDaysProps> = ({
         const tasks = tasksByDate[getDayTimestamp(day)] || [];
         const doneCount = tasks.reduce(
           (count, task) => count + (task.done === true ? 1 : 0),
-          0
+          0,
         );
         const notDoneCount = tasks.length - doneCount;
 

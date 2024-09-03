@@ -42,7 +42,7 @@ export function TaskCreateForm(props: {
   const [error, setError] = useState<string | null>(null);
 
   const handleCreateTask: React.FormEventHandler<HTMLFormElement> = async (
-    event
+    event,
   ) => {
     event.preventDefault();
     setLoading(true);

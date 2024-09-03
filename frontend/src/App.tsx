@@ -57,6 +57,6 @@ export default function App() {
           </Route>
         </Routes>
       ),
-    [loadingUser, loadingProjects]
+    [loadingUser, loadingProjects],
   );
 }

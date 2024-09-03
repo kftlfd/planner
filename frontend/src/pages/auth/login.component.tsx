@@ -51,7 +51,7 @@ const Login: React.FC = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const handleLogin: React.FormEventHandler<HTMLFormElement> = async (
-    event
+    event,
   ) => {
     event.preventDefault();
     if (!formRef.current) return;

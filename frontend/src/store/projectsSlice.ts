@@ -39,7 +39,7 @@ const projectsSlice = createSlice({
         projects: { [projectId: IProject["id"]]: IProject };
         sharedIds: IProject["id"][];
         ownedIds: IProject["id"][];
-      }>
+      }>,
     ) {
       const { projects, ownedIds, sharedIds } = action.payload;
       state.loading = false;
@@ -47,7 +47,7 @@ const projectsSlice = createSlice({
       state.ownedIds = ownedIds;
       state.sharedIds = sharedIds;
       state.sharingOnIds = Object.keys(projects).filter(
-        (id) => projects[Number(id)].sharing
+        (id) => projects[Number(id)].sharing,
       );
     },
 
@@ -84,18 +84,18 @@ const projectsSlice = createSlice({
 
     addMember(
       state,
-      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>
+      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>,
     ) {
       const { projectId, userId } = action.payload;
       state.items[projectId].members.push(Number(userId));
     },
     removeMember(
       state,
-      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>
+      action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>,
     ) {
       const { projectId, userId } = action.payload;
       state.items[projectId].members = state.items[projectId].members.filter(
-        (id) => id !== Number(userId)
+        (id) => id !== Number(userId),
       );
     },
 
@@ -113,7 +113,7 @@ const projectsSlice = createSlice({
     },
     deleteTask(
       state,
-      action: PayloadAction<{ projectId: IProject["id"]; taskId: ITask["id"] }>
+      action: PayloadAction<{ projectId: IProject["id"]; taskId: ITask["id"] }>,
     ) {
       const { projectId, taskId } = action.payload;
 
@@ -137,7 +137,7 @@ const projectsSlice = createSlice({
       action: PayloadAction<{
         projectId: IProject["id"];
         tasksOrder: ITask["id"][];
-      }>
+      }>,
     ) {
       const { projectId, tasksOrder } = action.payload;
       state.items[projectId].tasksOrder = tasksOrder;
@@ -147,7 +147,7 @@ const projectsSlice = createSlice({
       action: PayloadAction<{
         projectId: IProject["id"];
         board: IProject["board"];
-      }>
+      }>,
     ) {
       const { projectId, board } = action.payload;
       state.items[projectId].board = board;
@@ -155,7 +155,7 @@ const projectsSlice = createSlice({
 
     selectCalDate(
       state,
-      action: PayloadAction<{ projectId: IProject["id"]; date: Date }>
+      action: PayloadAction<{ projectId: IProject["id"]; date: Date }>,
     ) {
       const { projectId, date } = action.payload;
       state.selectedCalDate[projectId] = date;

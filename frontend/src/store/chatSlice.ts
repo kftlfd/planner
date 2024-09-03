@@ -31,7 +31,7 @@ const chatSlice = createSlice({
       action: PayloadAction<{
         projectId: IProject["id"];
         messages: IChatMessage[];
-      }>
+      }>,
     ) {
       const { projectId, messages } = action.payload;
       if (!state.byProject[projectId]) {
@@ -57,7 +57,7 @@ const chatSlice = createSlice({
         projectId: IProject["id"];
         message: IChatMessage;
         fromOthers: boolean;
-      }>
+      }>,
     ) {
       const { projectId, message, fromOthers } = action.payload;
       if (!state.byProject[projectId]) {
