@@ -2,6 +2,7 @@
 .vscode
 .db
 static
+.env
 
 ### backend
 __venv__
@@ -9,7 +10,6 @@ __pycache__
 py_venv
 migrations
 *.sqlite3
-backend/.env
 .venv
 .ruff_cache
 
