@@ -53,7 +53,7 @@ const Register: React.FC = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const handleRegister: React.FormEventHandler<HTMLFormElement> = async (
-    event
+    event,
   ) => {
     event.preventDefault();
     if (!formRef.current) return;

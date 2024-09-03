@@ -45,7 +45,7 @@ export const TasksCalendarView: React.FC<TasksViewProps> = ({ selectTask }) => {
   }, tasksByDateAccumulator);
 
   Object.keys(tasksByDate).forEach((d) =>
-    tasksByDate[d].sort((a, b) => (a.due! > b.due! ? 1 : -1))
+    tasksByDate[d].sort((a, b) => (a.due! > b.due! ? 1 : -1)),
   );
 
   const goToPrevMonth = () => {

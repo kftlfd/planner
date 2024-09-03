@@ -51,7 +51,7 @@ export const user = {
       Partial<{
         ownedProjectsOrder: IProject["id"][];
         sharedProjectsOrder: IProject["id"][];
-      }>
+      }>,
   ) {
     return await query<IUser>(urls.user.details, methods.patch, userUpdate);
   },
@@ -88,14 +88,14 @@ export const project = {
     return await query<IProject>(
       urls.project.details(`${projectId}`),
       methods.patch,
-      projectUpdate
+      projectUpdate,
     );
   },
 
   async delete(projectId: IProject["id"]) {
     return await queryNoResponse(
       urls.project.details(`${projectId}`),
-      methods.delete
+      methods.delete,
     );
   },
 
@@ -109,7 +109,7 @@ export const project = {
   async chat(projectId: IProject["id"]) {
     return await query<IChatMessage[]>(
       urls.project.chat(`${projectId}`),
-      methods.get
+      methods.get,
     );
   },
 
@@ -120,7 +120,7 @@ export const project = {
         methods.post,
         {
           sharing: "enable",
-        }
+        },
       );
     },
 
@@ -130,7 +130,7 @@ export const project = {
         methods.post,
         {
           sharing: "disable",
-        }
+        },
       );
     },
   },
@@ -142,7 +142,7 @@ export const project = {
         methods.post,
         {
           invite: "recreate",
-        }
+        },
       );
     },
 
@@ -152,7 +152,7 @@ export const project = {
         methods.post,
         {
           invite: "delete",
-        }
+        },
       );
     },
   },
@@ -170,7 +170,7 @@ export const invite = {
   async get(inviteCode: string) {
     return await query<{ project: IProject; owner: IUser }>(
       urls.project.join(inviteCode),
-      methods.get
+      methods.get,
     );
   },
 
@@ -195,14 +195,14 @@ export const task = {
     return await query<ITask>(
       urls.task.details(`${taskId}`),
       methods.patch,
-      taskUpdate
+      taskUpdate,
     );
   },
 
   async delete(taskId: ITask["id"]) {
     return await queryNoResponse(
       urls.task.details(`${taskId}`),
-      methods.delete
+      methods.delete,
     );
   },
 };

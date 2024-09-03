@@ -93,8 +93,8 @@ export function ProjectChat() {
   const sendDisabled = state.loadError
     ? true
     : !state.newMessage
-    ? true
-    : state.sendLoading || state.sendError;
+      ? true
+      : state.sendLoading || state.sendError;
   const sendMessage: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (sendDisabled) return;

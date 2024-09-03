@@ -7,7 +7,7 @@ function readLocalStorage(key: string) {
     return window.localStorage.getItem(key);
   } catch (err) {
     console.info(
-      err instanceof Error ? err.message : "Error reading from localStorage"
+      err instanceof Error ? err.message : "Error reading from localStorage",
     );
     return undefined;
   }
@@ -18,7 +18,7 @@ function setLocalStorage(key: string, val: string) {
     return window.localStorage.setItem(key, val);
   } catch (err) {
     console.info(
-      err instanceof Error ? err.message : "Error writing to localStorage"
+      err instanceof Error ? err.message : "Error writing to localStorage",
     );
   }
 }
@@ -40,8 +40,8 @@ const initialState: SettingsState = {
     readLocalStorage("navDrawerOpen") === "true"
       ? true
       : readLocalStorage("navDrawerOpen") === "false"
-      ? false
-      : null,
+        ? false
+        : null,
 
   hideDoneTasks: readLocalStorage("hideDoneTasks") === "true" ? true : false,
 

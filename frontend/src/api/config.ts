@@ -73,7 +73,7 @@ export const methods = {
   patch: "PATCH",
   delete: "DELETE",
 } as const;
-type RequestMethod = typeof methods[keyof typeof methods];
+type RequestMethod = (typeof methods)[keyof typeof methods];
 
 //
 // Queries
@@ -86,7 +86,7 @@ function getFullUrl(url: string) {
 export async function query<ResponseData>(
   url: string,
   method: RequestMethod,
-  body?: any
+  body?: any,
 ): Promise<ResponseData> {
   const response = await fetch(getFullUrl(url), {
     method: method,
@@ -132,7 +132,7 @@ export async function authQuery(url: string, formData?: FormData) {
 export async function queryNoResponse(
   url: string,
   method: RequestMethod,
-  body?: any
+  body?: any,
 ) {
   const response = await fetch(getFullUrl(url), {
     method: method,
