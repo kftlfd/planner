@@ -22,35 +22,41 @@ class UserDetails(generics.RetrieveUpdateDestroyAPIView):
 @api_view(['GET'])
 def user_projects(request):
     if not request.user.is_authenticated:
-        return Response('Not authenticated', status=status.HTTP_401_UNAUTHORIZED)
+        return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
 
     owned_ids = request.user.ownedProjectsOrder
     shared_ids = request.user.sharedProjectsOrder
-    projects = Project.objects.filter(pk__in=owned_ids+shared_ids)
+    projects = Project.objects.filter(pk__in=owned_ids + shared_ids)
 
-    return Response({
-        'projects': {p.id: ProjectSerializer(p).data for p in projects},
-        'ownedIds': owned_ids,
-        'sharedIds': shared_ids,
-    })
+    return Response(
+        {
+            "projects": {p.id: ProjectSerializer(p).data for p in projects},
+            "ownedIds": owned_ids,
+            "sharedIds": shared_ids,
+        }
+    )
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def user_password(request):
     if not request.user.is_authenticated:
-        return Response('Not authenticated', status=status.HTTP_401_UNAUTHORIZED)
+        return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
 
     user = request.user
     old_pass = request.data.get("oldPassword")
     new_pass = request.data.get("newPassword")
 
     if not check_password(old_pass, user.password):
-        return Response({"oldPassword": "Wrong password."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"oldPassword": "Wrong password."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user.password = make_password(new_pass)
         user.save()
         login(request, user)
         return Response({"detail": "Password changed"})
-    except:
-        return Response({"error": "DB error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        return Response(
+            {"error": "DB error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

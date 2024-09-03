@@ -11,6 +11,6 @@ class ChatMessageCreate(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         u = self.request.user
-        p_id = self.request.data['project']
+        p_id = self.request.data["project"]
         p = Project.objects.get(pk=p_id)
         serializer.save(project=p, user=u)

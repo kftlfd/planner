@@ -11,7 +11,7 @@ admin.site.register(Task)
 class ProjectOwnershipInline(admin.TabularInline):
     model = Project
     extra = 0
-    exclude = ['invite', 'tasksOrder', 'board']
+    exclude = ["invite", "tasksOrder", "board"]
 
 
 class ProjectMembershipInline(admin.TabularInline):
@@ -23,14 +23,10 @@ class ProjectMembershipInline(admin.TabularInline):
 class CustomUserAdmin(UserAdmin):
     inlines = [ProjectOwnershipInline, ProjectMembershipInline]
     fieldsets = (
-        (None, {
-            "fields": ("username", "password")
-        }),
-        ("Settings", {
-            "fields": ("ownedProjectsOrder", "sharedProjectsOrder")
-        }),
-        ("Important dates", {
-            "classes": ("collapse",),
-            "fields": ("last_login", "date_joined")
-        }),
+        (None, {"fields": ("username", "password")}),
+        ("Settings", {"fields": ("ownedProjectsOrder", "sharedProjectsOrder")}),
+        (
+            "Important dates",
+            {"classes": ("collapse",), "fields": ("last_login", "date_joined")},
+        ),
     )

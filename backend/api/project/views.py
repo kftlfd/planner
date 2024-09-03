@@ -20,7 +20,7 @@ class ProjectCreate(generics.CreateAPIView):
         owner = self.request.user
         serializer.save(owner=owner)
 
-        p = Project.objects.get(pk=serializer.data['id'])
+        p = Project.objects.get(pk=serializer.data["id"])
 
         self.request.user.ownedProjectsOrder.append(p.id)
         self.request.user.save()
@@ -32,14 +32,14 @@ class ProjectDetails(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ProjectPermission]
 
     def perform_update(self, serializer):
-        if 'name' in self.request.data and self.request.user != self.get_object().owner:
-            raise ValidationError('Only owner has permission to change name')
+        if "name" in self.request.data and self.request.user != self.get_object().owner:
+            raise ValidationError("Only owner has permission to change name")
 
         serializer.save()
 
     def perform_destroy(self, instance):
         if self.request.user != instance.owner:
-            raise ValidationError('Only project owner can delete it.')
+            raise ValidationError("Only project owner can delete it.")
 
         if instance.id in self.request.user.ownedProjectsOrder:
             self.request.user.ownedProjectsOrder.remove(instance.id)
@@ -54,126 +54,138 @@ class ProjectDetails(generics.RetrieveUpdateDestroyAPIView):
         instance.delete()
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def project_tasks(request, pk):
     try:
         project = Project.objects.get(pk=pk)
-    except:
-        return Response('Project not found', status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
 
     members = project.members.all()
-    permission = any([request.user == project.owner,
-                     request.user in members,
-                     request.user.is_staff])
+    permission = any(
+        [request.user == project.owner, request.user in members, request.user.is_staff]
+    )
     if not permission:
-        return Response('No permissions', status=status.HTTP_403_FORBIDDEN)
+        return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
 
     tasks = Task.objects.filter(pk__in=project.tasksOrder)
 
-    return Response({
-        'tasks': {t.id: TaskSerializer(t).data for t in tasks},
-        'members': {u.id: UserBasicSerializer(u).data for u in [m for m in members] + [project.owner]}
-    })
+    return Response(
+        {
+            "tasks": {t.id: TaskSerializer(t).data for t in tasks},
+            "members": {
+                u.id: UserBasicSerializer(u).data
+                for u in [m for m in members] + [project.owner]
+            },
+        }
+    )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def project_chat(request, pk):
     try:
         project = Project.objects.get(pk=pk)
-    except:
-        return Response('Project not found', status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
 
     members = project.members.all()
-    permission = any([request.user == project.owner,
-                     request.user in members,
-                     request.user.is_staff])
+    permission = any(
+        [request.user == project.owner, request.user in members, request.user.is_staff]
+    )
     if not permission:
-        return Response('No permissions', status=status.HTTP_403_FORBIDDEN)
+        return Response("No permissions", status=status.HTTP_403_FORBIDDEN)
 
-    messages = ChatMessage.objects.filter(project=project).order_by('id')
+    messages = ChatMessage.objects.filter(project=project).order_by("id")
 
     return Response([ChatMessageSerializer(m).data for m in messages])
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def project_sharing(request, pk):
     try:
         p = Project.objects.get(pk=pk)
-    except:
-        return Response('Project not found', status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
 
     if request.user != p.owner and not request.user.is_staff:
-        return Response('No permission', status=status.HTTP_401_UNAUTHORIZED)
+        return Response("No permission", status=status.HTTP_401_UNAUTHORIZED)
 
-    if request.data.get('sharing') == True:
+    if request.data.get("sharing") == "enable":
         p.sharing = True
         p.invite = new_invite_code()
 
-    elif request.data.get('sharing') == False:
+    elif request.data.get("sharing") == "disable":
         for u in p.members.all():
             try:
                 if p.id in u.sharedProjectsOrder:
                     u.sharedProjectsOrder.remove(p.id)
                     u.save()
-            except:
-                return Response('DB error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception:
+                return Response(
+                    "DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
         p.members.clear()
         p.sharing = False
         p.invite = None
         ChatMessage.objects.filter(project=p).delete()
 
-    elif request.data.get('invite') == 'recreate':
+    elif request.data.get("invite") == "recreate":
         p.invite = new_invite_code()
 
-    elif request.data.get('invite') == 'delete':
+    elif request.data.get("invite") == "delete":
         p.invite = None
 
     else:
-        return Response('Action not recognized', status=status.HTTP_400_BAD_REQUEST)
+        return Response("Action not recognized", status=status.HTTP_400_BAD_REQUEST)
 
     try:
         p.save()
         return Response(ProjectSerializer(p).data)
-    except:
-        return Response('DB error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET', 'POST'])
+@api_view(["GET", "POST"])
 def project_join(request, code):
     if not request.user.is_authenticated:
-        return Response('Not authenticated', status=status.HTTP_401_UNAUTHORIZED)
+        return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
 
     try:
         p = Project.objects.get(invite=code)
-    except:
-        return Response('Project with provided inviteCode not found', status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response(
+            "Project with provided inviteCode not found",
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
-    if request.method == 'GET':
-        return Response({
-            'project': ProjectSerializer(p).data,
-            'owner': UserBasicSerializer(p.owner).data,
-        })
+    if request.method == "GET":
+        return Response(
+            {
+                "project": ProjectSerializer(p).data,
+                "owner": UserBasicSerializer(p.owner).data,
+            }
+        )
 
-    elif request.method == 'POST':
+    elif request.method == "POST":
         p.members.add(request.user)
         request.user.sharedProjectsOrder.append(p.id)
         try:
             p.save()
             request.user.save()
             return Response(ProjectSerializer(p).data)
-        except:
-            return Response('DB error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def project_leave(request, pk):
     if not request.user.is_authenticated:
-        return Response('Not authenticated', status=status.HTTP_401_UNAUTHORIZED)
+        return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
 
     try:
         p = Project.objects.get(pk=pk)
-    except:
-        return Response('Project not found', status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response("Project not found", status=status.HTTP_404_NOT_FOUND)
 
     if request.user in p.members.all():
         p.members.remove(request.user)
@@ -184,6 +196,6 @@ def project_leave(request, pk):
     try:
         p.save()
         request.user.save()
-        return Response({'detail': 'Leaved project'})
-    except:
-        return Response('DB error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"detail": "Leaved project"})
+    except Exception:
+        return Response("DB error", status=status.HTTP_500_INTERNAL_SERVER_ERROR)

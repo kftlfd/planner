@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.middleware import csrf
 from django.shortcuts import render
@@ -20,12 +21,12 @@ from django.urls import path, re_path, include
 
 
 def index(request):
-    request.scope['cookies']['csrftoken'] = csrf.get_token(request)
-    return render(request, 'index.html')
+    request.scope["cookies"]["csrftoken"] = csrf.get_token(request)
+    return render(request, "index.html")
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    re_path(r'.*', index)
+    path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
+    re_path(r".*", index),
 ]

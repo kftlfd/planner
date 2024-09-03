@@ -119,7 +119,7 @@ export const project = {
         urls.project.sharing(`${projectId}`),
         methods.post,
         {
-          sharing: true,
+          sharing: "enable",
         }
       );
     },
@@ -129,7 +129,7 @@ export const project = {
         urls.project.sharing(`${projectId}`),
         methods.post,
         {
-          sharing: false,
+          sharing: "disable",
         }
       );
     },

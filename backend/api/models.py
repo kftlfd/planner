@@ -8,8 +8,8 @@ def default_board():
             "col-0": {
                 "id": "col-0",
                 "name": "In progress",
-                "taskIds": []
-            }
+                "taskIds": [],
+            },
         },
         "order": ["col-0"],
         "none": [],
@@ -25,12 +25,11 @@ class User(AbstractUser):
 class Project(models.Model):
     name = models.CharField(max_length=150)
     owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='owned_projects', blank=True)
+        User, on_delete=models.CASCADE, related_name="owned_projects", blank=True
+    )
     sharing = models.BooleanField(default=False)
-    invite = models.CharField(
-        max_length=10, blank=True, null=True, unique=True)
-    members = models.ManyToManyField(
-        User, related_name='shared_projects', blank=True)
+    invite = models.CharField(max_length=10, blank=True, null=True, unique=True)
+    members = models.ManyToManyField(User, related_name="shared_projects", blank=True)
     tasksOrder = models.JSONField(default=list, blank=True)
     board = models.JSONField(default=default_board)
     modified = models.DateTimeField(auto_now=True)
@@ -38,15 +37,16 @@ class Project(models.Model):
 
 
 class Task(models.Model):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name='tasks')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
     userCreated = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='tasks_created')
+        User, on_delete=models.SET_NULL, null=True, related_name="tasks_created"
+    )
     userModified = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='tasks_modified')
+        User, on_delete=models.SET_NULL, null=True, related_name="tasks_modified"
+    )
     title = models.CharField(max_length=150)
     done = models.BooleanField(default=False)
-    notes = models.TextField(blank=True, default='')
+    notes = models.TextField(blank=True, default="")
     due = models.DateTimeField(blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -54,8 +54,10 @@ class Task(models.Model):
 
 class ChatMessage(models.Model):
     project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name='chat_messages')
+        Project, on_delete=models.CASCADE, related_name="chat_messages"
+    )
     user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name='user_messages', null=True)
+        User, on_delete=models.SET_NULL, related_name="user_messages", null=True
+    )
     text = models.TextField()
     time = models.DateTimeField(auto_now_add=True)
