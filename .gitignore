@@ -10,6 +10,8 @@ py_venv
 migrations
 *.sqlite3
 backend/.env
+.venv
+.ruff_cache
 
 ### frontend
 node_modules

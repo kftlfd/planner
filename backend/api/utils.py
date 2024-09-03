@@ -4,10 +4,11 @@ from api.apps import ApiConfig
 from api.models import Project
 
 
-chars = \
-    [chr(x) for x in range(ord('0'), ord('9') + 1)] + \
-    [chr(x) for x in range(ord('a'), ord('z') + 1)] + \
-    [chr(x) for x in range(ord('A'), ord('Z') + 1)]
+chars = (
+    [chr(x) for x in range(ord("0"), ord("9") + 1)]
+    + [chr(x) for x in range(ord("a"), ord("z") + 1)]
+    + [chr(x) for x in range(ord("A"), ord("Z") + 1)]
+)
 
 
 def rand_invite_code():

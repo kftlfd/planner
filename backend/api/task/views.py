@@ -14,16 +14,16 @@ class TaskCreate(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         u = self.request.user
-        p_id = self.request.data['project']
+        p_id = self.request.data["project"]
         p = Project.objects.get(pk=p_id)
 
         if u != p.owner and u not in p.members.all():
-            raise ValidationError('No permission')
+            raise ValidationError("No permission")
 
         serializer.save(project=p, userCreated=u, userModified=u)
 
-        p.tasksOrder.append(serializer.data['id'])
-        p.board['none'].append(serializer.data['id'])
+        p.tasksOrder.append(serializer.data["id"])
+        p.board["none"].append(serializer.data["id"])
         p.save()
 
 
@@ -42,17 +42,17 @@ class TaskDetails(generics.RetrieveUpdateDestroyAPIView):
         p = instance.project
 
         if self.request.user != p.owner:
-            raise ValidationError('No permission')
+            raise ValidationError("No permission")
 
         if t_id in p.tasksOrder:
             p.tasksOrder.remove(t_id)
 
-        if t_id in p.board['none']:
-            p.board['none'].remove(t_id)
+        if t_id in p.board["none"]:
+            p.board["none"].remove(t_id)
 
-        for col in p.board['columns']:
-            if t_id in p.board['columns'][col]['taskIds']:
-                p.board['columns'][col]['taskIds'].remove(t_id)
+        for col in p.board["columns"]:
+            if t_id in p.board["columns"][col]["taskIds"]:
+                p.board["columns"][col]["taskIds"].remove(t_id)
 
         p.save()
         instance.delete()
