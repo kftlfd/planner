@@ -1,21 +1,23 @@
+import { PaletteMode } from "@mui/material";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "app/store/store";
 
-function readLocalStorage(key: string) {
+function readLocalStorage(key: string, defaultValue = null) {
   try {
     return window.localStorage.getItem(key);
   } catch (err) {
     console.info(
       err instanceof Error ? err.message : "Error reading from localStorage",
     );
-    return undefined;
+    return defaultValue;
   }
 }
 
 function setLocalStorage(key: string, val: string) {
   try {
-    return window.localStorage.setItem(key, val);
+    window.localStorage.setItem(key, val);
+    return;
   } catch (err) {
     console.info(
       err instanceof Error ? err.message : "Error writing to localStorage",
@@ -23,10 +25,30 @@ function setLocalStorage(key: string, val: string) {
   }
 }
 
+type Theme = PaletteMode;
+
+const getLSTheme = (): Theme | undefined => {
+  const theme = readLocalStorage("theme") as PaletteMode | null;
+  const validThemes: PaletteMode[] = ["light", "dark"];
+  if (!theme || !validThemes.includes(theme)) {
+    return undefined;
+  }
+  return theme;
+};
+
+const getLSProjectView = (): ProjectView => {
+  const projectView = readLocalStorage("projectView") as ProjectView | null;
+  const validValues: ProjectView[] = ["list", "board", "calendar"];
+  if (!projectView || !validValues.includes(projectView)) {
+    return "list";
+  }
+  return projectView;
+};
+
 export type ProjectView = "list" | "board" | "calendar";
 
 type SettingsState = {
-  theme?: string | null;
+  theme?: Theme;
   navDrawerOpen: boolean | null;
   hideDoneTasks: boolean;
   projectView: ProjectView;
@@ -34,7 +56,7 @@ type SettingsState = {
 };
 
 const initialState: SettingsState = {
-  theme: readLocalStorage("theme"),
+  theme: getLSTheme(),
 
   navDrawerOpen:
     readLocalStorage("navDrawerOpen") === "true"
@@ -45,7 +67,7 @@ const initialState: SettingsState = {
 
   hideDoneTasks: readLocalStorage("hideDoneTasks") === "true" ? true : false,
 
-  projectView: (readLocalStorage("projectView") as ProjectView) || "list",
+  projectView: getLSProjectView(),
 
   boardColumnWidth: readLocalStorage("boardColumnWidth")
     ? Number(readLocalStorage("boardColumnWidth"))
@@ -58,7 +80,7 @@ const settingsSlice = createSlice({
   initialState,
 
   reducers: {
-    setTheme(state, action: PayloadAction<string>) {
+    setTheme(state, action: PayloadAction<Theme>) {
       state.theme = action.payload;
       setLocalStorage("theme", action.payload);
     },
@@ -66,13 +88,13 @@ const settingsSlice = createSlice({
     toggleNavDrawer(state) {
       const open = !state.navDrawerOpen;
       state.navDrawerOpen = open;
-      setLocalStorage("navDrawerOpen", `${open}`);
+      setLocalStorage("navDrawerOpen", String(open));
     },
 
     toggleHideDoneTasks(state) {
       const newVal = !state.hideDoneTasks;
       state.hideDoneTasks = newVal;
-      setLocalStorage("hideDoneTasks", `${newVal}`);
+      setLocalStorage("hideDoneTasks", String(newVal));
     },
 
     setProjectView(state, action: PayloadAction<ProjectView>) {
@@ -84,7 +106,7 @@ const settingsSlice = createSlice({
     setBoardColumnWidth(state, action: PayloadAction<number>) {
       const width = action.payload;
       state.boardColumnWidth = width;
-      setLocalStorage("boardColumnWidth", `${width}`);
+      setLocalStorage("boardColumnWidth", String(width));
     },
   },
 });
