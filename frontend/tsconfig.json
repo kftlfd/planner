@@ -1,31 +1,7 @@
 {
-  "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */
-
-    "target": "ES6",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "jsx": "react-jsx",
-    "allowJs": true,
-    "checkJs": true,
-    // "noEmit": true,
-
-    /* Modules */
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "paths": {
-      "app/*": ["./src/*"]
-    },
-
-    /* Interop Constraints */
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Type Checking */
-    "strict": true,
-    "noImplicitAny": true,
-    "allowUnusedLabels": false,
-    "skipLibCheck": true
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig-app.json" },
+    { "path": "./tsconfig-node.json" }
+  ]
 }
