@@ -11,8 +11,8 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "paths": {
-      "app/*": ["./src/*"],
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "app/*": ["./src/*"]
     },
 
     /* Interop Constraints */
@@ -26,6 +26,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "useUnknownInCatchVariables": true,
     "allowUnusedLabels": false,
     "skipLibCheck": true
   },
