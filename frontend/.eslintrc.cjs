@@ -20,15 +20,24 @@ module.exports = {
     "react",
     "react-hooks",
     "jsx-a11y",
+    "unused-imports",
     "simple-import-sort",
   ],
   rules: {
+    "object-shorthand": "error",
+    "@typescript-eslint/restrict-template-expressions": [
+      "error",
+      { allowBoolean: true, allowNumber: true },
+    ],
+    "jsx-a11y/no-autofocus": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": "error",
+    "simple-import-sort/exports": "error",
     "simple-import-sort/imports": [
       "error",
       {
-        groups: [["^"], ["^~/", "^app/"], ["^\\."]],
+        groups: [["^react", "^"], ["^@mui/"], ["^~/", "^app/"], ["^\\."]],
       },
     ],
-    "simple-import-sort/exports": "error",
   },
 };
