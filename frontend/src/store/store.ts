@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import settingsReducer from "./settingsSlice";
-import usersReducer from "./usersSlice";
-import projectsReducer from "./projectsSlice";
-import tasksReducer from "./tasksSlice";
 import chatReducer from "./chatSlice";
+import projectsReducer from "./projectsSlice";
+import settingsReducer from "./settingsSlice";
+import tasksReducer from "./tasksSlice";
+import usersReducer from "./usersSlice";
 
 export const store = configureStore({
   reducer: {

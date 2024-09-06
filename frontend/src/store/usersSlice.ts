@@ -1,11 +1,13 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "app/store/store";
-import * as api from "app/api/client";
-import type { IUser } from "app/types/users.types";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+import * as api from "~/api/client";
+import type { IUser } from "~/types/users.types";
+
+import type { RootState } from "./store";
 
 export type UsersState = {
-  items: { [userId: IUser["id"]]: IUser };
+  items: Record<IUser["id"], IUser | undefined>;
   userId: null | IUser["id"];
   loading: boolean;
   error: undefined | string;
@@ -61,7 +63,9 @@ const usersSlice = createSlice({
   },
 });
 
-export const fetchUser = createAsyncThunk("users/fetchUser", api.user.load);
+export const fetchUser = createAsyncThunk("users/fetchUser", () =>
+  api.user.load(),
+);
 
 export const { setUser, loadUsers, updateUser } = usersSlice.actions;
 
@@ -76,7 +80,7 @@ export const selectLoadingUser = (state: RootState) => state.users.loading;
 export const selectUserId = (state: RootState) => state.users.userId;
 
 export const selectUser = (state: RootState) =>
-  state.users.items[state.users.userId!];
+  state.users.userId !== null ? state.users.items[state.users.userId] : null;
 
 export const selectUserById = (userId: IUser["id"]) => (state: RootState) =>
   state.users.items[userId];

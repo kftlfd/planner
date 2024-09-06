@@ -1,15 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { Provider as ProvideStore } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 
-import { Provider as ProvideStore } from "react-redux";
-import { store } from "app/store/store";
+import ProvideActions from "~/context/ActionsContext";
+import BaseStyles from "~/context/BaseStyles";
+import ProvideTheme from "~/context/ThemeContext";
+import { CookieError } from "~/pages/Error";
+import store from "~/store";
 
-import ProvideTheme from "app/context/ThemeContext";
-import BaseStyles from "app/context/BaseStyles";
-import ProvideActions from "app/context/ActionsContext";
-import App from "app/App";
-import { CookieError } from "app/pages/Error";
+import App from "./App";
 
 const cookiesDisabled = !navigator.cookieEnabled;
 

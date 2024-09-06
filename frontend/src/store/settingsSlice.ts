@@ -1,7 +1,9 @@
-import { PaletteMode } from "@mui/material";
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "app/store/store";
+import { createSlice } from "@reduxjs/toolkit";
+
+import { PaletteMode } from "@mui/material";
+
+import type { RootState } from "./store";
 
 function readLocalStorage(key: string, defaultValue = null) {
   try {

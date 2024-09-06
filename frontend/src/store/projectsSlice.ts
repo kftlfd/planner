@@ -1,19 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "app/store/store";
-import type { IProject } from "app/types/projects.types";
-import { IUser } from "app/types/users.types";
-import { ITask } from "app/types/tasks.types";
+import { createSlice } from "@reduxjs/toolkit";
+
+import type { IProject } from "~/types/projects.types";
+import { ITask } from "~/types/tasks.types";
+import { IUser } from "~/types/users.types";
+
+import type { RootState } from "./store";
 
 export type ProjectsState = {
-  items: { [projectId: IProject["id"]]: IProject };
+  items: Record<IProject["id"], IProject | undefined>;
   ownedIds: IProject["id"][];
   sharedIds: IProject["id"][];
   sharingOnIds: string[];
   projectsTasksLoaded: IProject["id"][];
   loading: boolean;
   error: null | string;
-  selectedCalDate: { [projectId: IProject["id"]]: Date };
+  selectedCalDate: Record<IProject["id"], Date | undefined>;
 };
 
 const initialState: ProjectsState = {
@@ -46,8 +48,12 @@ const projectsSlice = createSlice({
       state.items = projects;
       state.ownedIds = ownedIds;
       state.sharedIds = sharedIds;
-      state.sharingOnIds = Object.keys(projects).filter(
-        (id) => projects[Number(id)].sharing,
+      state.sharingOnIds = Object.entries(projects).reduce(
+        (acc: string[], [id, project]) => {
+          if (project.sharing) acc.push(id);
+          return acc;
+        },
+        [],
       );
     },
 
@@ -77,7 +83,9 @@ const projectsSlice = createSlice({
 
     deleteProject(state, action: PayloadAction<IProject["id"]>) {
       const projectId = Number(action.payload);
-      delete state.items[projectId];
+      state.items = Object.fromEntries(
+        Object.entries(state.items).filter(([id]) => Number(id) !== projectId),
+      );
       state.ownedIds = state.ownedIds.filter((id) => id !== projectId);
       state.sharedIds = state.sharedIds.filter((id) => id !== projectId);
     },
@@ -87,16 +95,16 @@ const projectsSlice = createSlice({
       action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>,
     ) {
       const { projectId, userId } = action.payload;
-      state.items[projectId].members.push(Number(userId));
+      state.items[projectId]?.members.push(Number(userId));
     },
     removeMember(
       state,
       action: PayloadAction<{ projectId: IProject["id"]; userId: IUser["id"] }>,
     ) {
       const { projectId, userId } = action.payload;
-      state.items[projectId].members = state.items[projectId].members.filter(
-        (id) => id !== Number(userId),
-      );
+      const project = state.items[projectId];
+      if (!project) return;
+      project.members = project.members.filter((id) => id !== Number(userId));
     },
 
     changeOwnedIdsOrder(state, action: PayloadAction<IProject["id"][]>) {
@@ -108,27 +116,23 @@ const projectsSlice = createSlice({
 
     addNewTask(state, action: PayloadAction<ITask>) {
       const task = action.payload;
-      state.items[task.project].tasksOrder.push(task.id);
-      state.items[task.project].board.none.push(task.id);
+      state.items[task.project]?.tasksOrder.push(task.id);
+      state.items[task.project]?.board.none.push(task.id);
     },
     deleteTask(
       state,
       action: PayloadAction<{ projectId: IProject["id"]; taskId: ITask["id"] }>,
     ) {
       const { projectId, taskId } = action.payload;
+      const project = state.items[projectId];
+      if (!project) return;
 
-      state.items[projectId].tasksOrder = state.items[
-        projectId
-      ].tasksOrder.filter((id) => id !== taskId);
+      project.tasksOrder = project.tasksOrder.filter((id) => id !== taskId);
 
-      state.items[projectId].board.none = state.items[
-        projectId
-      ].board.none.filter((id) => id !== taskId);
+      project.board.none = project.board.none.filter((id) => id !== taskId);
 
-      Object.keys(state.items[projectId].board.columns).forEach((col) => {
-        state.items[projectId].board.columns[col].taskIds = state.items[
-          projectId
-        ].board.columns[col].taskIds.filter((id) => id !== taskId);
+      Object.values(project.board.columns).forEach((column) => {
+        column.taskIds = column.taskIds.filter((id) => id !== taskId);
       });
     },
 
@@ -140,7 +144,9 @@ const projectsSlice = createSlice({
       }>,
     ) {
       const { projectId, tasksOrder } = action.payload;
-      state.items[projectId].tasksOrder = tasksOrder;
+      const project = state.items[projectId];
+      if (!project) return;
+      project.tasksOrder = tasksOrder;
     },
     updateTasksBoard(
       state,
@@ -150,7 +156,9 @@ const projectsSlice = createSlice({
       }>,
     ) {
       const { projectId, board } = action.payload;
-      state.items[projectId].board = board;
+      const project = state.items[projectId];
+      if (!project) return;
+      project.board = board;
     },
 
     selectCalDate(
@@ -209,11 +217,11 @@ export const selectProjectById =
 
 export const selectProjectTasksIds =
   (projectId: IProject["id"]) => (state: RootState) =>
-    state.projects.items[projectId].tasksOrder;
+    state.projects.items[projectId]?.tasksOrder;
 
 export const selectProjectBoard =
   (projectId: IProject["id"]) => (state: RootState) =>
-    state.projects.items[projectId].board;
+    state.projects.items[projectId]?.board;
 
 export const selectSelectedCalDate =
   (projectId: IProject["id"]) => (state: RootState) =>
