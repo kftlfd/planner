@@ -1,6 +1,6 @@
-import React from "react";
+import { FC } from "react";
 
-export function Logo(props: { height: number }) {
+export const Logo: FC<{ height: number }> = (props) => {
   // a Memo emoji by Twemoji
   // https://twemoji.twitter.com/
   // https://github.com/twitter/twemoji
@@ -45,4 +45,4 @@ export function Logo(props: { height: number }) {
       />
     </svg>
   );
-}
+};

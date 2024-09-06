@@ -1,3 +1,5 @@
+import { IUser } from "~/types/users.types";
+
 // https://docs.djangoproject.com/en/4.0/ref/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
 function csrftoken() {
   const name = "csrftoken";
@@ -5,7 +7,7 @@ function csrftoken() {
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
+      const cookie = (cookies[i] ?? "").trim();
       // Does this cookie string begin with the name we want?
       if (cookie.substring(0, name.length + 1) === name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -86,18 +88,18 @@ function getFullUrl(url: string) {
 export async function query<ResponseData>(
   url: string,
   method: RequestMethod,
-  body?: any,
+  body?: unknown,
 ): Promise<ResponseData> {
   const response = await fetch(getFullUrl(url), {
-    method: method,
+    method,
     headers: {
-      "X-CSRFToken": csrftoken() || "",
+      "X-CSRFToken": csrftoken() ?? "",
       "content-type": "application/json",
     },
     body: JSON.stringify(body),
   });
   if (response.ok) {
-    return await response.json();
+    return response.json() as Promise<ResponseData>;
   } else {
     throw new Error(await response.text());
   }
@@ -112,13 +114,13 @@ export async function authQuery(url: string, formData?: FormData) {
   if (response.ok) {
     return {
       ok: true,
-      user: await response.json(),
+      user: (await response.json()) as IUser,
     };
   } else if (response.status === 406) {
     return {
       ok: false,
       status: response.status,
-      formErrors: await response.json(),
+      formErrors: (await response.json()) as Record<string, string | undefined>,
     };
   } else {
     return {
@@ -132,10 +134,10 @@ export async function authQuery(url: string, formData?: FormData) {
 export async function queryNoResponse(
   url: string,
   method: RequestMethod,
-  body?: any,
+  body?: unknown,
 ) {
   const response = await fetch(getFullUrl(url), {
-    method: method,
+    method,
     headers: {
       "X-CSRFToken": csrftoken() || "",
       "content-type": "application/json",

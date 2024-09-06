@@ -1,24 +1,24 @@
-import React from "react";
+import { FC, ReactNode } from "react";
 
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Typography,
-  Drawer,
   AppBar,
-  Toolbar,
-  IconButton,
   Box,
   BoxProps,
+  Drawer,
+  IconButton,
+  Toolbar,
+  Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { useTheme } from "@mui/material/styles";
 
-export function Sidebar(props: {
+import { useTheme } from "~/context/ThemeContext";
+
+export const Sidebar: FC<{
   open: boolean;
   toggle: () => void;
-  children?: React.ReactNode;
-}) {
+  children?: ReactNode;
+}> = ({ open, toggle, children }) => {
   const theme = useTheme();
-  const { open, toggle } = props;
 
   return (
     <Drawer
@@ -35,16 +35,16 @@ export function Sidebar(props: {
         },
       }}
     >
-      {props.children}
+      {children}
     </Drawer>
   );
-}
+};
 
-export function SidebarHeader(props: {
+export const SidebarHeader: FC<{
   title: string;
   toggle: () => void;
-  children?: React.ReactNode;
-}) {
+  children?: ReactNode;
+}> = ({ title, toggle, children }) => {
   const theme = useTheme();
 
   return (
@@ -57,7 +57,7 @@ export function SidebarHeader(props: {
     >
       <Toolbar>
         <IconButton
-          onClick={props.toggle}
+          onClick={toggle}
           sx={{
             marginRight: {
               xs: "1rem",
@@ -78,23 +78,21 @@ export function SidebarHeader(props: {
             textOverflow: "ellipsis",
           }}
         >
-          {props.title}
+          {title}
         </Typography>
 
-        {props.children}
+        {children}
       </Toolbar>
     </AppBar>
   );
-}
+};
 
-export function SidebarBody(props: {
+export const SidebarBody: FC<{
   sx?: BoxProps["sx"];
-  children?: React.ReactNode;
-}) {
-  return (
-    <>
-      <Toolbar />
-      <Box sx={{ padding: "2rem", ...props.sx }}>{props.children}</Box>
-    </>
-  );
-}
+  children?: ReactNode;
+}> = ({ sx, children }) => (
+  <>
+    <Toolbar />
+    <Box sx={{ padding: "2rem", ...sx }}>{children}</Box>
+  </>
+);

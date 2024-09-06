@@ -1,11 +1,19 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import {
+  createContext,
+  FC,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { selectTheme, setTheme } from "../store/settingsSlice";
-
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { PaletteMode, TypeBackground } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useTheme as useMUITheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
+import { selectTheme, setTheme } from "~/store/settingsSlice";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -23,20 +31,16 @@ declare module "@mui/material/styles" {
   }
 }
 
-const ColorModeContext = React.createContext({
+const ColorModeContext = createContext({
   toggleColorMode: () => {},
   mode: "light",
 });
 
-export function useColorMode() {
-  return React.useContext(ColorModeContext);
-}
+export const useColorMode = () => useContext(ColorModeContext);
 
-export default function ProvideTheme({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
+export const useTheme = useMUITheme;
+
+const ProvideTheme: FC<{ children?: ReactNode }> = ({ children }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const localStorageTheme = useSelector(selectTheme);
   const dispatch = useDispatch();
@@ -47,21 +51,21 @@ export default function ProvideTheme({
       ? "dark"
       : "light";
 
-  const [mode, setMode] = React.useState(initialColorMode);
+  const [mode, setMode] = useState(initialColorMode);
 
-  const colorMode = React.useMemo(
+  const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
         const newTheme = mode === "light" ? "dark" : "light";
         setMode(newTheme);
         dispatch(setTheme(newTheme));
       },
-      mode: mode,
+      mode,
     }),
-    [mode],
+    [dispatch, mode],
   );
 
-  const theme = React.useMemo(() => {
+  const theme = useMemo(() => {
     const defaultTheme = createTheme({
       palette: { mode },
     });
@@ -85,4 +89,6 @@ export default function ProvideTheme({
       <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </ColorModeContext.Provider>
   );
-}
+};
+
+export default ProvideTheme;

@@ -1,27 +1,27 @@
-import React from "react";
+import { FC, ReactNode } from "react";
 import { useOutletContext } from "react-router-dom";
 
-import { useColorMode } from "../context/ThemeContext";
-
-import {
-  Typography,
-  Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  IconButton,
-  BoxProps,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
+import {
+  AppBar,
+  Box,
+  BoxProps,
+  Drawer,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+
+import { useColorMode } from "~/context/ThemeContext";
 
 const drawerWidth = 240;
 
-export function Main(props: {
+export const Main: FC<{
   sx?: BoxProps["sx"];
-  children?: React.ReactNode;
-}) {
+  children?: ReactNode;
+}> = (props) => {
   const colorMode = useColorMode();
 
   return (
@@ -39,49 +39,45 @@ export function Main(props: {
       {props.children}
     </Box>
   );
-}
+};
 
-export function MainDrawer(props: {
+export const MainDrawer: FC<{
   drawerOpen: boolean;
   drawerToggle: () => void;
   smallScreen: boolean;
-  children?: React.ReactNode;
-}) {
-  const { drawerOpen, drawerToggle, smallScreen } = props;
+  children?: ReactNode;
+}> = ({ drawerOpen, drawerToggle, smallScreen, children }) => (
+  <Drawer
+    variant={smallScreen ? "temporary" : "persistent"}
+    anchor="left"
+    open={drawerOpen}
+    onClose={drawerToggle}
+    ModalProps={{ keepMounted: true }}
+    SlideProps={{ easing: "ease" }}
+    transitionDuration={300}
+    sx={{
+      transition: "width 0.3s ease",
+      width: drawerOpen ? drawerWidth : 0,
+      flexShrink: 0,
+      "& .MuiDrawer-paper": {
+        width: drawerWidth,
+        boxSizing: "border-box",
+      },
+    }}
+  >
+    <Toolbar sx={{ justifyContent: "end" }}>
+      <IconButton onClick={drawerToggle}>
+        {smallScreen ? <CloseIcon /> : <ChevronLeftIcon />}
+      </IconButton>
+    </Toolbar>
+    {children}
+  </Drawer>
+);
 
-  return (
-    <Drawer
-      variant={smallScreen ? "temporary" : "persistent"}
-      anchor="left"
-      open={drawerOpen}
-      onClose={drawerToggle}
-      ModalProps={{ keepMounted: true }}
-      SlideProps={{ easing: "ease" }}
-      transitionDuration={300}
-      sx={{
-        transition: "width 0.3s ease",
-        width: drawerOpen ? drawerWidth : 0,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: drawerWidth,
-          boxSizing: "border-box",
-        },
-      }}
-    >
-      <Toolbar sx={{ justifyContent: "end" }}>
-        <IconButton onClick={drawerToggle}>
-          {smallScreen ? <CloseIcon /> : <ChevronLeftIcon />}
-        </IconButton>
-      </Toolbar>
-      {props.children}
-    </Drawer>
-  );
-}
-
-export function MainHeader(props: {
+export const MainHeader: FC<{
   title?: string;
-  children?: React.ReactNode;
-}) {
+  children?: ReactNode;
+}> = (props) => {
   const { drawerOpen, drawerToggle } = useOutletContext<{
     drawerOpen: boolean;
     drawerToggle: () => void;
@@ -127,20 +123,18 @@ export function MainHeader(props: {
       </Toolbar>
     </AppBar>
   );
-}
+};
 
-export function MainBody(props: { children?: React.ReactNode }) {
-  return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-      }}
-    >
-      <Toolbar />
-      {props.children}
-    </Box>
-  );
-}
+export const MainBody: FC<{ children?: ReactNode }> = ({ children }) => (
+  <Box
+    sx={{
+      flexGrow: 1,
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+    }}
+  >
+    <Toolbar />
+    {children}
+  </Box>
+);

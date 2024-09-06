@@ -1,4 +1,4 @@
-import type { IUser } from "app/types/users.types";
+import type { IUser } from "./users.types";
 
 export type IProject = {
   id: number;
