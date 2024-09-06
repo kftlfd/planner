@@ -1,5 +1,5 @@
-import type { IUser } from "app/types/users.types";
-import type { IProject } from "app/types/projects.types";
+import type { IProject } from "./projects.types";
+import type { IUser } from "./users.types";
 
 export type ITask = {
   id: number;

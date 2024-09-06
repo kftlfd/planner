@@ -1,34 +1,35 @@
-import React from "react";
+import { FC, useState } from "react";
+import { useSelector } from "react-redux";
 import {
-  useNavigate,
   Link as RouterLink,
   Outlet,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
 
-import { useColorMode } from "../context/ThemeContext";
-import { useActions } from "../context/ActionsContext";
-import { selectUser } from "../store/usersSlice";
-import { Main } from "./Main";
-import { Footer } from "./Footer";
-
-import {
-  Container,
-  Card,
-  Link,
-  Button,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  Divider,
-} from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
+import {
+  Avatar,
+  Button,
+  Card,
+  Container,
+  Divider,
+  IconButton,
+  Link,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+
+import { useActions } from "~/context/ActionsContext";
+import { useColorMode } from "~/context/ThemeContext";
+import { selectUser } from "~/store/usersSlice";
+
+import { Footer } from "./Footer";
+import { Main } from "./Main";
 
 const NavbarBackdrop = {
   height: "4rem",
@@ -52,14 +53,14 @@ const NavbarCard = {
   gap: "2rem",
 };
 
-export default function Navbar() {
+const Navbar: FC = () => {
   const { mode, toggleColorMode } = useColorMode();
   const user = useSelector(selectUser);
   const actions = useActions();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const menuOpen = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -145,7 +146,11 @@ export default function Navbar() {
                       },
                     }}
                   >
-                    <MenuItem onClick={() => navigate("/project/")}>
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/project/");
+                      }}
+                    >
                       <ListItemIcon>
                         <AccountCircleIcon fontSize="small" />
                       </ListItemIcon>
@@ -165,14 +170,18 @@ export default function Navbar() {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate("/login" + location.search)}
+                    onClick={() => {
+                      navigate("/login" + location.search);
+                    }}
                   >
                     Log In
                   </Button>
                   <Button
                     variant="contained"
                     size="small"
-                    onClick={() => navigate("/register" + location.search)}
+                    onClick={() => {
+                      navigate("/register" + location.search);
+                    }}
                   >
                     Sign Up
                   </Button>
@@ -188,4 +197,6 @@ export default function Navbar() {
       <Footer />
     </Main>
   );
-}
+};
+
+export default Navbar;

@@ -1,5 +1,6 @@
 import React from "react";
-import { GlobalStyles, CssBaseline } from "@mui/material";
+
+import { CssBaseline, GlobalStyles } from "@mui/material";
 
 const globalCss = `
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -18,10 +19,12 @@ const globalCss = `
   }
 `;
 
+const gloablStyles = <GlobalStyles styles={globalCss} />;
+
 const BaseStyles: React.FC = () => (
   <>
     <CssBaseline />
-    <GlobalStyles styles={globalCss} />
+    {gloablStyles}
   </>
 );
 

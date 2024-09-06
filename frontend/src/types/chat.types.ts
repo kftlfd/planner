@@ -1,5 +1,5 @@
-import type { IUser } from "./users.types";
 import type { IProject } from "./projects.types";
+import type { IUser } from "./users.types";
 
 export type IChatMessage = {
   id: number;

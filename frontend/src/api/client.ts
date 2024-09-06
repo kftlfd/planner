@@ -1,14 +1,15 @@
-import { IChatMessage } from "app/types/chat.types";
-import { IProject } from "app/types/projects.types";
-import { ITask } from "app/types/tasks.types";
-import { IUser } from "app/types/users.types";
+import { IChatMessage } from "~/types/chat.types";
+import { IProject } from "~/types/projects.types";
+import { ITask } from "~/types/tasks.types";
+import { IUser } from "~/types/users.types";
+
 import {
-  urls,
+  authQuery,
+  baseWsUrl,
   methods,
   query,
-  authQuery,
   queryNoResponse,
-  baseWsUrl,
+  urls,
 } from "./config";
 
 //
@@ -69,7 +70,7 @@ export const user = {
   },
 
   async deleteAccount() {
-    return await queryNoResponse(urls.user.details, methods.delete);
+    return queryNoResponse(urls.user.details, methods.delete);
   },
 };
 
@@ -93,7 +94,7 @@ export const project = {
   },
 
   async delete(projectId: IProject["id"]) {
-    return await queryNoResponse(
+    return queryNoResponse(
       urls.project.details(`${projectId}`),
       methods.delete,
     );
@@ -200,10 +201,7 @@ export const task = {
   },
 
   async delete(taskId: ITask["id"]) {
-    return await queryNoResponse(
-      urls.task.details(`${taskId}`),
-      methods.delete,
-    );
+    return queryNoResponse(urls.task.details(`${taskId}`), methods.delete);
   },
 };
 
