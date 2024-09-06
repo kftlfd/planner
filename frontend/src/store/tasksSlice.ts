@@ -1,10 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "app/store/store";
-import type { ITask } from "app/types/tasks.types";
+import { createSlice } from "@reduxjs/toolkit";
+
+import type { ITask } from "~/types/tasks.types";
+
+import type { RootState } from "./store";
 
 export type TasksState = {
-  items: { [taskId: ITask["id"]]: ITask };
+  items: Record<ITask["id"], ITask | undefined>;
 };
 
 const initialState: TasksState = {
@@ -34,15 +36,14 @@ const tasksSlice = createSlice({
 
     updateTask(state, action: PayloadAction<ITask>) {
       const task = action.payload;
-      state.items[task.id] = {
-        ...state.items[task.id],
-        ...task,
-      };
+      state.items[task.id] = { ...state.items[task.id], ...task };
     },
 
     deleteTask(state, action: PayloadAction<ITask["id"]>) {
       const taskId = action.payload;
-      delete state.items[taskId];
+      state.items = Object.fromEntries(
+        Object.entries(state.items).filter(([id]) => Number(id) !== taskId),
+      );
     },
   },
 });

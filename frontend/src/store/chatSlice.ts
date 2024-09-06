@@ -1,19 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "app/store/store";
-import type { IProject } from "app/types/projects.types";
-import type { IChatMessage } from "app/types/chat.types";
+import { createSlice } from "@reduxjs/toolkit";
+
+import type { IChatMessage } from "~/types/chat.types";
+import type { IProject } from "~/types/projects.types";
+
+import type { RootState } from "./store";
+
+type Chat = {
+  messages: IChatMessage[];
+  open: boolean;
+  unread: number;
+  unreadIndex: number | null;
+  loaded: boolean;
+};
 
 type ChatState = {
-  byProject: {
-    [projectId: IProject["id"]]: {
-      messages: IChatMessage[];
-      open: boolean;
-      unread: number;
-      unreadIndex: number | null;
-      loaded: boolean;
-    };
-  };
+  byProject: Record<IProject["id"], Chat | undefined>;
 };
 
 const initialState: ChatState = {
@@ -34,7 +36,8 @@ const chatSlice = createSlice({
       }>,
     ) {
       const { projectId, messages } = action.payload;
-      if (!state.byProject[projectId]) {
+      const chat = state.byProject[projectId];
+      if (!chat) {
         state.byProject[projectId] = {
           messages,
           open: false,
@@ -42,13 +45,13 @@ const chatSlice = createSlice({
           unreadIndex: null,
           loaded: true,
         };
-      } else {
-        state.byProject[projectId] = {
-          ...state.byProject[projectId],
-          messages,
-          unreadIndex: messages.length - state.byProject[projectId].unread,
-        };
+        return;
       }
+      state.byProject[projectId] = {
+        ...chat,
+        messages,
+        unreadIndex: messages.length - chat.unread,
+      };
     },
 
     addMessage(
@@ -60,34 +63,35 @@ const chatSlice = createSlice({
       }>,
     ) {
       const { projectId, message, fromOthers } = action.payload;
-      if (!state.byProject[projectId]) {
-        state.byProject[projectId] = {
-          messages: [],
-          open: false,
-          unread: 1,
-          unreadIndex: 0,
-          loaded: false,
-        };
-      }
-      if (fromOthers && !state.byProject[projectId].open) {
-        if (state.byProject[projectId].unreadIndex === null) {
-          state.byProject[projectId].unreadIndex =
-            state.byProject[projectId].messages.length;
+      const chat = state.byProject[projectId] ?? {
+        messages: [],
+        open: false,
+        unread: 1,
+        unreadIndex: 0,
+        loaded: false,
+      };
+      if (fromOthers && !chat.open) {
+        if (chat.unreadIndex === null) {
+          chat.unreadIndex = chat.messages.length;
         }
-        state.byProject[projectId].unread++;
+        chat.unread++;
       }
-      state.byProject[projectId].messages.push(message);
+      chat.messages.push(message);
     },
 
     toggleChatOpen(state, action: PayloadAction<IProject["id"]>) {
       const projectId = action.payload;
-      state.byProject[projectId].open = !state.byProject[projectId].open;
+      const chat = state.byProject[projectId];
+      if (!chat) return;
+      chat.open = !chat.open;
     },
 
     resetUnread(state, action: PayloadAction<IProject["id"]>) {
       const projectId = action.payload;
-      state.byProject[projectId].unread = 0;
-      state.byProject[projectId].unreadIndex = null;
+      const chat = state.byProject[projectId];
+      if (!chat) return;
+      chat.unread = 0;
+      chat.unreadIndex = null;
     },
   },
 });
