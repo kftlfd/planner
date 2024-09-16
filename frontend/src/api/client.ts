@@ -25,16 +25,16 @@ export function getWS() {
 //
 
 export const auth = {
-  async register(formData: FormData) {
-    return await authQuery(urls.auth.register, formData);
+  register(formData: FormData) {
+    return authQuery(urls.auth.register, formData);
   },
 
-  async login(formData: FormData) {
-    return await authQuery(urls.auth.login, formData);
+  login(formData: FormData) {
+    return authQuery(urls.auth.login, formData);
   },
 
-  async logout() {
-    return await authQuery(urls.auth.logout);
+  logout() {
+    return authQuery(urls.auth.logout);
   },
 };
 

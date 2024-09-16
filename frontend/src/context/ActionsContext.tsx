@@ -169,13 +169,13 @@ const getActions = (
     async register(formData: FormData) {
       const resp = await api.auth.register(formData);
       if (resp.ok && resp.user) dispatch(usersSlice.setUser(resp.user));
-      else return resp;
+      return resp;
     },
 
     async login(formData: FormData) {
       const resp = await api.auth.login(formData);
       if (resp.ok && resp.user) dispatch(usersSlice.setUser(resp.user));
-      else return resp;
+      return resp;
     },
 
     async logout() {
