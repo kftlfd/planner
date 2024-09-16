@@ -1,30 +1,33 @@
-import React, { useRef, useState } from "react";
+import { FC, FormEventHandler, ReactNode, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Link as RouterLink,
   Navigate,
-  useNavigate,
   useLocation,
+  useNavigate,
   useSearchParams,
 } from "react-router-dom";
 
+import CheckIcon from "@mui/icons-material/Check";
 import {
-  TextField,
-  Button,
-  Link,
   Alert,
   AlertTitle,
+  Button,
   CircularProgress,
+  Link,
+  TextField,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 
-import { useActions } from "app/context/ActionsContext";
-import { selectUser } from "app/store/usersSlice";
-import { CenterCard } from "app/layout/CenterCard";
+import { useActions } from "~/context/ActionsContext";
+import { CenterCard } from "~/layout/CenterCard";
+import { selectUser } from "~/store/usersSlice";
 
 import * as Styled from "./auth.styled";
 
-const Register: React.FC = () => {
+const hasProperty = (obj: object, key: string) =>
+  Object.prototype.hasOwnProperty.call(obj, key);
+
+const Register: FC = () => {
   const actions = useActions();
   const user = useSelector(selectUser);
 
@@ -39,7 +42,7 @@ const Register: React.FC = () => {
     error: boolean;
     errorMsg: string | null;
     errorStatus: number | null;
-    formErrors: { [fieldName: string]: string };
+    formErrors: Record<string, string | undefined>;
   }>({
     loggedIn: user ? true : false,
     loading: false,
@@ -52,29 +55,35 @@ const Register: React.FC = () => {
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const handleRegister: React.FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
-    event.preventDefault();
+  const handleRegister = async () => {
     if (!formRef.current) return;
 
     setState((prev) => ({ ...prev, loading: true }));
     const formData = new FormData(formRef.current);
     const resp = await actions.auth.register(formData);
-    if (!resp) {
+    if (resp.ok) {
       setState((prev) => ({ ...prev, loading: false, success: true }));
-      setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
+      setTimeout(() => {
+        navigate(searchParams.get("next") || "/project/");
+      }, 1000);
     } else {
       console.error(resp);
       setState((prev) => ({
         ...prev,
         loading: false,
         error: true,
-        errorMsg: resp.error,
-        errorStatus: resp.status,
-        formErrors: resp.formErrors,
+        errorMsg: resp.error ?? null,
+        errorStatus: resp.status ?? null,
+        formErrors: resp.formErrors ?? {},
       }));
     }
+  };
+
+  const onSubmit: FormEventHandler = (e) => {
+    e.preventDefault();
+    handleRegister().catch((err: unknown) => {
+      console.error(err);
+    });
   };
 
   if (state.loggedIn) {
@@ -85,14 +94,14 @@ const Register: React.FC = () => {
     <CenterCard>
       <Styled.Heading>Sign Up</Styled.Heading>
 
-      <Styled.Form ref={formRef} onSubmit={handleRegister}>
+      <Styled.Form ref={formRef} onSubmit={onSubmit}>
         <TextField
           name="username"
           type="text"
           label="Username"
           variant="filled"
           size="small"
-          error={state.formErrors.hasOwnProperty("username")}
+          error={hasProperty(state.formErrors, "username")}
           helperText={state.formErrors.username}
         />
         <TextField
@@ -101,7 +110,7 @@ const Register: React.FC = () => {
           label="Password"
           variant="filled"
           size="small"
-          error={state.formErrors.hasOwnProperty("password1")}
+          error={hasProperty(state.formErrors, "password1")}
           helperText={state.formErrors.password1}
         />
         <TextField
@@ -110,7 +119,7 @@ const Register: React.FC = () => {
           label="Confirm Password"
           variant="filled"
           size="small"
-          error={state.formErrors.hasOwnProperty("password2")}
+          error={hasProperty(state.formErrors, "password2")}
           helperText={state.formErrors.password2}
         />
 
@@ -154,10 +163,10 @@ const Register: React.FC = () => {
   );
 };
 
-const errorMessages: Record<number, JSX.Element> = {
+const errorMessages: Record<number, ReactNode> = {
   504: (
     <>
-      <AlertTitle>Can't connect to server</AlertTitle>
+      <AlertTitle>Can&apos;t connect to server</AlertTitle>
       Please try again later.
     </>
   ),

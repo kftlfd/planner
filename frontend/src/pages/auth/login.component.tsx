@@ -1,30 +1,30 @@
-import React, { useRef, useState } from "react";
+import { FC, FormEventHandler, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Link as RouterLink,
   Navigate,
-  useNavigate,
   useLocation,
+  useNavigate,
   useSearchParams,
 } from "react-router-dom";
 
+import CheckIcon from "@mui/icons-material/Check";
 import {
-  TextField,
-  Button,
-  Link,
   Alert,
   AlertTitle,
+  Button,
   CircularProgress,
+  Link,
+  TextField,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 
-import { useActions } from "app/context/ActionsContext";
-import { selectUser } from "app/store/usersSlice";
-import { CenterCard } from "app/layout/CenterCard";
+import { useActions } from "~/context/ActionsContext";
+import { CenterCard } from "~/layout/CenterCard";
+import { selectUser } from "~/store/usersSlice";
 
 import * as Styled from "./auth.styled";
 
-const Login: React.FC = () => {
+const Login: FC = () => {
   const actions = useActions();
   const user = useSelector(selectUser);
 
@@ -50,28 +50,34 @@ const Login: React.FC = () => {
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const handleLogin: React.FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
-    event.preventDefault();
+  const handleLogin = async () => {
     if (!formRef.current) return;
 
     setState((prev) => ({ ...prev, loading: true }));
-    let formData = new FormData(formRef.current);
-    let resp = await actions.auth.login(formData);
-    if (!resp) {
+    const formData = new FormData(formRef.current);
+    const resp = await actions.auth.login(formData);
+    if (resp.ok) {
       setState((prev) => ({ ...prev, loading: false, success: true }));
-      setTimeout(() => navigate(searchParams.get("next") || "/project/"), 1000);
+      setTimeout(() => {
+        navigate(searchParams.get("next") || "/project/");
+      }, 1000);
     } else {
       console.error(resp);
       setState((prev) => ({
         ...prev,
         loading: false,
         error: true,
-        errorMsg: resp.error,
-        errorStatus: resp.status,
+        errorMsg: resp.error ?? null,
+        errorStatus: resp.status ?? null,
       }));
     }
+  };
+
+  const onSubmit: FormEventHandler = (e) => {
+    e.preventDefault();
+    handleLogin().catch((err: unknown) => {
+      console.error(err);
+    });
   };
 
   if (state.loggedIn) {
@@ -82,7 +88,7 @@ const Login: React.FC = () => {
     <CenterCard>
       <Styled.Heading>Log In</Styled.Heading>
 
-      <Styled.Form ref={formRef} onSubmit={handleLogin}>
+      <Styled.Form ref={formRef} onSubmit={onSubmit}>
         <TextField
           name="username"
           type="text"
@@ -92,7 +98,9 @@ const Login: React.FC = () => {
           fullWidth={true}
           autoComplete="false"
           error={state.error}
-          onChange={() => setState((prev) => ({ ...prev, error: false }))}
+          onChange={() => {
+            setState((prev) => ({ ...prev, error: false }));
+          }}
         />
         <TextField
           name="password"
@@ -103,7 +111,9 @@ const Login: React.FC = () => {
           fullWidth={true}
           error={state.error}
           helperText={state.errorStatus === 404 ? state.errorMsg : null}
-          onChange={() => setState((prev) => ({ ...prev, error: false }))}
+          onChange={() => {
+            setState((prev) => ({ ...prev, error: false }));
+          }}
         />
 
         <Button
@@ -141,7 +151,7 @@ const Login: React.FC = () => {
           underline="hover"
           to={"/register" + location.search}
         >
-          Don't have an account? Sign Up
+          Don&apos;t have an account? Sign Up
         </Link>
       </Styled.Form>
     </CenterCard>
