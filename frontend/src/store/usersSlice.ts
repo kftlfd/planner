@@ -80,7 +80,9 @@ export const selectLoadingUser = (state: RootState) => state.users.loading;
 export const selectUserId = (state: RootState) => state.users.userId;
 
 export const selectUser = (state: RootState) =>
-  state.users.userId !== null ? state.users.items[state.users.userId] : null;
+  state.users.userId !== null
+    ? (state.users.items[state.users.userId] ?? null)
+    : null;
 
 export const selectUserById = (userId: IUser["id"]) => (state: RootState) =>
   state.users.items[userId];
