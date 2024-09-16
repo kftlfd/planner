@@ -1,10 +1,10 @@
-import React from "react";
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Container, Typography, Button, Box, Card } from "@mui/material";
+import { Box, Button, Card, Container, Typography } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-export default function Error() {
+export const Error: FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -25,14 +25,20 @@ export default function Error() {
       <Typography variant="h4" sx={{ color: "text.primary" }}>
         Page not found
       </Typography>
-      <Button onClick={() => navigate("/", { replace: true })}>
+      <Button
+        onClick={() => {
+          navigate("/", { replace: true });
+        }}
+      >
         Go to Homepage
       </Button>
     </Container>
   );
-}
+};
 
-export function CookieError() {
+export default Error;
+
+export const CookieError: FC = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   return (
@@ -65,4 +71,4 @@ export function CookieError() {
       </Card>
     </Box>
   );
-}
+};

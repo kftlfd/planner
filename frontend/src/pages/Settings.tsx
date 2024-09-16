@@ -1,29 +1,29 @@
-import React from "react";
+import { FC, ReactNode, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useColorMode } from "../context/ThemeContext";
-import { useActions } from "../context/ActionsContext";
 import {
-  selectHideDoneTasks,
-  selectBoardColumnWidth,
-} from "../store/settingsSlice";
-import { selectUser } from "../store/usersSlice";
-import { MainHeader, MainBody } from "../layout/Main";
-import { SimpleModal } from "../layout/Modal";
-
-import {
-  Container,
   Box,
-  Typography,
-  TextField,
   Button,
-  Collapse,
   Checkbox,
-  Switch,
+  Collapse,
+  Container,
   Slider,
+  Switch,
+  TextField,
+  Typography,
 } from "@mui/material";
 
-export function Settings() {
+import { useActions } from "~/context/ActionsContext";
+import { useColorMode } from "~/context/ThemeContext";
+import { MainBody, MainHeader } from "~/layout/Main";
+import { SimpleModal } from "~/layout/Modal";
+import {
+  selectBoardColumnWidth,
+  selectHideDoneTasks,
+} from "~/store/settingsSlice";
+import { selectUser } from "~/store/usersSlice";
+
+export const Settings: FC = () => {
   return (
     <>
       <MainHeader title="Settings" />
@@ -37,9 +37,12 @@ export function Settings() {
       </MainBody>
     </>
   );
-}
+};
 
-function SettingWrapper(props: { header: string; children: React.ReactNode }) {
+const SettingWrapper: FC<{
+  header: string;
+  children?: ReactNode;
+}> = ({ header, children }) => {
   return (
     <Box
       sx={{
@@ -54,18 +57,34 @@ function SettingWrapper(props: { header: string; children: React.ReactNode }) {
         },
       }}
     >
-      <Typography variant="h5">{props.header}</Typography>
-      {props.children}
+      <Typography variant="h5">{header}</Typography>
+      {children}
     </Box>
   );
-}
+};
 
-function AccountSettings() {
+type UserState = {
+  username: string | null;
+  usernameError: string | null;
+  usernameChangeSuccess: boolean;
+
+  showPasswordForm: boolean;
+  oldPassword: string;
+  oldPasswordError: string | null;
+  newPassword: string;
+  newPassword2: string;
+  newPasswordError: string | null;
+  confirmPasswordError: boolean;
+  showPasswords: boolean;
+  passwordChangeSuccess: boolean;
+};
+
+const AccountSettings: FC = () => {
   const user = useSelector(selectUser);
   const actions = useActions();
 
-  const [state, setState] = React.useState({
-    username: user.username,
+  const [state, setState] = useState<UserState>({
+    username: user?.username ?? null,
     usernameError: null,
     usernameChangeSuccess: false,
 
@@ -80,8 +99,9 @@ function AccountSettings() {
     passwordChangeSuccess: false,
   });
 
-  async function handleUsernameUpdate() {
+  const handleUsernameUpdate = async () => {
     try {
+      if (!state.username) return;
       await actions.user.update({ username: state.username });
       setState((prev) => ({
         ...prev,
@@ -91,7 +111,9 @@ function AccountSettings() {
     } catch (error) {
       console.error("Failed to update user: ", error);
       try {
-        const parsedError = JSON.parse((error as Error).message);
+        const parsedError = JSON.parse((error as Error).message) as {
+          username?: string;
+        };
         setState((prev) => ({
           ...prev,
           usernameError: parsedError.username ? parsedError.username : "Error",
@@ -101,9 +123,9 @@ function AccountSettings() {
         console.error(err);
       }
     }
-  }
+  };
 
-  async function handlePasswordUpdate() {
+  const handlePasswordUpdate = async () => {
     try {
       await actions.user.changePassword({
         oldPassword: state.oldPassword,
@@ -121,7 +143,10 @@ function AccountSettings() {
     } catch (error) {
       console.error("Password change error: ", error);
       try {
-        const parsedError = JSON.parse((error as Error).message);
+        const parsedError = JSON.parse((error as Error).message) as {
+          oldPassword?: string;
+          newPassword?: string;
+        };
         setState((prev) => ({
           ...prev,
           ...(parsedError.oldPassword && {
@@ -136,7 +161,7 @@ function AccountSettings() {
         console.error(err);
       }
     }
-  }
+  };
 
   const gridStyle = {
     display: "grid",
@@ -164,14 +189,14 @@ function AccountSettings() {
           <Box sx={flexEndWrap}>
             <TextField
               value={state.username}
-              onChange={(e) =>
+              onChange={(e) => {
                 setState((prev) => ({
                   ...prev,
                   username: e.target.value,
                   usernameError: null,
                   usernameChangeSuccess: false,
-                }))
-              }
+                }));
+              }}
               error={state.usernameError !== null}
               helperText={state.usernameError}
               size={"small"}
@@ -179,8 +204,8 @@ function AccountSettings() {
             />
             <Button
               variant="contained"
-              onClick={handleUsernameUpdate}
-              disabled={!state.username || state.username === user.username}
+              onClick={() => void handleUsernameUpdate()}
+              disabled={!state.username || state.username === user?.username}
             >
               Change
             </Button>
@@ -200,12 +225,12 @@ function AccountSettings() {
             }}
           >
             <Button
-              onClick={() =>
+              onClick={() => {
                 setState((prev) => ({
                   ...prev,
                   showPasswordForm: !prev.showPasswordForm,
-                }))
-              }
+                }));
+              }}
             >
               Change
             </Button>
@@ -224,14 +249,14 @@ function AccountSettings() {
                 type={state.showPasswords ? "text" : "password"}
                 placeholder={"Current password"}
                 value={state.oldPassword}
-                onChange={(e) =>
+                onChange={(e) => {
                   setState((prev) => ({
                     ...prev,
                     oldPassword: e.target.value,
                     oldPasswordError: null,
                     passwordChangeSuccess: false,
-                  }))
-                }
+                  }));
+                }}
                 error={state.oldPasswordError !== null}
                 helperText={state.oldPasswordError}
               />
@@ -240,15 +265,15 @@ function AccountSettings() {
                 type={state.showPasswords ? "text" : "password"}
                 placeholder={"New password"}
                 value={state.newPassword}
-                onChange={(e) =>
+                onChange={(e) => {
                   setState((prev) => ({
                     ...prev,
                     newPassword: e.target.value,
                     newPasswordError: null,
                     passwordChangeSuccess: false,
                     confirmPasswordError: e.target.value !== prev.newPassword2,
-                  }))
-                }
+                  }));
+                }}
                 error={state.newPasswordError !== null}
               />
               <TextField
@@ -256,15 +281,15 @@ function AccountSettings() {
                 type={state.showPasswords ? "text" : "password"}
                 placeholder={"Repeat new password"}
                 value={state.newPassword2}
-                onChange={(e) =>
+                onChange={(e) => {
                   setState((prev) => ({
                     ...prev,
                     newPassword2: e.target.value,
                     newPasswordError: null,
                     passwordChangeSuccess: false,
                     confirmPasswordError: e.target.value !== prev.newPassword,
-                  }))
-                }
+                  }));
+                }}
                 color={state.confirmPasswordError ? "warning" : "primary"}
                 error={state.newPasswordError !== null}
                 helperText={
@@ -282,12 +307,12 @@ function AccountSettings() {
                     />
                   }
                   size="small"
-                  onClick={() =>
+                  onClick={() => {
                     setState((prev) => ({
                       ...prev,
                       showPasswords: !prev.showPasswords,
-                    }))
-                  }
+                    }));
+                  }}
                 >
                   Show passwords
                 </Button>
@@ -300,7 +325,7 @@ function AccountSettings() {
                     !state.newPassword ||
                     !state.newPassword2
                   }
-                  onClick={handlePasswordUpdate}
+                  onClick={() => void handlePasswordUpdate()}
                 >
                   Change password
                 </Button>
@@ -314,15 +339,15 @@ function AccountSettings() {
       </Box>
     </SettingWrapper>
   );
-}
+};
 
-function InterfaceSettings() {
+const InterfaceSettings: FC = () => {
   const colorMode = useColorMode();
   const actions = useActions();
   const hideDoneTasks = useSelector(selectHideDoneTasks);
   const boardColumnWidth = useSelector(selectBoardColumnWidth);
 
-  const [sliderValue, setSliderValue] = React.useState(boardColumnWidth);
+  const [sliderValue, setSliderValue] = useState(boardColumnWidth);
 
   const wrapper = {
     display: "flex",
@@ -345,7 +370,9 @@ function InterfaceSettings() {
         <Box sx={{ flexGrow: 1 }}>Hide done Tasks</Box>
         <Switch
           checked={hideDoneTasks}
-          onClick={actions.settings.toggleHideDoneTasks}
+          onClick={() => {
+            actions.settings.toggleHideDoneTasks();
+          }}
         />
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -365,28 +392,33 @@ function InterfaceSettings() {
           max={350}
           step={25}
           marks
-          onChange={(e, val) =>
-            setSliderValue(val instanceof Array ? val[0] : val)
-          }
-          onChangeCommitted={() =>
-            actions.settings.setBoardColumnWidth(sliderValue)
-          }
+          onChange={(_, val) => {
+            const newValue = Array.isArray(val) ? val[0] : val;
+            if (newValue !== undefined) {
+              setSliderValue(newValue);
+            }
+          }}
+          onChangeCommitted={() => {
+            actions.settings.setBoardColumnWidth(sliderValue);
+          }}
         />
       </Box>
     </SettingWrapper>
   );
-}
+};
 
-function DeleteAccount() {
+const DeleteAccount: FC = () => {
   const actions = useActions();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     modalOpen: false,
   });
 
-  function handleDeleteAccount() {
-    actions.user.deleteAccount();
-  }
+  const handleDeleteAccount = () => {
+    actions.user.deleteAccount().catch((err: unknown) => {
+      console.error(err);
+    });
+  };
 
   return (
     <SettingWrapper header="Delete Account">
@@ -394,7 +426,9 @@ function DeleteAccount() {
         <Button
           color="error"
           variant="contained"
-          onClick={() => setState((prev) => ({ ...prev, modalOpen: true }))}
+          onClick={() => {
+            setState((prev) => ({ ...prev, modalOpen: true }));
+          }}
         >
           Delete
         </Button>
@@ -403,7 +437,9 @@ function DeleteAccount() {
       <SimpleModal
         open={state.modalOpen}
         onConfirm={handleDeleteAccount}
-        onClose={() => setState((prev) => ({ ...prev, modalOpen: false }))}
+        onClose={() => {
+          setState((prev) => ({ ...prev, modalOpen: false }));
+        }}
         title={"Delete account?"}
         content={
           "Can't restore, projects deleted, content in shared projects will remain"
@@ -412,4 +448,4 @@ function DeleteAccount() {
       />
     </SettingWrapper>
   );
-}
+};

@@ -1,9 +1,10 @@
-import React from "react";
+import { FC, ReactNode } from "react";
+
 import { Box, Typography } from "@mui/material";
 
-type Props = { children?: React.ReactNode };
+type Props = { children?: ReactNode };
 
-export const Wrapper: React.FC<Props> = ({ children }) => (
+export const Wrapper: FC<Props> = ({ children }) => (
   <Box
     sx={{
       display: "flex",
@@ -17,7 +18,7 @@ export const Wrapper: React.FC<Props> = ({ children }) => (
   </Box>
 );
 
-export const WrapperInner: React.FC<Props> = ({ children }) => (
+export const WrapperInner: FC<Props> = ({ children }) => (
   <Box
     sx={{
       display: "flex",
@@ -30,16 +31,16 @@ export const WrapperInner: React.FC<Props> = ({ children }) => (
   </Box>
 );
 
-export const HeadingTitle: React.FC<Props> = ({ children }) => (
+export const HeadingTitle: FC<Props> = ({ children }) => (
   <Typography variant="h2">{children}</Typography>
 );
 
-export const HeadingSubtitle: React.FC<Props> = ({ children }) => (
+export const HeadingSubtitle: FC<Props> = ({ children }) => (
   <Typography variant="h5" sx={{ textAlign: { xs: "center", sm: "left" } }}>
     {children}
   </Typography>
 );
 
-export const ButtonsWrapper: React.FC<Props> = ({ children }) => (
+export const ButtonsWrapper: FC<Props> = ({ children }) => (
   <Box sx={{ display: "flex", gap: "1rem" }}>{children}</Box>
 );

@@ -1,14 +1,15 @@
-import React from "react";
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Link } from "@mui/material";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-import { CenterCard } from "app/layout/CenterCard";
-import { Logo } from "app/layout/Logo";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { Button, Link } from "@mui/material";
+
+import { CenterCard } from "~/layout/CenterCard";
+import { Logo } from "~/layout/Logo";
 
 import * as Styled from "./welcome.styled";
 
-export const Welcome: React.FC = () => {
+export const Welcome: FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -30,10 +31,20 @@ export const Welcome: React.FC = () => {
           </Link>
 
           <Styled.ButtonsWrapper>
-            <Button variant="contained" onClick={() => navigate("/register")}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                navigate("/register");
+              }}
+            >
               Sign Up
             </Button>
-            <Button variant="outlined" onClick={() => navigate("/login")}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                navigate("/login");
+              }}
+            >
               Log In
             </Button>
           </Styled.ButtonsWrapper>
