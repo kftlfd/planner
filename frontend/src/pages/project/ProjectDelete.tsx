@@ -1,24 +1,27 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import { useActions } from "../../context/ActionsContext";
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { SimpleModal } from "~/layout/Modal";
 import {
   selectProjectById,
   selectSharedProjectIds,
-} from "../../store/projectsSlice";
-import { MenuListItem } from "./ProjectOprionsMenu";
-import { SimpleModal } from "../../layout/Modal";
-import { ErrorAlert } from "../../layout/Alert";
+} from "~/store/projectsSlice";
 
-export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
-  const { closeOptionsMenu } = props;
-  const { projectId } = useParams<{ projectId: string }>();
+import { MenuListItem } from "./ProjectOprionsMenu";
+
+export const ProjectDelete: FC<{
+  closeOptionsMenu: () => void;
+}> = ({ closeOptionsMenu }) => {
+  const params = useParams<{ projectId: string }>();
+  const projectId = Number(params.projectId);
   const actions = useActions();
 
-  const project = useSelector(selectProjectById(Number(projectId)));
+  const project = useSelector(selectProjectById(projectId));
   const sharedIds = useSelector(selectSharedProjectIds);
-  const isShared = sharedIds.includes(Number(projectId));
+  const isShared = sharedIds.includes(projectId);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const toggleDeleteDialog = () => {
@@ -29,7 +32,9 @@ export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleDelete() {
+  if (!project) return null;
+
+  const handleDelete = async () => {
     setLoading(true);
     try {
       await actions.project.delete(projectId);
@@ -39,7 +44,7 @@ export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
       setLoading(false);
       setError("Can't delete project");
     }
-  }
+  };
 
   if (isShared) return null;
 
@@ -50,7 +55,7 @@ export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
       <SimpleModal
         open={deleteDialogOpen}
         onClose={toggleDeleteDialog}
-        onConfirm={handleDelete}
+        onConfirm={() => void handleDelete()}
         title={`Delete project "${project.name}"?`}
         content={
           "This action cannot be undone, all tasks in project will be deleted too."
@@ -61,9 +66,11 @@ export function ProjectDelete(props: { closeOptionsMenu: () => void }) {
 
       <ErrorAlert
         open={error !== null}
-        toggle={() => setError(null)}
+        toggle={() => {
+          setError(null);
+        }}
         message={error}
       />
     </>
   );
-}
+};

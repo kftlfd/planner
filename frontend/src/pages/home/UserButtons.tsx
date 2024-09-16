@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { useActions } from "../../context/ActionsContext";
-import { selectUser } from "../../store/usersSlice";
-
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
   Collapse,
   List,
@@ -12,20 +14,22 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 
-export function UserButtons(props: { drawerToggle: () => void }) {
+import { useActions } from "~/context/ActionsContext";
+import { selectUser } from "~/store/usersSlice";
+
+export const UserButtons: FC<{
+  drawerToggle: () => void;
+}> = ({ drawerToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector(selectUser);
   const actions = useActions();
 
   const [nestedListOpen, setNestedListOpen] = useState(false);
-  const toggleNestedList = () => setNestedListOpen(!nestedListOpen);
+  const toggleNestedList = () => {
+    setNestedListOpen(!nestedListOpen);
+  };
 
   return (
     <List>
@@ -37,7 +41,7 @@ export function UserButtons(props: { drawerToggle: () => void }) {
         <ListItemIcon>
           <AccountCircleIcon />
         </ListItemIcon>
-        <ListItemText>{user.username}</ListItemText>
+        <ListItemText>{user?.username}</ListItemText>
         {nestedListOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
@@ -47,7 +51,7 @@ export function UserButtons(props: { drawerToggle: () => void }) {
             key="settings-button"
             onClick={() => {
               if (location.pathname !== "/settings") navigate("/settings");
-              props.drawerToggle();
+              drawerToggle();
             }}
           >
             <ListItemIcon>
@@ -56,7 +60,10 @@ export function UserButtons(props: { drawerToggle: () => void }) {
             <ListItemText>Settings</ListItemText>
           </ListItemButton>
 
-          <ListItemButton key="logout-button" onClick={actions.auth.logout}>
+          <ListItemButton
+            key="logout-button"
+            onClick={() => void actions.auth.logout()}
+          >
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
@@ -66,4 +73,4 @@ export function UserButtons(props: { drawerToggle: () => void }) {
       </Collapse>
     </List>
   );
-}
+};

@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
-
-import { selectHideDoneTasks } from "../../store/settingsSlice";
-import { useActions } from "../../context/ActionsContext";
-import { MenuListItem } from "./ProjectOprionsMenu";
 
 import { Switch } from "@mui/material";
 
-export function ProjectHideDoneToggle() {
+import { useActions } from "~/context/ActionsContext";
+import { selectHideDoneTasks } from "~/store/settingsSlice";
+
+import { MenuListItem } from "./ProjectOprionsMenu";
+
+export const ProjectHideDoneToggle: FC = () => {
   const hideDone = useSelector(selectHideDoneTasks);
   const actions = useActions();
 
@@ -23,4 +24,4 @@ export function ProjectHideDoneToggle() {
       <Switch checked={checked} />
     </MenuListItem>
   );
-}
+};

@@ -1,42 +1,45 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { FC, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import { useColorMode } from "../../context/ThemeContext";
-import { useActions } from "../../context/ActionsContext";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import {
+  Avatar,
+  Box,
+  Card,
+  Checkbox,
+  CircularProgress,
+  IconButton,
+  Link,
+  Switch,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+
+import { useActions } from "~/context/ActionsContext";
+import { useColorMode } from "~/context/ThemeContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { SimpleModal } from "~/layout/Modal";
+import { Sidebar, SidebarBody, SidebarHeader } from "~/layout/Sidebar";
 import {
   selectProjectById,
   selectSharedProjectIds,
-} from "../../store/projectsSlice";
-import { selectUserById } from "../../store/usersSlice";
-import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
+} from "~/store/projectsSlice";
+import { selectUserById } from "~/store/usersSlice";
+
 import { MenuListItem } from "./ProjectOprionsMenu";
-import { SimpleModal } from "../../layout/Modal";
-import { ErrorAlert } from "../../layout/Alert";
 
-import {
-  Typography,
-  Box,
-  Card,
-  Link,
-  IconButton,
-  Switch,
-  Checkbox,
-  Tooltip,
-  Avatar,
-  CircularProgress,
-} from "@mui/material";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-
-export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
-  const { closeOptionsMenu } = props;
-  const { projectId } = useParams<{ projectId: string }>();
+export const ProjectSharing: FC<{
+  closeOptionsMenu: () => void;
+}> = ({ closeOptionsMenu }) => {
+  const params = useParams<{ projectId: string }>();
+  const projectId = Number(params.projectId);
   const actions = useActions();
-  const project = useSelector(selectProjectById(Number(projectId)));
+  const project = useSelector(selectProjectById(projectId));
   const sharedIds = useSelector(selectSharedProjectIds);
-  const isOwned = !sharedIds.includes(Number(projectId));
+  const isOwned = !sharedIds.includes(projectId);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
@@ -44,7 +47,7 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
     setSidebarOpen((x) => !x);
   };
 
-  const [sharingToggle, setSharingToggle] = useState(project.sharing);
+  const [sharingToggle, setSharingToggle] = useState(project?.sharing ?? false);
 
   const [loadingSharing, setLoadingSharing] = useState(false);
 
@@ -57,10 +60,10 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
   };
 
   useEffect(() => {
-    setSharingToggle(project.sharing);
+    setSharingToggle(project?.sharing ?? false);
   }, [project]);
 
-  async function handleEnableSharing() {
+  const handleEnableSharing = async () => {
     setSharingToggle(true);
     setLoadingSharing(true);
     try {
@@ -72,9 +75,9 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
       setLoadingSharing(false);
       setError("Can't enable sharing");
     }
-  }
+  };
 
-  async function handleDisableSharing() {
+  const handleDisableSharing = async () => {
     setLoading(true);
     try {
       await actions.project.sharing.disable(projectId);
@@ -87,7 +90,7 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
       setSharingToggle(true);
       setError("Can't update sharing");
     }
-  }
+  };
 
   const sharingDisabled = (
     <Typography
@@ -129,7 +132,7 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
               <SimpleModal
                 open={stopSharingDialogOpen}
                 onClose={stopSharingDialogToggle}
-                onConfirm={handleDisableSharing}
+                onConfirm={() => void handleDisableSharing()}
                 title={"Stop sharing project?"}
                 content={"It will do something unreversible."}
                 action={"Stop sharing"}
@@ -138,7 +141,9 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
 
               <ErrorAlert
                 open={error !== null}
-                toggle={() => setError(null)}
+                toggle={() => {
+                  setError(null);
+                }}
                 message={error}
               />
             </>
@@ -156,7 +161,7 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
             <>
               <InviteLink
                 projectId={Number(projectId)}
-                inviteCode={project.invite || ""}
+                inviteCode={project?.invite || ""}
                 canEdit={isOwned}
               />
 
@@ -167,50 +172,48 @@ export function ProjectSharing(props: { closeOptionsMenu: () => void }) {
       </Sidebar>
     </>
   );
-}
+};
 
-function SharingSwitch(props: { checked: boolean; onChange: () => void }) {
-  const { checked, onChange } = props;
-
-  return (
-    <Switch
-      checked={checked}
-      onChange={onChange}
-      sx={{
-        padding: 0,
-        "& .MuiSwitch-thumb": {
-          fontFamily: "Roboto, sans-serif",
-          fontSize: "0.9rem",
-          borderRadius: "7px",
-          height: "32px",
-          width: "32px",
-          display: "grid",
-          placeContent: "center",
-          "&:before": {
-            content: "'Off'",
-            color: "black",
+const SharingSwitch: FC<{
+  checked: boolean;
+  onChange: () => void;
+}> = ({ checked, onChange }) => (
+  <Switch
+    checked={checked}
+    onChange={onChange}
+    sx={{
+      padding: 0,
+      "& .MuiSwitch-thumb": {
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "0.9rem",
+        borderRadius: "7px",
+        height: "32px",
+        width: "32px",
+        display: "grid",
+        placeContent: "center",
+        "&:before": {
+          content: "'Off'",
+          color: "black",
+        },
+      },
+      "& .MuiSwitch-switchBase": {
+        padding: "3px",
+        "&.Mui-checked": {
+          "& .MuiSwitch-thumb:before": {
+            content: "'On'",
+            color: "white",
           },
         },
-        "& .MuiSwitch-switchBase": {
-          padding: "3px",
-          "&.Mui-checked": {
-            "& .MuiSwitch-thumb:before": {
-              content: "'On'",
-              color: "white",
-            },
-          },
-        },
-      }}
-    />
-  );
-}
+      },
+    }}
+  />
+);
 
-function InviteLink(props: {
+const InviteLink: FC<{
   projectId: number;
   inviteCode: string;
   canEdit: boolean;
-}) {
-  const { projectId, inviteCode } = props;
+}> = ({ projectId, inviteCode, canEdit }) => {
   const colorMode = useColorMode();
   const actions = useActions();
   const inviteLink = `${window.location.origin}/invite/${inviteCode}`;
@@ -220,13 +223,17 @@ function InviteLink(props: {
   const [loadingRecreate, setLoadingRecreate] = React.useState(false);
   const [loadingDelete, setLoadingDelete] = React.useState(false);
 
-  function copyInviteLinkToClipboard() {
-    navigator.clipboard.writeText(inviteLink);
+  const copyInviteLinkToClipboard = () => {
+    navigator.clipboard.writeText(inviteLink).catch((err: unknown) => {
+      console.error(err);
+    });
     setTooltipOpen(true);
-    setTimeout(() => setTooltipOpen(false), 3000);
-  }
+    setTimeout(() => {
+      setTooltipOpen(false);
+    }, 3000);
+  };
 
-  async function handleInviteRecreate() {
+  const handleInviteRecreate = async () => {
     setLoadingRecreate(true);
     try {
       await actions.project.sharing.recreateInvite(projectId);
@@ -235,9 +242,9 @@ function InviteLink(props: {
       console.error("Invite recreate: ", error);
       setLoadingRecreate(false);
     }
-  }
+  };
 
-  async function handleInviteDelete() {
+  const handleInviteDelete = async () => {
     setLoadingDelete(true);
     try {
       await actions.project.sharing.deleteInvite(projectId);
@@ -246,7 +253,7 @@ function InviteLink(props: {
       console.error("Invite delete: ", error);
       setLoadingDelete(false);
     }
-  }
+  };
 
   return (
     <Box
@@ -306,10 +313,10 @@ function InviteLink(props: {
         </Card>
       </Tooltip>
 
-      {props.canEdit && (
+      {canEdit && (
         <>
           <IconButton
-            onClick={handleInviteRecreate}
+            onClick={() => void handleInviteRecreate()}
             disabled={loadingRecreate}
             sx={{ position: "relative" }}
           >
@@ -320,7 +327,7 @@ function InviteLink(props: {
           </IconButton>
 
           <IconButton
-            onClick={handleInviteDelete}
+            onClick={() => void handleInviteDelete()}
             disabled={!inviteCode || loadingDelete}
             sx={{ position: "relative" }}
           >
@@ -333,10 +340,14 @@ function InviteLink(props: {
       )}
     </Box>
   );
-}
+};
 
-function ProjectMembers({ projectId }: { projectId: number }) {
+const ProjectMembers: FC<{
+  projectId: number;
+}> = ({ projectId }) => {
   const project = useSelector(selectProjectById(projectId));
+
+  if (!project) return null;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -348,19 +359,16 @@ function ProjectMembers({ projectId }: { projectId: number }) {
       </Box>
       <MemberListItem userId={project.owner} owner={true} />
       {project.members.map((userId) => (
-        <MemberListItem key={"memb" + userId} userId={userId} />
+        <MemberListItem key={`memb-${userId}`} userId={userId} />
       ))}
     </Box>
   );
-}
+};
 
-function MemberListItem({
-  userId,
-  owner,
-}: {
+const MemberListItem: FC<{
   userId: number;
   owner?: boolean;
-}) {
+}> = ({ userId, owner }) => {
   const user = useSelector(selectUserById(userId));
 
   if (!user) return <div>???</div>;
@@ -390,4 +398,4 @@ function MemberListItem({
       )}
     </Box>
   );
-}
+};

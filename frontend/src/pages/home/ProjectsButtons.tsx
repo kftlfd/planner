@@ -1,34 +1,33 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { FC } from "react";
 import {
   DragDropContext,
-  Droppable,
   Draggable,
+  Droppable,
   OnDragEndResponder,
 } from "react-beautiful-dnd";
 import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { selectProjectById } from "../../store/projectsSlice";
-import { useActions } from "../../context/ActionsContext";
-
+import ListIcon from "@mui/icons-material/List";
+import PeopleIcon from "@mui/icons-material/People";
 import {
   Box,
   List,
-  ListSubheader,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
 } from "@mui/material";
-import ListIcon from "@mui/icons-material/List";
-import PeopleIcon from "@mui/icons-material/People";
 
-export function ProjectsButtons(props: {
+import { useActions } from "~/context/ActionsContext";
+import { selectProjectById } from "~/store/projectsSlice";
+
+export const ProjectsButtons: FC<{
   type: string;
   header: string;
   projectIds: number[];
   drawerToggle: () => void;
-}) {
-  const { type, projectIds, drawerToggle } = props;
+}> = ({ type, projectIds, drawerToggle }) => {
   const { projectId } = useParams();
   const actions = useActions();
 
@@ -91,21 +90,24 @@ export function ProjectsButtons(props: {
       </DragDropContext>
     </List>
   );
-}
+};
 
-function ProjectButton(props: {
+const ProjectButton: FC<{
   projectId: number;
   selected: boolean;
   drawerToggle: () => void;
-}) {
-  const { projectId, selected, drawerToggle } = props;
+}> = ({ projectId, selected, drawerToggle }) => {
   const project = useSelector(selectProjectById(projectId));
   const navigate = useNavigate();
 
-  function handleClick() {
+  if (!project) {
+    return null;
+  }
+
+  const handleClick = () => {
     if (!selected) navigate(`project/${project.id}`);
     drawerToggle();
-  }
+  };
 
   const noTextWrap = {
     span: {
@@ -123,4 +125,4 @@ function ProjectButton(props: {
       <ListItemText primary={project.name} sx={noTextWrap} />
     </ListItemButton>
   );
-}
+};

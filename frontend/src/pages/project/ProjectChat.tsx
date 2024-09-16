@@ -1,35 +1,49 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import {
+  FC,
+  FormEventHandler,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { isSameDay } from "date-fns";
 
-import { selectProjectChat } from "../../store/chatSlice";
-import { selectUserById, selectUserId } from "../../store/usersSlice";
-import { useActions } from "../../context/ActionsContext";
-import { Sidebar, SidebarHeader, SidebarBody } from "../../layout/Sidebar";
-
-import {
-  Typography,
-  IconButton,
-  Box,
-  AppBar,
-  TextField,
-  CircularProgress,
-  Card,
-  Avatar,
-  Fade,
-  Badge,
-} from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
-import SendIcon from "@mui/icons-material/Send";
 import Close from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
+import {
+  AppBar,
+  Avatar,
+  Badge,
+  Box,
+  Card,
+  CircularProgress,
+  Fade,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
 
-export function ProjectChat() {
-  const { projectId } = useParams<{ projectId: string }>();
-  const projectChat = useSelector(selectProjectChat(Number(projectId)));
+import { useActions } from "~/context/ActionsContext";
+import { Sidebar, SidebarBody, SidebarHeader } from "~/layout/Sidebar";
+import { Chat, selectProjectChat } from "~/store/chatSlice";
+import { selectUserById, selectUserId } from "~/store/usersSlice";
+
+const getIsSamePrevUser = (chat: Chat, i: number) => {
+  const curMsg = chat.messages[i];
+  const prevMsg = chat.messages[i - 1];
+  return curMsg && prevMsg ? curMsg.user === prevMsg.user : false;
+};
+
+export const ProjectChat: FC = () => {
+  const { projectId: projectIdParam } = useParams<{ projectId: string }>();
+  const projectId = Number(projectIdParam);
+  const projectChat = useSelector(selectProjectChat(projectId));
   const actions = useActions();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     chatOpen: projectChat?.open || false,
     viewingNow: false,
     loadError: false,
@@ -41,14 +55,16 @@ export function ProjectChat() {
     setState((prev) => ({ ...prev, chatOpen: !prev.chatOpen }));
     actions.chat.toggleChatOpen(projectId); // in store if marked open, don't update unread count
   };
-  const newMessageChange = (e: any) =>
-    setState((prev) => ({ ...prev, newMessage: e.target.value }));
+  const newMessageChange = (v: string) => {
+    setState((prev) => ({ ...prev, newMessage: v }));
+  };
 
   //
   // Scroll to bottom of chatbox on receiving message and on load
   //
-  const chatboxBottom = React.useRef<HTMLDivElement>(null);
-  React.useLayoutEffect(() => {
+  const chatboxBottom = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!projectChat?.unread) return;
     if (!state.chatOpen) {
       chatboxBottom.current?.scrollIntoView(true);
     } else {
@@ -57,12 +73,12 @@ export function ProjectChat() {
         behavior: "smooth",
       });
     }
-  }, [projectChat]);
+  }, [projectChat, state.chatOpen]);
 
   //
   // Reset unread on closing chat
   //
-  React.useEffect(() => {
+  useEffect(() => {
     if (state.chatOpen) {
       setState((prev) => ({ ...prev, viewingNow: true }));
     } else if (state.viewingNow) {
@@ -70,22 +86,31 @@ export function ProjectChat() {
       if (projectChat?.unreadIndex !== null)
         actions.chat.resetUnread(projectId);
     }
-  }, [state.chatOpen]);
+  }, [
+    actions.chat,
+    projectChat?.unreadIndex,
+    projectId,
+    state.chatOpen,
+    state.viewingNow,
+  ]);
 
   //
   // Load chat messages
   //
-  async function loadChat() {
-    try {
-      await actions.chat.load(projectId);
-    } catch (error) {
-      console.error("Failed to load chat: ", error);
-      setState((prev) => ({ ...prev, loadError: true }));
+  useEffect(() => {
+    async function loadChat() {
+      try {
+        await actions.chat.load(projectId);
+      } catch (error) {
+        console.error("Failed to load chat: ", error);
+        setState((prev) => ({ ...prev, loadError: true }));
+      }
     }
-  }
-  React.useEffect(() => {
-    if (!projectChat || !projectChat.loaded) loadChat();
-  }, [projectChat]);
+
+    if (!projectChat || !projectChat.loaded) {
+      void loadChat();
+    }
+  }, [actions.chat, projectChat, projectId]);
 
   //
   // Send new message
@@ -95,8 +120,8 @@ export function ProjectChat() {
     : !state.newMessage
       ? true
       : state.sendLoading || state.sendError;
-  const sendMessage: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
+
+  const sendMessage = async () => {
     if (sendDisabled) return;
     setState((prev) => ({ ...prev, sendLoading: true }));
     try {
@@ -109,6 +134,11 @@ export function ProjectChat() {
         setState((prev) => ({ ...prev, sendError: false }));
       }, 5000);
     }
+  };
+
+  const onSend: FormEventHandler = (e) => {
+    e.preventDefault();
+    void sendMessage();
   };
 
   return (
@@ -147,20 +177,12 @@ export function ProjectChat() {
             </Typography>
           ) : projectChat?.loaded ? (
             <>
-              {projectChat?.messages.map((msg, index) => (
+              {projectChat.messages.map((msg, index) => (
                 <Message
                   key={msg.id}
                   message={msg}
-                  samePrevUser={
-                    projectChat.messages[index - 1] &&
-                    projectChat.messages[index - 1].user ===
-                      projectChat.messages[index].user
-                  }
-                  sameNextUser={
-                    projectChat.messages[index + 1] &&
-                    projectChat.messages[index + 1].user ===
-                      projectChat.messages[index].user
-                  }
+                  samePrevUser={getIsSamePrevUser(projectChat, index)}
+                  sameNextUser={getIsSamePrevUser(projectChat, index + 1)}
                   unread={index === projectChat.unreadIndex}
                 />
               ))}
@@ -182,7 +204,7 @@ export function ProjectChat() {
           }}
         >
           <form
-            onSubmit={sendMessage}
+            onSubmit={onSend}
             style={{
               display: "flex",
               alignItems: "center",
@@ -192,7 +214,9 @@ export function ProjectChat() {
           >
             <TextField
               value={state.newMessage}
-              onChange={newMessageChange}
+              onChange={(e) => {
+                newMessageChange(e.target.value);
+              }}
               size="small"
               placeholder="Write a message"
               InputProps={{
@@ -214,7 +238,7 @@ export function ProjectChat() {
       </Sidebar>
     </>
   );
-}
+};
 
 function Message(props: {
   message: { user: number; text: string; time: string };
@@ -228,9 +252,9 @@ function Message(props: {
   const self = message.user === selfId;
 
   function parseTime(s: string) {
-    let today = new Date();
-    let d = new Date(s);
-    let formatted = d.toLocaleString(undefined, {
+    const today = new Date();
+    const d = new Date(s);
+    const formatted = d.toLocaleString(undefined, {
       ...(!isSameDay(today, d) && { month: "short", day: "numeric" }),
       hour12: false,
       hour: "numeric",
