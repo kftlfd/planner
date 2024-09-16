@@ -1,23 +1,26 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import { useActions } from "../../context/ActionsContext";
+import { useActions } from "~/context/ActionsContext";
+import { SimpleModal } from "~/layout/Modal";
 import {
   selectProjectById,
   selectSharedProjectIds,
-} from "../../store/projectsSlice";
-import { SimpleModal } from "../../layout/Modal";
+} from "~/store/projectsSlice";
+
 import { MenuListItem } from "./ProjectOprionsMenu";
 
-export function ProjectLeave(props: { closeOptionsMenu: () => void }) {
-  const { closeOptionsMenu } = props;
-  const { projectId } = useParams<{ projectId: string }>();
+export const ProjectLeave: FC<{
+  closeOptionsMenu: () => void;
+}> = ({ closeOptionsMenu }) => {
+  const params = useParams<{ projectId: string }>();
+  const projectId = Number(params.projectId);
   const actions = useActions();
 
-  const project = useSelector(selectProjectById(Number(projectId)));
+  const project = useSelector(selectProjectById(projectId));
   const sharedIds = useSelector(selectSharedProjectIds);
-  const isShared = sharedIds.includes(Number(projectId));
+  const isShared = sharedIds.includes(projectId);
 
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const toggleLeaveDialog = () => {
@@ -25,13 +28,15 @@ export function ProjectLeave(props: { closeOptionsMenu: () => void }) {
     setLeaveDialogOpen((x) => !x);
   };
 
-  async function handleLeave() {
+  if (!project) return null;
+
+  const handleLeave = async () => {
     try {
       await actions.project.leave(projectId);
     } catch (error) {
       console.error("Failed to leave project: ", error);
     }
-  }
+  };
 
   if (!isShared) return null;
 
@@ -42,11 +47,11 @@ export function ProjectLeave(props: { closeOptionsMenu: () => void }) {
       <SimpleModal
         open={leaveDialogOpen}
         onClose={toggleLeaveDialog}
-        onConfirm={handleLeave}
+        onConfirm={() => void handleLeave()}
         title={`Leave project "${project.name}"?`}
         content={"Are you sure?"}
         action={"Leave"}
       />
     </>
   );
-}
+};

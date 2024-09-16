@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FC, ReactNode } from "react";
+import { FC, ReactNode } from "react";
 
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -63,7 +63,7 @@ export const InputModal: FC<{
   inputLabel?: string;
   inputPlaceholder?: string;
   inputValue?: string;
-  inputChange?: ChangeEventHandler;
+  inputChange?: (value: string) => void;
   formChildren?: ReactNode;
   actionsChildren?: ReactNode;
   loading: boolean;
@@ -119,7 +119,7 @@ export const InputModal: FC<{
           label={inputLabel}
           placeholder={inputPlaceholder}
           value={inputValue}
-          onChange={inputChange}
+          onChange={(e) => inputChange?.(e.target.value)}
           disabled={loading}
           fullWidth
           autoFocus

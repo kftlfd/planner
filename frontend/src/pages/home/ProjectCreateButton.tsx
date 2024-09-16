@@ -1,27 +1,33 @@
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useActions } from "../../context/ActionsContext";
-import { InputModal } from "../../layout/Modal";
-import { ErrorAlert } from "../../layout/Alert";
-
+import AddIcon from "@mui/icons-material/Add";
 import {
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 
-export function ProjectCreateButton(props: { drawerToggle: () => void }) {
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { InputModal } from "~/layout/Modal";
+
+export const ProjectCreateButton: FC<{ drawerToggle: () => void }> = ({
+  drawerToggle,
+}) => {
   const actions = useActions();
   const navigate = useNavigate();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const toggleCreateDialog = () => setCreateDialogOpen(!createDialogOpen);
+  const toggleCreateDialog = () => {
+    setCreateDialogOpen(!createDialogOpen);
+  };
 
   const [nameValue, setNameValue] = useState("");
-  const handleNameChange = (e: any) => setNameValue(e.target.value);
+  const handleNameChange = (v: string) => {
+    setNameValue(v);
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +38,7 @@ export function ProjectCreateButton(props: { drawerToggle: () => void }) {
       const newProjectId = await actions.project.create(nameValue);
       setLoading(false);
       toggleCreateDialog();
-      props.drawerToggle();
+      drawerToggle();
       setNameValue("");
       navigate(`/project/${newProjectId}`);
     } catch (error) {
@@ -56,7 +62,7 @@ export function ProjectCreateButton(props: { drawerToggle: () => void }) {
 
       <InputModal
         open={createDialogOpen}
-        onConfirm={handleCreateProject}
+        onConfirm={() => void handleCreateProject()}
         onClose={toggleCreateDialog}
         title={"Create new project"}
         action={"Create"}
@@ -68,9 +74,11 @@ export function ProjectCreateButton(props: { drawerToggle: () => void }) {
 
       <ErrorAlert
         open={error !== null}
-        toggle={() => setError(null)}
+        toggle={() => {
+          setError(null);
+        }}
         message={error}
       />
     </List>
   );
-}
+};

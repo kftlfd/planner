@@ -1,21 +1,23 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import { ErrorAlert } from "../../layout/Alert";
-
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { InputModal } from "~/layout/Modal";
 import {
   selectProjectById,
   selectSharedProjectIds,
-} from "../../store/projectsSlice";
-import { useActions } from "../../context/ActionsContext";
-import { MenuListItem } from "./ProjectOprionsMenu";
-import { InputModal } from "../../layout/Modal";
+} from "~/store/projectsSlice";
 
-export function ProjectRename(props: { closeOptionsMenu: () => void }) {
-  const { closeOptionsMenu } = props;
-  const { projectId } = useParams();
-  const project = useSelector(selectProjectById(Number(projectId)));
+import { MenuListItem } from "./ProjectOprionsMenu";
+
+export const ProjectRename: FC<{
+  closeOptionsMenu: () => void;
+}> = ({ closeOptionsMenu }) => {
+  const params = useParams();
+  const projectId = Number(params.projectId);
+  const project = useSelector(selectProjectById(projectId));
   const sharedIds = useSelector(selectSharedProjectIds);
   const actions = useActions();
 
@@ -25,13 +27,15 @@ export function ProjectRename(props: { closeOptionsMenu: () => void }) {
     setRenameDialogOpen((x) => !x);
   };
 
-  const [renameValue, setRenameValue] = useState(project.name);
-  const handleRenameChange = (e: any) => setRenameValue(e.target.value);
+  const [renameValue, setRenameValue] = useState(project?.name ?? "");
+  const handleRenameChange = (v: string) => {
+    setRenameValue(v);
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleRename() {
+  const handleRename = async () => {
     setLoading(true);
     try {
       await actions.project.update(projectId, { name: renameValue });
@@ -42,7 +46,7 @@ export function ProjectRename(props: { closeOptionsMenu: () => void }) {
       setLoading(false);
       setError("Can't rename project");
     }
-  }
+  };
 
   if (sharedIds.includes(Number(projectId))) return null;
 
@@ -52,9 +56,9 @@ export function ProjectRename(props: { closeOptionsMenu: () => void }) {
 
       <InputModal
         open={renameDialogOpen}
-        onConfirm={handleRename}
+        onConfirm={() => void handleRename()}
         onClose={toggleRenameDialog}
-        title={`Rename project "${project.name}"`}
+        title={`Rename project "${project?.name}"`}
         action={"Rename"}
         inputValue={renameValue}
         inputChange={handleRenameChange}
@@ -63,9 +67,11 @@ export function ProjectRename(props: { closeOptionsMenu: () => void }) {
 
       <ErrorAlert
         open={error !== null}
-        toggle={() => setError(null)}
+        toggle={() => {
+          setError(null);
+        }}
         message={error}
       />
     </>
   );
-}
+};

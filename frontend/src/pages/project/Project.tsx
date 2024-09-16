@@ -1,32 +1,33 @@
-import React from "react";
-import { useParams, Navigate, Outlet } from "react-router-dom";
-import {
-  Typography,
-  Box,
-  IconButton,
-  ButtonGroup,
-  Button,
-  useTheme,
-  useMediaQuery,
-  styled,
-} from "@mui/material";
+import { FC, ReactNode } from "react";
+import { Navigate, Outlet, useParams } from "react-router-dom";
+
 import {
   AddCircle,
-  ViewList,
-  ViewColumn,
   CalendarMonth,
+  ViewColumn,
+  ViewList,
 } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  IconButton,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
-import { useAppSelector } from "app/store/hooks";
-import { selectProjectView, ProjectView } from "app/store/settingsSlice";
-import { selectProjectById } from "app/store/projectsSlice";
-import { useActions } from "app/context/ActionsContext";
-import { MainHeader, MainBody } from "app/layout/Main";
+import { useActions } from "~/context/ActionsContext";
+import { MainBody, MainHeader } from "~/layout/Main";
+import { useAppSelector } from "~/store/hooks";
+import { selectProjectById } from "~/store/projectsSlice";
+import { ProjectView, selectProjectView } from "~/store/settingsSlice";
 
-import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 import { ProjectChat } from "./ProjectChat";
+import { ProjectOptionsMenu } from "./ProjectOprionsMenu";
 
-const Project: React.FC = () => {
+const Project: FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const project = useAppSelector(selectProjectById(Number(projectId)));
   const theme = useTheme();
@@ -81,9 +82,9 @@ const OptionsViewsSwitchContainer = styled(Box)(({ theme: { spacing } }) => ({
 
 type ViewButtonProps = {
   viewName: ProjectView;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
-const ViewButton: React.FC<ViewButtonProps> = ({ viewName, icon }) => {
+const ViewButton: FC<ViewButtonProps> = ({ viewName, icon }) => {
   const view = useAppSelector(selectProjectView);
   const actions = useActions();
 
@@ -91,7 +92,9 @@ const ViewButton: React.FC<ViewButtonProps> = ({ viewName, icon }) => {
     <Button
       value={viewName}
       variant={view === viewName ? "contained" : "outlined"}
-      onClick={() => actions.settings.setProjectView(viewName)}
+      onClick={() => {
+        actions.settings.setProjectView(viewName);
+      }}
     >
       {icon}
     </Button>
@@ -101,7 +104,7 @@ const ViewButton: React.FC<ViewButtonProps> = ({ viewName, icon }) => {
 type ViewButtonGroupProps = {
   large?: boolean;
 };
-const ViewButtonGroup: React.FC<ViewButtonGroupProps> = ({ large }) => (
+const ViewButtonGroup: FC<ViewButtonGroupProps> = ({ large }) => (
   <ButtonGroup size={large ? "large" : "small"} disableElevation>
     <ViewButton viewName="list" icon={<ViewList />} />
     <ViewButton viewName="board" icon={<ViewColumn />} />
@@ -109,7 +112,7 @@ const ViewButtonGroup: React.FC<ViewButtonGroupProps> = ({ large }) => (
   </ButtonGroup>
 );
 
-const StarterMessage: React.FC = () => {
+const StarterMessage: FC = () => {
   function handleClick() {
     document.getElementById("create-new-project-button")?.click();
   }

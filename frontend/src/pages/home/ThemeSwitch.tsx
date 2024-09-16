@@ -1,17 +1,17 @@
-import React from "react";
+import { FC } from "react";
 
-import { useColorMode } from "../../context/ThemeContext";
-
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import {
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-export function ThemeSwitch() {
+import { useColorMode } from "~/context/ThemeContext";
+
+export const ThemeSwitch: FC = () => {
   const colorMode = useColorMode();
 
   return (
@@ -30,4 +30,4 @@ export function ThemeSwitch() {
       </ListItemButton>
     </List>
   );
-}
+};

@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import { Navigate, Outlet, useMatch } from "react-router-dom";
+import { FC, useState } from "react";
 import { useSelector } from "react-redux";
+import { Navigate, Outlet, useMatch } from "react-router-dom";
 
-import { selectUser } from "../../store/usersSlice";
+import { Divider } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
+import { useActions } from "~/context/ActionsContext";
+import { Main, MainDrawer } from "~/layout/Main";
 import {
   selectProjectIds,
   selectSharedProjectIds,
-} from "../../store/projectsSlice";
-import { selectNavDrawerOpen } from "../../store/settingsSlice";
-import { useActions } from "../../context/ActionsContext";
-import { Main, MainDrawer } from "../../layout/Main";
-import { UserButtons } from "./UserButtons";
-import { ProjectsButtons } from "./ProjectsButtons";
+} from "~/store/projectsSlice";
+import { selectNavDrawerOpen } from "~/store/settingsSlice";
+import { selectUser } from "~/store/usersSlice";
+
 import { ProjectCreateButton } from "./ProjectCreateButton";
+import { ProjectsButtons } from "./ProjectsButtons";
 import { ThemeSwitch } from "./ThemeSwitch";
+import { UserButtons } from "./UserButtons";
 
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { Divider } from "@mui/material";
-
-export default function Home() {
+const Home: FC = () => {
   const user = useSelector(selectUser);
   const rootPath = useMatch("/");
 
@@ -83,4 +84,6 @@ export default function Home() {
       <Outlet context={{ drawerOpen, drawerToggle }} />
     </Main>
   );
-}
+};
+
+export default Home;

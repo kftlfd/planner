@@ -1,19 +1,25 @@
-import React, { useState, useRef } from "react";
+import { FC, ReactNode, useRef, useState } from "react";
 
-import { ProjectHideDoneToggle } from "./ProjectHideDoneToggle";
-import { ProjectSharing } from "./ProjectSharing";
-import { ProjectRename } from "./ProjectRename";
-import { ProjectDelete } from "./ProjectDelete";
-import { ProjectLeave } from "./ProjectLeave";
-
-import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { IconButton, Menu, MenuItem, SxProps } from "@mui/material";
 
-export function ProjectOptionsMenu(props: { children: React.ReactNode }) {
+import { ProjectDelete } from "./ProjectDelete";
+import { ProjectHideDoneToggle } from "./ProjectHideDoneToggle";
+import { ProjectLeave } from "./ProjectLeave";
+import { ProjectRename } from "./ProjectRename";
+import { ProjectSharing } from "./ProjectSharing";
+
+export const ProjectOptionsMenu: FC<{
+  children?: ReactNode;
+}> = ({ children }) => {
   const optionsButton = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const openOptionsMenu = () => setMenuOpen(true);
-  const closeOptionsMenu = () => setMenuOpen(false);
+  const openOptionsMenu = () => {
+    setMenuOpen(true);
+  };
+  const closeOptionsMenu = () => {
+    setMenuOpen(false);
+  };
 
   return (
     <>
@@ -38,7 +44,7 @@ export function ProjectOptionsMenu(props: { children: React.ReactNode }) {
           "aria-labelledby": "project-options-button",
         }}
       >
-        {props.children}
+        {children}
         <ProjectHideDoneToggle />
         <ProjectSharing closeOptionsMenu={closeOptionsMenu} />
         <ProjectRename closeOptionsMenu={closeOptionsMenu} />
@@ -47,25 +53,23 @@ export function ProjectOptionsMenu(props: { children: React.ReactNode }) {
       </Menu>
     </>
   );
-}
+};
 
-export function MenuListItem(props: {
-  onClick?: any;
-  sx?: any;
-  children?: React.ReactNode;
-}) {
-  return (
-    <MenuItem
-      onClick={props.onClick}
-      sx={{
-        height: "3rem",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "0.5rem",
-        ...props.sx,
-      }}
-    >
-      {props.children}
-    </MenuItem>
-  );
-}
+export const MenuListItem: FC<{
+  onClick?: () => void;
+  sx?: SxProps;
+  children?: ReactNode;
+}> = ({ onClick, sx, children }) => (
+  <MenuItem
+    onClick={onClick}
+    sx={{
+      height: "3rem",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: "0.5rem",
+      ...sx,
+    }}
+  >
+    {children}
+  </MenuItem>
+);

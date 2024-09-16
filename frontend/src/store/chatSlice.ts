@@ -6,7 +6,7 @@ import type { IProject } from "~/types/projects.types";
 
 import type { RootState } from "./store";
 
-type Chat = {
+export type Chat = {
   messages: IChatMessage[];
   open: boolean;
   unread: number;
