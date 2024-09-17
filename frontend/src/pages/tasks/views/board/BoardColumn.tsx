@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, ReactNode, Ref, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -32,15 +32,15 @@ export const BoardColumn: FC<{
   boardEdit?: boolean;
   board: IProject["board"];
   colId: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   projectId?: number;
 
-  draggableRef?: React.Ref<HTMLDivElement>;
+  draggableRef?: Ref<HTMLDivElement>;
   draggableProps?: DraggableProvidedDraggableProps;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isDragging?: boolean;
 
-  droppableRef?: React.Ref<HTMLDivElement>;
+  droppableRef?: Ref<HTMLDivElement>;
   droppableProps?: DroppableProvidedProps;
   isDraggingOver?: boolean;
 }> = ({

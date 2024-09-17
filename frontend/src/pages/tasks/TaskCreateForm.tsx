@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useState } from "react";
+import { ChangeEventHandler, FC, ReactNode, useEffect, useState } from "react";
 
 import {
   Add as AddIcon,
@@ -31,9 +31,9 @@ export const TaskCreateForm: FC<{
   const actions = useActions();
 
   const [taskCreateTitle, setTaskCreateTitle] = useState("");
-  const handleTaskCreateTitleChange: React.ChangeEventHandler<
-    HTMLInputElement
-  > = (e) => {
+  const handleTaskCreateTitleChange: ChangeEventHandler<HTMLInputElement> = (
+    e,
+  ) => {
     if (e.target.value.length <= 150) {
       setTaskCreateTitle(e.target.value);
     }

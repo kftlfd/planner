@@ -1,5 +1,5 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { Provider as ProvideStore } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 
@@ -19,13 +19,13 @@ if (!rootEl) {
   throw new Error("Root element not found");
 }
 
-const root = ReactDOM.createRoot(rootEl);
+const root = createRoot(rootEl);
 
 root.render(
   cookiesDisabled ? (
     <CookieError />
   ) : (
-    <React.StrictMode>
+    <StrictMode>
       <ProvideStore store={store}>
         <ProvideTheme>
           <ProvideActions>
@@ -36,6 +36,6 @@ root.render(
           </ProvideActions>
         </ProvideTheme>
       </ProvideStore>
-    </React.StrictMode>
+    </StrictMode>
   ),
 );

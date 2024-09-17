@@ -1,4 +1,4 @@
-import React from "react";
+import { FC } from "react";
 
 import { CssBaseline, GlobalStyles } from "@mui/material";
 
@@ -21,7 +21,7 @@ const globalCss = `
 
 const gloablStyles = <GlobalStyles styles={globalCss} />;
 
-const BaseStyles: React.FC = () => (
+const BaseStyles: FC = () => (
   <>
     <CssBaseline />
     {gloablStyles}

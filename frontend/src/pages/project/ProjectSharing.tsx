@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -218,10 +218,10 @@ const InviteLink: FC<{
   const actions = useActions();
   const inviteLink = `${window.location.origin}/invite/${inviteCode}`;
 
-  const [tooltipOpen, setTooltipOpen] = React.useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  const [loadingRecreate, setLoadingRecreate] = React.useState(false);
-  const [loadingDelete, setLoadingDelete] = React.useState(false);
+  const [loadingRecreate, setLoadingRecreate] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   const copyInviteLinkToClipboard = () => {
     navigator.clipboard.writeText(inviteLink).catch((err: unknown) => {

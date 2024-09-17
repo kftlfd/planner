@@ -1,9 +1,9 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 import { Box, Container } from "@mui/material";
 
 export const BoardWrapper: FC<{
-  children?: React.ReactNode;
+  children?: ReactNode;
 }> = ({ children }) => {
   return (
     <Container
