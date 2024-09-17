@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  env: { browser: true, node: true, es6: true },
+  env: { browser: true },
   parser: "@typescript-eslint/parser",
   parserOptions: {
     projectService: true,
@@ -23,6 +23,7 @@ module.exports = {
     },
   },
   rules: {
+    "prettier/prettier": "warn",
     "object-shorthand": "error",
     "@typescript-eslint/restrict-template-expressions": [
       "error",
@@ -34,10 +35,13 @@ module.exports = {
     "simple-import-sort/exports": "error",
     "simple-import-sort/imports": [
       "error",
-      {
-        groups: [["^react", "^"], ["^@mui/"], ["^~/", "^app/"], ["^\\."]],
-      },
+      { groups: [["^react", "^"], ["^@mui/"], ["^~/", "^app/"], ["^\\."]] },
     ],
-    "prettier/prettier": "warn",
   },
+  overrides: [
+    {
+      files: [".eslintrc.cjs", "vite.config.ts"],
+      env: { node: true },
+    },
+  ],
 };
