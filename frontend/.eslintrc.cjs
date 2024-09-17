@@ -6,6 +6,7 @@ module.exports = {
     projectService: true,
     tsconfigRootDir: __dirname,
   },
+  ignorePatterns: ["node_modules", "dist"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/strict-type-checked",
@@ -13,16 +14,14 @@ module.exports = {
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
-    "prettier",
+    "plugin:prettier/recommended",
   ],
-  plugins: [
-    "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "jsx-a11y",
-    "unused-imports",
-    "simple-import-sort",
-  ],
+  plugins: ["unused-imports", "simple-import-sort"],
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
   rules: {
     "object-shorthand": "error",
     "@typescript-eslint/restrict-template-expressions": [
@@ -39,5 +38,6 @@ module.exports = {
         groups: [["^react", "^"], ["^@mui/"], ["^~/", "^app/"], ["^\\."]],
       },
     ],
+    "prettier/prettier": "warn",
   },
 };
