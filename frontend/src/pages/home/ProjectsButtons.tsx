@@ -1,12 +1,12 @@
 import { FC } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   DragDropContext,
   Draggable,
   Droppable,
   OnDragEndResponder,
-} from "react-beautiful-dnd";
-import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+} from "@hello-pangea/dnd";
 
 import ListIcon from "@mui/icons-material/List";
 import PeopleIcon from "@mui/icons-material/People";

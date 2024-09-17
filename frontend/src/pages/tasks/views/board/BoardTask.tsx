@@ -2,7 +2,7 @@ import { FC, MouseEventHandler, Ref } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 
 import { Box, Card, Collapse, Typography } from "@mui/material";
 
