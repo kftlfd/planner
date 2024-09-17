@@ -108,7 +108,7 @@ const DraggableTask: FC<{
 );
 
 const TaskListWrapper: FC<{
-  children?: React.ReactNode;
+  children?: ReactNode;
 }> = ({ children }) => (
   <Container maxWidth="md" sx={{ paddingBottom: { xs: "1rem", sm: "1.5rem" } }}>
     {children}

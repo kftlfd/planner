@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, MouseEvent, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Link as RouterLink,
@@ -62,7 +62,7 @@ const Navbar: FC = () => {
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const menuOpen = Boolean(anchorEl);
-  const openMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const closeMenu = () => {

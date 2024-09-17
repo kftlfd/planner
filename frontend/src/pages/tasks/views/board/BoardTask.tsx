@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, MouseEventHandler, Ref } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -14,9 +14,9 @@ import { formatTime } from "../../format-time.util";
 
 export const BoardTask: FC<{
   taskId: number;
-  onClick: React.MouseEventHandler<HTMLDivElement>;
+  onClick: MouseEventHandler<HTMLDivElement>;
 
-  draggableRef?: React.Ref<HTMLDivElement>;
+  draggableRef?: Ref<HTMLDivElement>;
   draggableProps?: DraggableProvidedDraggableProps;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isDragging?: boolean;
