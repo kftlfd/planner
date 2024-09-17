@@ -1,14 +1,15 @@
-import React from "react";
+import { FC } from "react";
+
 import { Box, styled } from "@mui/material";
 
-import { BaseSkeleton } from "app/layout/Loading";
-import { useAppSelector } from "app/store/hooks";
-import { selectBoardColumnWidth } from "app/store/settingsSlice";
+import { BaseSkeleton } from "~/layout/Loading";
+import { useAppSelector } from "~/store/hooks";
+import { selectBoardColumnWidth } from "~/store/settingsSlice";
 
 import { TaskCreateForm } from "../../TaskCreateForm";
 import { BoardWrapper } from "./BoardWrapper";
 
-export const LoadingBoard: React.FC = () => (
+export const LoadingBoard: FC = () => (
   <>
     <TaskCreateForm loading={true} />
 
@@ -32,7 +33,7 @@ const ColumnsContainer = styled(Box)({
   overflow: "hidden",
 });
 
-const ColumnSkeleton: React.FC<{ height: string }> = (props) => {
+const ColumnSkeleton: FC<{ height: string }> = (props) => {
   const columnWidth = useAppSelector(selectBoardColumnWidth);
 
   return (

@@ -1,26 +1,25 @@
-import React from "react";
+import { FC } from "react";
 import { isBefore } from "date-fns";
+
 import { Skeleton } from "@mui/material";
 
 import {
-  TaskCountIndicatorsContainer,
-  CountIndicatorsSpacer,
-  CountIndicator,
-  CalendarTile,
   CalendarBodyTile,
+  CalendarTile,
+  CountIndicator,
+  CountIndicatorsSpacer,
+  TaskCountIndicatorsContainer,
 } from "./styled";
 
-type CalendarDayProps = {
+export const CalendarDay: FC<{
   day: Date;
   notCurrentMonth: boolean;
   isSelected: boolean;
-  onClick: React.MouseEventHandler<HTMLDivElement>;
+  onClick: () => void;
   doneCount: number;
   notDoneCount: number;
   tasksLoaded: boolean;
-};
-
-export const CalendarDay: React.FC<CalendarDayProps> = ({
+}> = ({
   day,
   notCurrentMonth,
   isSelected,

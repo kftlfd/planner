@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { FC, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { useActions } from "~/context/ActionsContext";
@@ -17,7 +17,7 @@ import { useAppDispatch, useAppSelector } from "~/store";
 import { selectLoadingProjects } from "~/store/projectsSlice";
 import { fetchUser, selectLoadingUser, selectUser } from "~/store/usersSlice";
 
-export default function App() {
+const App: FC = () => {
   const user = useAppSelector(selectUser);
   const loadingUser = useAppSelector(selectLoadingUser);
   const loadingProjects = useAppSelector(selectLoadingProjects);
@@ -32,9 +32,11 @@ export default function App() {
 
   useEffect(() => {
     if (user && loadingProjects) {
-      actions.project.loadProjects(user.id);
+      actions.project.loadProjects().catch((err: unknown) => {
+        console.error(err);
+      });
     }
-  }, [user, loadingProjects]);
+  }, [user, loadingProjects, actions.project]);
 
   if (loadingUser) {
     return <SplashScreen />;
@@ -61,4 +63,6 @@ export default function App() {
       </Route>
     </Routes>
   );
-}
+};
+
+export default App;

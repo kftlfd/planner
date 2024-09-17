@@ -1,26 +1,18 @@
-import React from "react";
-import { Box, TextField, IconButton, Collapse, BoxProps } from "@mui/material";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { FC } from "react";
 
+import CancelIcon from "@mui/icons-material/Cancel";
+import { Box, Collapse, IconButton, TextField } from "@mui/material";
+import { MobileDateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDateTimePicker } from "@mui/x-date-pickers";
 
-type DueFormProps = {
+export const DueForm: FC<{
   value: Date | null;
-  onChange: (value: any, keyboardInputValue?: string | undefined) => void;
+  onChange: (value: Date | null, keyboardInputValue?: string) => void;
   onClear: () => void;
   disabled?: boolean;
   mt?: boolean;
-};
-
-export const DueForm: React.FC<DueFormProps> = ({
-  value,
-  onChange,
-  onClear,
-  mt,
-  disabled,
-}) => (
+}> = ({ value, onChange, onClear, mt, disabled }) => (
   <Box
     sx={{
       display: "flex",

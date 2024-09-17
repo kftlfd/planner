@@ -1,30 +1,32 @@
-import React, { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
-import type { ITask } from "app/types/tasks.types";
-import { useAppSelector } from "app/store/hooks";
-import { selectProjectView } from "app/store/settingsSlice";
-import { useActions } from "app/context/ActionsContext";
+import { useActions } from "~/context/ActionsContext";
+import { useAppSelector } from "~/store/hooks";
+import { selectProjectView } from "~/store/settingsSlice";
+import type { ITask } from "~/types/tasks.types";
 
-import { useTasks } from "./use-tasks.hook";
 import { TaskDetails } from "./details/";
+import { useTasks } from "./use-tasks.hook";
 import { tasksViews } from "./views";
 
-const Tasks: React.FC = () => {
+const Tasks: FC = () => {
   const view = useAppSelector(selectProjectView);
   const { projectId, tasksLoaded } = useTasks();
   const actions = useActions();
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
-  const taskDetailsToggle = () => setTaskDetailsOpen((x) => !x);
+  const taskDetailsToggle = () => {
+    setTaskDetailsOpen((x) => !x);
+  };
 
   useEffect(() => {
     setSelectedTask(null);
     if (!tasksLoaded) {
-      actions.task
-        .loadTasks(projectId)
-        .catch((err: Error) => console.error("Failed loading tasks: ", err));
+      actions.task.loadTasks(projectId).catch((err: unknown) => {
+        console.error("Failed loading tasks: ", err);
+      });
     }
-  }, [projectId]);
+  }, [actions.task, projectId, tasksLoaded]);
 
   const TasksView = tasksViews[view] || null;
 
@@ -35,7 +37,7 @@ const Tasks: React.FC = () => {
 
   return (
     <>
-      <TasksView selectTask={selectTask} />
+      {TasksView && <TasksView selectTask={selectTask} />}
 
       <TaskDetails
         open={taskDetailsOpen}

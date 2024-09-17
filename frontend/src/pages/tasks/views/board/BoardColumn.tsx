@@ -1,32 +1,32 @@
-import React from "react";
+import { FC, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
   DroppableProvidedProps,
 } from "react-beautiful-dnd";
+
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import EditIcon from "@mui/icons-material/Edit";
 import {
-  Typography,
   Box,
   Button,
-  Paper,
-  Collapse,
   CircularProgress,
+  Collapse,
+  Paper,
   styled,
-  BoxProps,
+  Typography,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
-import type { IProject } from "app/types/projects.types";
-import { useActions } from "app/context/ActionsContext";
-import { InputModal, SimpleModal } from "app/layout/Modal";
-import { ErrorAlert } from "app/layout/Alert";
-import { useAppSelector } from "app/store/hooks";
-import { selectBoardColumnWidth } from "app/store/settingsSlice";
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { InputModal, SimpleModal } from "~/layout/Modal";
+import { useAppSelector } from "~/store/hooks";
+import { selectBoardColumnWidth } from "~/store/settingsSlice";
+import type { IProject } from "~/types/projects.types";
 
 import { useTasks } from "../../use-tasks.hook";
 
-type BoardColumnProps = {
+export const BoardColumn: FC<{
   title?: string;
   canEdit?: boolean;
   boardEdit?: boolean;
@@ -43,9 +43,7 @@ type BoardColumnProps = {
   droppableRef?: React.Ref<HTMLDivElement>;
   droppableProps?: DroppableProvidedProps;
   isDraggingOver?: boolean;
-};
-
-export const BoardColumn: React.FC<BoardColumnProps> = ({
+}> = ({
   title,
   canEdit,
   boardEdit,
@@ -65,38 +63,37 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
   const columnWidth = useAppSelector(selectBoardColumnWidth);
 
-  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
-  const toggleEditDialog = () => setEditDialogOpen((x) => !x);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const toggleEditDialog = () => {
+    setEditDialogOpen((x) => !x);
+  };
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const toggleDeleteDialog = () => setDeleteDialogOpen((x) => !x);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const toggleDeleteDialog = () => {
+    setDeleteDialogOpen((x) => !x);
+  };
 
-  const [newColName, setNewColName] = React.useState(title);
-  const changeColName = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setNewColName(e.target.value);
+  const [newColName, setNewColName] = useState(title ?? "");
+  const changeColName = (v: string) => {
+    setNewColName(v);
+  };
 
-  const [loading, setLoading] = React.useState(false);
-  const [loadingDelete, setLoadingDelete] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleColumnRename() {
-    const newBoard = {
-      ...board,
-      columns: {
-        ...board.columns,
-        [colId]: {
-          ...board.columns[colId],
-          name: newColName,
-        },
-      },
-    };
+  const handleColumnRename = async () => {
+    const newBoard = JSON.parse(JSON.stringify(board)) as typeof board;
+    const curCol = newBoard.columns[colId];
+    if (!curCol) return;
+    curCol.name = newColName;
 
     setLoading(true);
     try {
       await actions.project.updateTasksOrder({
         id: projectId,
         board: newBoard,
-      });
+      } as IProject);
       setLoading(false);
       toggleEditDialog();
     } catch (error) {
@@ -104,16 +101,16 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       setLoading(false);
       setError("Can't update column");
     }
-  }
+  };
 
-  async function handleColumnDelete() {
-    const none = board.none.concat(board.columns[colId].taskIds);
-    const columns = { ...board.columns };
-    delete columns[colId];
-    const newBoard = {
+  const handleColumnDelete = async () => {
+    const none = board.none.concat(board.columns[colId]?.taskIds ?? []);
+    const newBoard: IProject["board"] = {
       ...board,
       none,
-      columns,
+      columns: Object.fromEntries(
+        Object.entries(board.columns).filter(([key]) => key !== colId),
+      ),
       order: board.order.filter((col) => col !== colId),
     };
 
@@ -122,7 +119,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       await actions.project.updateTasksOrder({
         id: projectId,
         board: newBoard,
-      });
+      } as IProject);
       setEditDialogOpen(false);
       setDeleteDialogOpen(false);
       setLoadingDelete(false);
@@ -131,7 +128,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       setLoadingDelete(false);
       setError("Can't delete column");
     }
-  }
+  };
 
   return (
     <Column
@@ -167,7 +164,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
             <InputModal
               open={editDialogOpen}
-              onConfirm={handleColumnRename}
+              onConfirm={() => void handleColumnRename()}
               onClose={toggleEditDialog}
               title={`Edit column "${title}"`}
               action={"Rename"}
@@ -178,7 +175,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                   <Button
                     color="error"
                     onClick={
-                      board.columns[colId].taskIds.length === 0
+                      board.columns[colId]?.taskIds.length === 0
                         ? handleColumnDelete
                         : toggleDeleteDialog
                     }
@@ -190,7 +187,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
                   <SimpleModal
                     open={deleteDialogOpen}
-                    onConfirm={handleColumnDelete}
+                    onConfirm={() => void handleColumnDelete()}
                     onClose={toggleDeleteDialog}
                     title={`Delete column "${title}"?`}
                     content={`Tasks will be moved to default column`}
@@ -206,7 +203,9 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
             <ErrorAlert
               open={error !== null}
-              toggle={() => setError(null)}
+              toggle={() => {
+                setError(null);
+              }}
               message={error}
             />
           </ColumnEditContainer>

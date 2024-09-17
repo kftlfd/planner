@@ -1,11 +1,10 @@
-import React from "react";
-import { Container, Box } from "@mui/material";
+import { FC } from "react";
 
-type BoardWrapperProps = {
+import { Box, Container } from "@mui/material";
+
+export const BoardWrapper: FC<{
   children?: React.ReactNode;
-};
-
-export const BoardWrapper: React.FC<BoardWrapperProps> = ({ children }) => {
+}> = ({ children }) => {
   return (
     <Container
       sx={{

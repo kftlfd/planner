@@ -1,32 +1,32 @@
-import React from "react";
+import { FC, ReactNode, useState } from "react";
 import {
   DragDropContext,
-  Droppable,
   Draggable,
+  Droppable,
   OnDragEndResponder,
 } from "react-beautiful-dnd";
+
 import { Box } from "@mui/material";
 
-import { useAppSelector } from "app/store/hooks";
+import { useActions } from "~/context/ActionsContext";
+import { useAppSelector } from "~/store/hooks";
 import {
   selectProjectBoard,
   selectSharedProjectIds,
-} from "app/store/projectsSlice";
-import { useActions } from "app/context/ActionsContext";
-import type { IProject } from "app/types/projects.types";
+} from "~/store/projectsSlice";
+import type { IProject } from "~/types/projects.types";
 
-import type { TasksViewProps } from "../index";
-import { TaskCreateForm } from "../../TaskCreateForm";
-import { BoardTask } from "./BoardTask";
 import { NoTasks } from "../../NoTasks";
+import { TaskCreateForm } from "../../TaskCreateForm";
 import { useTasks } from "../../use-tasks.hook";
-
-import { LoadingBoard } from "./Loading";
-import { BoardWrapper } from "./BoardWrapper";
+import type { TasksViewProps } from "../index";
 import { BoardColumn } from "./BoardColumn";
 import { BoardEdit } from "./BoardEdit";
+import { BoardTask } from "./BoardTask";
+import { BoardWrapper } from "./BoardWrapper";
+import { LoadingBoard } from "./Loading";
 
-export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
+export const TasksBoardView: FC<TasksViewProps> = ({ selectTask }) => {
   const { projectId, tasksLoaded, taskIds } = useTasks();
   const board = useAppSelector(selectProjectBoard(projectId));
   const actions = useActions();
@@ -34,10 +34,25 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
   const sharedIds = useAppSelector(selectSharedProjectIds);
   const isOwned = !sharedIds.includes(projectId);
 
-  const [boardEdit, setBoardEdit] = React.useState(false);
-  const toggleBoardEdit = () => setBoardEdit((x) => !x);
+  const [boardEdit, setBoardEdit] = useState(false);
+  const toggleBoardEdit = () => {
+    setBoardEdit((x) => !x);
+  };
 
-  const updateBoard: OnDragEndResponder = async (result) => {
+  if (!board) return null;
+
+  const updateBoard = async (newBoard: IProject["board"]) => {
+    try {
+      await actions.project.updateTasksOrder({
+        id: projectId,
+        board: newBoard,
+      } as IProject);
+    } catch (error) {
+      console.error("Failed to update board: ", error);
+    }
+  };
+
+  const onDragEnd: OnDragEndResponder = (result) => {
     const { destination, source, draggableId, type } = result;
 
     if (
@@ -47,7 +62,7 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
     )
       return;
 
-    let newBoard = { ...board };
+    const newBoard = JSON.parse(JSON.stringify(board)) as typeof board;
 
     if (type === "column") {
       const newColumnOrder = Array.from(board.order);
@@ -57,55 +72,36 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
     }
 
     if (type === "task") {
-      let src;
+      let src: number[] = [];
       if (source.droppableId === "default-col") {
         src = Array.from(newBoard.none);
         src.splice(source.index, 1);
         newBoard.none = src;
       } else {
-        src = Array.from(newBoard.columns[source.droppableId].taskIds);
-        src.splice(source.index, 1);
-        newBoard = {
-          ...newBoard,
-          columns: {
-            ...newBoard.columns,
-            [source.droppableId]: {
-              ...newBoard.columns[source.droppableId],
-              taskIds: src,
-            },
-          },
-        };
+        const curCol = newBoard.columns[source.droppableId];
+        if (curCol) {
+          src = Array.from(curCol.taskIds);
+          src.splice(source.index, 1);
+          curCol.taskIds = src;
+        }
       }
 
-      let dest;
+      let dest: number[] = [];
       if (destination.droppableId === "default-col") {
         dest = Array.from(newBoard.none);
         dest.splice(destination.index, 0, Number(draggableId));
         newBoard.none = dest;
       } else {
-        dest = Array.from(newBoard.columns[destination.droppableId].taskIds);
-        dest.splice(destination.index, 0, Number(draggableId));
-        newBoard = {
-          ...newBoard,
-          columns: {
-            ...newBoard.columns,
-            [destination.droppableId]: {
-              ...newBoard.columns[destination.droppableId],
-              taskIds: dest,
-            },
-          },
-        };
+        const curCol = newBoard.columns[destination.droppableId];
+        if (curCol) {
+          dest = Array.from(curCol.taskIds);
+          dest.splice(destination.index, 0, Number(draggableId));
+          curCol.taskIds = dest;
+        }
       }
     }
 
-    try {
-      await actions.project.updateTasksOrder({
-        id: projectId,
-        board: newBoard,
-      });
-    } catch (error) {
-      console.error("Failed to update board: ", error);
-    }
+    void updateBoard(newBoard);
   };
 
   if (!tasksLoaded) return <LoadingBoard />;
@@ -123,11 +119,11 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
         )}
       </TaskCreateForm>
 
-      {taskIds.length === 0 ? (
+      {!taskIds || taskIds.length === 0 ? (
         <NoTasks />
       ) : (
         <BoardWrapper>
-          <DragDropContext onDragEnd={updateBoard}>
+          <DragDropContext onDragEnd={onDragEnd}>
             <DroppableColumn colId="default-col" board={board}>
               {board.none.map((taskId, index) => (
                 <DraggableBoardTask
@@ -148,7 +144,7 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
                   board={board}
                   boardEdit={boardEdit}
                 >
-                  {board.columns[colId].taskIds.map((taskId, taskIndex) => (
+                  {board.columns[colId]?.taskIds.map((taskId, taskIndex) => (
                     <DraggableBoardTask
                       key={taskId}
                       taskId={taskId}
@@ -166,16 +162,11 @@ export const TasksBoardView: React.FC<TasksViewProps> = ({ selectTask }) => {
   );
 };
 
-type DroppableColumnProps = {
+const DroppableColumn: FC<{
   colId: string;
   board: IProject["board"];
-  children?: React.ReactNode;
-};
-const DroppableColumn: React.FC<DroppableColumnProps> = ({
-  colId,
-  board,
-  children,
-}) => (
+  children?: ReactNode;
+}> = ({ colId, board, children }) => (
   <Droppable droppableId={colId} type="task">
     {(dropProvided, dropSnapshot) => (
       <BoardColumn
@@ -192,16 +183,11 @@ const DroppableColumn: React.FC<DroppableColumnProps> = ({
   </Droppable>
 );
 
-type DraggableBoardTaskProps = {
+const DraggableBoardTask: FC<{
   taskId: number;
   index: number;
   selectTask: (taskId: number) => () => void;
-};
-const DraggableBoardTask: React.FC<DraggableBoardTaskProps> = ({
-  taskId,
-  index,
-  selectTask,
-}) => (
+}> = ({ taskId, index, selectTask }) => (
   <Draggable draggableId={`${taskId}`} index={index}>
     {(dragProvided, dragSnapshot) => (
       <BoardTask
@@ -216,12 +202,9 @@ const DraggableBoardTask: React.FC<DraggableBoardTaskProps> = ({
   </Draggable>
 );
 
-type DraggableColumnsContainerProps = {
-  children?: React.ReactNode;
-};
-const DraggableColumnsContainer: React.FC<DraggableColumnsContainerProps> = ({
-  children,
-}) => (
+const DraggableColumnsContainer: FC<{
+  children?: ReactNode;
+}> = ({ children }) => (
   <Droppable droppableId="columns" direction="horizontal" type="column">
     {(dropProvided) => (
       <Box
@@ -236,26 +219,19 @@ const DraggableColumnsContainer: React.FC<DraggableColumnsContainerProps> = ({
   </Droppable>
 );
 
-type DraggableDroppableColumnProps = {
+const DraggableDroppableColumn: FC<{
   colId: string;
   colIndex: number;
   board: IProject["board"];
   boardEdit: boolean;
-  children?: React.ReactNode;
-};
-const DraggableDroppableColumn: React.FC<DraggableDroppableColumnProps> = ({
-  colId,
-  colIndex,
-  board,
-  children,
-  boardEdit,
-}) => (
+  children?: ReactNode;
+}> = ({ colId, colIndex, board, children, boardEdit }) => (
   <Draggable draggableId={colId} index={colIndex}>
     {(dragProvided, dragSnapshot) => (
       <Droppable droppableId={colId} type="task">
         {(dropProvided, dropSnapshot) => (
           <BoardColumn
-            title={board.columns[colId].name}
+            title={board.columns[colId]?.name}
             canEdit={true}
             boardEdit={boardEdit}
             board={board}

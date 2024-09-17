@@ -1,54 +1,54 @@
-import React, { useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useActions } from "../../context/ActionsContext";
-import { selectHideDoneTasks } from "../../store/settingsSlice";
-import { selectTaskById } from "../../store/tasksSlice";
-
 import {
-  Typography,
   Box,
   Card,
   CardActionArea,
   Checkbox,
   Collapse,
+  Typography,
 } from "@mui/material";
-import { BaseSkeleton } from "../../layout/Loading";
+
+import { useActions } from "~/context/ActionsContext";
+import { BaseSkeleton } from "~/layout/Loading";
+import { selectHideDoneTasks } from "~/store/settingsSlice";
+import { selectTaskById } from "~/store/tasksSlice";
 
 import { formatTime } from "./format-time.util";
 
-export function TaskCard(props: {
+export const TaskCard: FC<{
   taskId: number;
   openDetails: () => void;
-  children?: React.ReactNode;
-}) {
-  const { taskId, openDetails, children } = props;
+  children?: ReactNode;
+}> = ({ taskId, openDetails, children }) => {
   const hideDoneTasks = useSelector(selectHideDoneTasks);
   const task = useSelector(selectTaskById(taskId));
   const actions = useActions();
 
-  const [doneValue, setDoneValue] = useState(task.done);
+  const [doneValue, setDoneValue] = useState(task?.done ?? false);
   const toggleDone = () => {
     const newDoneValue = !doneValue;
     const taskUpdate = { done: newDoneValue };
     setDoneValue(newDoneValue);
-    actions.task.update(taskId, taskUpdate).catch((err: Error) => {
+    actions.task.update(taskId, taskUpdate).catch((err: unknown) => {
       console.error("Failed to update task-done status: ", err);
       setDoneValue(!newDoneValue);
     });
   };
 
   useEffect(() => {
-    setDoneValue(task.done);
+    if (task) setDoneValue(task.done);
   }, [task]);
 
   return (
-    <Collapse in={!(hideDoneTasks && task.done)}>
+    <Collapse in={!(hideDoneTasks && task?.done)}>
       <Card
         sx={{
           marginBottom: "0.5rem",
           ...(!doneValue &&
-            Date.parse(task.due!) < Date.now() && {
+            task?.due &&
+            Date.parse(task.due) < Date.now() && {
               backgroundColor: "error.main",
               color: "error.contrastText",
             }),
@@ -81,11 +81,11 @@ export function TaskCard(props: {
               textDecoration: doneValue ? "line-through" : "none",
             }}
           >
-            <Typography variant="body1">{task.title}</Typography>
+            <Typography variant="body1">{task?.title}</Typography>
             <Typography variant="caption" component="div">
-              {task.notes}
+              {task?.notes}
             </Typography>
-            {task.due && (
+            {task?.due && (
               <Typography variant="caption" component="div" align="right">
                 {formatTime(task.due)}
               </Typography>
@@ -95,7 +95,7 @@ export function TaskCard(props: {
       </Card>
     </Collapse>
   );
-}
+};
 
 export function CardSkeleton() {
   return <BaseSkeleton height={"56px"} sx={{ marginBottom: "0.5rem" }} />;

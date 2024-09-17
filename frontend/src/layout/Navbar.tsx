@@ -157,7 +157,7 @@ const Navbar: FC = () => {
                       {user.username}
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={actions.auth.logout}>
+                    <MenuItem onClick={() => void actions.auth.logout()}>
                       <ListItemIcon>
                         <Logout fontSize="small" />
                       </ListItemIcon>
