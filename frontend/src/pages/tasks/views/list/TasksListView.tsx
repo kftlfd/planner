@@ -1,26 +1,29 @@
-import React from "react";
+import { FC, ReactNode } from "react";
 import {
   DragDropContext,
-  Droppable,
   Draggable,
+  Droppable,
   OnDragEndResponder,
 } from "react-beautiful-dnd";
-import { Container, Box, BoxProps } from "@mui/material";
+
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import { Box, BoxProps, Container } from "@mui/material";
 
-import { useActions } from "app/context/ActionsContext";
+import { useActions } from "~/context/ActionsContext";
+import { IProject } from "~/types/projects.types";
 
-import type { TasksViewProps } from "../index";
-import { TaskCreateForm } from "../../TaskCreateForm";
-import { CardSkeleton, TaskCard } from "../../TaskCard";
 import { NoTasks } from "../../NoTasks";
+import { CardSkeleton, TaskCard } from "../../TaskCard";
+import { TaskCreateForm } from "../../TaskCreateForm";
 import { useTasks } from "../../use-tasks.hook";
+import type { TasksViewProps } from "../index";
 
-export const TasksListView: React.FC<TasksViewProps> = ({ selectTask }) => {
+export const TasksListView: FC<TasksViewProps> = ({ selectTask }) => {
   const { projectId, tasksLoaded, taskIds } = useTasks();
   const actions = useActions();
 
   const updateTasksOrder: OnDragEndResponder = (result) => {
+    if (!taskIds) return;
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -35,7 +38,14 @@ export const TasksListView: React.FC<TasksViewProps> = ({ selectTask }) => {
     newOrder.splice(source.index, 1);
     newOrder.splice(destination.index, 0, Number(draggableId));
 
-    actions.project.updateTasksOrder({ id: projectId, tasksOrder: newOrder });
+    actions.project
+      .updateTasksOrder({
+        id: projectId,
+        tasksOrder: newOrder,
+      } as IProject)
+      .catch((err: unknown) => {
+        console.error(err);
+      });
   };
 
   if (!tasksLoaded) {
@@ -46,7 +56,7 @@ export const TasksListView: React.FC<TasksViewProps> = ({ selectTask }) => {
     <>
       <TaskCreateForm projectId={projectId} />
 
-      {taskIds.length === 0 ? (
+      {!taskIds || taskIds.length === 0 ? (
         <NoTasks />
       ) : (
         <TaskListWrapper>
@@ -68,10 +78,9 @@ export const TasksListView: React.FC<TasksViewProps> = ({ selectTask }) => {
   );
 };
 
-type DroppableListProps = {
-  children?: React.ReactNode;
-};
-const DroppableList: React.FC<DroppableListProps> = ({ children }) => (
+const DroppableList: FC<{
+  children?: ReactNode;
+}> = ({ children }) => (
   <Droppable droppableId="tasksListView">
     {({ innerRef, droppableProps, placeholder }) => (
       <Box ref={innerRef} {...droppableProps}>
@@ -82,16 +91,11 @@ const DroppableList: React.FC<DroppableListProps> = ({ children }) => (
   </Droppable>
 );
 
-type DraggableTaskProps = {
+const DraggableTask: FC<{
   taskId: number;
   index: number;
   selectTask: (taskId: number) => () => void;
-};
-const DraggableTask: React.FC<DraggableTaskProps> = ({
-  taskId,
-  index,
-  selectTask,
-}) => (
+}> = ({ taskId, index, selectTask }) => (
   <Draggable draggableId={`${taskId}`} index={index}>
     {({ innerRef, draggableProps, dragHandleProps }) => (
       <Box ref={innerRef} {...draggableProps}>
@@ -103,16 +107,15 @@ const DraggableTask: React.FC<DraggableTaskProps> = ({
   </Draggable>
 );
 
-type TaskListWrapperProps = {
+const TaskListWrapper: FC<{
   children?: React.ReactNode;
-};
-const TaskListWrapper: React.FC<TaskListWrapperProps> = ({ children }) => (
+}> = ({ children }) => (
   <Container maxWidth="md" sx={{ paddingBottom: { xs: "1rem", sm: "1.5rem" } }}>
     {children}
   </Container>
 );
 
-const DragHandle: React.FC = (props) => (
+const DragHandle: FC<BoxProps> = (props) => (
   <Box
     {...props}
     sx={{
@@ -125,7 +128,7 @@ const DragHandle: React.FC = (props) => (
   </Box>
 );
 
-const LoadingList: React.FC = () => (
+const LoadingList: FC = () => (
   <>
     <TaskCreateForm loading={true} />
 

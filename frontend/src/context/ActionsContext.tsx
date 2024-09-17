@@ -264,10 +264,13 @@ const getActions = (
 
     updateTasksOrder(project: IProject) {
       dispatch(projectsSlice.updateProject(project));
-      api.project.update(project.id, project).catch((err: unknown) => {
-        console.error(err);
-      });
+      const p = api.project
+        .update(project.id, project)
+        .catch((err: unknown) => {
+          console.error(err);
+        });
       ws.send({ group: `${project.id}`, action: "project/update", project });
+      return p;
     },
 
     async delete(projectId: IProject["id"]) {
@@ -369,7 +372,10 @@ const getActions = (
       dispatch(projectsSlice.updateTasksLoaded(projectId));
     },
 
-    async create(projectId: IProject["id"], task: ITask) {
+    async create(
+      projectId: IProject["id"],
+      task: Partial<ITask> & Pick<ITask, "title">,
+    ) {
       const newTask = await api.task.create(projectId, task);
       ws.send({ group: `${newTask.project}`, action: "task/create", newTask });
       dispatch(tasksSlice.addTask(newTask));

@@ -1,17 +1,18 @@
-import React from "react";
-import { Typography, Box, Card, Collapse } from "@mui/material";
+import { FC } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
 } from "react-beautiful-dnd";
 
-import { useAppSelector } from "app/store/hooks";
-import { selectTaskById } from "app/store/tasksSlice";
-import { selectHideDoneTasks } from "app/store/settingsSlice";
+import { Box, Card, Collapse, Typography } from "@mui/material";
+
+import { useAppSelector } from "~/store/hooks";
+import { selectHideDoneTasks } from "~/store/settingsSlice";
+import { selectTaskById } from "~/store/tasksSlice";
 
 import { formatTime } from "../../format-time.util";
 
-type BoardTaskProps = {
+export const BoardTask: FC<{
   taskId: number;
   onClick: React.MouseEventHandler<HTMLDivElement>;
 
@@ -19,9 +20,7 @@ type BoardTaskProps = {
   draggableProps?: DraggableProvidedDraggableProps;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isDragging?: boolean;
-};
-
-export const BoardTask: React.FC<BoardTaskProps> = ({
+}> = ({
   taskId,
   onClick,
   draggableRef,
@@ -33,7 +32,7 @@ export const BoardTask: React.FC<BoardTaskProps> = ({
   const hide = useAppSelector(selectHideDoneTasks);
 
   return (
-    <Collapse in={!(hide && task.done)}>
+    <Collapse in={!(hide && task?.done)}>
       <Card
         ref={draggableRef}
         {...draggableProps}
@@ -41,8 +40,9 @@ export const BoardTask: React.FC<BoardTaskProps> = ({
         raised={isDragging}
         sx={{
           marginTop: "0.5rem",
-          ...(!task.done &&
-            Date.parse(task.due!) < Date.now() && {
+          ...(!task?.done &&
+            task?.due &&
+            Date.parse(task.due) < Date.now() && {
               backgroundColor: "error.main",
               color: "error.contrastText",
             }),
@@ -54,18 +54,18 @@ export const BoardTask: React.FC<BoardTaskProps> = ({
             "&:hover": {
               backgroundColor: "action.hover",
             },
-            ...(task.done && {
+            ...(task?.done && {
               opacity: 0.5,
               textDecoration: "line-through",
             }),
           }}
         >
           <Box onClick={onClick} sx={{ padding: "1rem" }}>
-            <Typography variant="body1">{task.title}</Typography>
+            <Typography variant="body1">{task?.title}</Typography>
             <Typography variant="caption" component="div">
-              {task.notes}
+              {task?.notes}
             </Typography>
-            {task.due && (
+            {task?.due && (
               <Typography variant="caption" component="div" align="right">
                 {formatTime(task.due)}
               </Typography>

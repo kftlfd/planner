@@ -1,54 +1,39 @@
-import React, { useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { isEqual } from "date-fns";
+
+import SaveIcon from "@mui/icons-material/Save";
 import {
   Box,
   Button,
   Checkbox,
-  TextField,
-  FormControlLabel,
   CircularProgress,
+  FormControlLabel,
   styled,
+  TextField,
 } from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
-// import { Formik } from "formik";
-// import joi from "joi";
 
-import { useActions } from "app/context/ActionsContext";
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { SimpleModal } from "~/layout/Modal";
+import { SidebarBody, SidebarHeader } from "~/layout/Sidebar";
+import { Sidebar } from "~/layout/Sidebar";
 import {
-  selectSharedProjectIds,
   selectProjectById,
-} from "app/store/projectsSlice";
-import { selectTaskById } from "app/store/tasksSlice";
-import { SidebarHeader, SidebarBody } from "app/layout/Sidebar";
-import { SimpleModal } from "app/layout/Modal";
-import { ErrorAlert } from "app/layout/Alert";
-import { Sidebar } from "app/layout/Sidebar";
+  selectSharedProjectIds,
+} from "~/store/projectsSlice";
+import { selectTaskById } from "~/store/tasksSlice";
 
-import { useTasks } from "../use-tasks.hook";
-import { LastModified } from "../LastModified";
 import { DueForm } from "../DueForm";
+import { LastModified } from "../LastModified";
+import { useTasks } from "../use-tasks.hook";
 
-// const taskDetailsSchema = joi.object().schema({
-//   done: joi.boolean().default(false),
-//   title: joi.string().default(""),
-//   notes: joi.string().default(""),
-//   due: joi.date().default(null),
-// });
-
-type TaskDetailsProps = {
+export const TaskDetails: FC<{
   open: boolean;
   taskId: number | null;
   sidebarToggle: () => void;
   setTaskSelected: (taskId: number | null) => void;
-};
-
-export const TaskDetails: React.FC<TaskDetailsProps> = ({
-  open,
-  taskId,
-  sidebarToggle,
-  setTaskSelected,
-}) => {
+}> = ({ open, taskId, sidebarToggle, setTaskSelected }) => {
   const { projectId } = useTasks();
 
   const project = useSelector(selectProjectById(projectId));
@@ -75,7 +60,8 @@ export const TaskDetails: React.FC<TaskDetailsProps> = ({
     setNewDue(task?.due ? new Date(task.due) : null);
   }, [open, task]);
 
-  async function handleTaskUpdate() {
+  const handleTaskUpdate = async () => {
+    if (taskId === null) return;
     setLoading(true);
     const taskUpdate = {
       done,
@@ -92,9 +78,10 @@ export const TaskDetails: React.FC<TaskDetailsProps> = ({
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function handleTaskDelete(closeModal: () => void) {
+  const handleTaskDelete = async (closeModal: () => void) => {
+    if (!task) return;
     setLoading(true);
     try {
       await actions.task.delete(task.project, task.id);
@@ -107,30 +94,27 @@ export const TaskDetails: React.FC<TaskDetailsProps> = ({
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const saveBtnDisabled =
     loading ||
-    (task &&
+    ((task &&
       task.done === done &&
       task.title === title &&
       task.notes === notes &&
       ((due === null && newDue === null) ||
-        (due !== null && newDue !== null && isEqual(due, newDue))));
+        (due !== null && newDue !== null && isEqual(due, newDue)))) ??
+      true);
 
   return (
     <Sidebar open={open} toggle={sidebarToggle}>
       <DetailsHeader
         toggleSidebar={sidebarToggle}
-        onTaskSave={handleTaskUpdate}
+        onTaskSave={() => void handleTaskUpdate()}
         isTask={!!(taskId && task)}
         isLoading={loading}
         isDisabled={saveBtnDisabled}
       />
-
-      {/* <Formik>
-        {({}) => {}}
-      </Formik> */}
 
       <DetailsBody isTask={!!(taskId && task)}>
         {!!(taskId && task) && (
@@ -142,7 +126,9 @@ export const TaskDetails: React.FC<TaskDetailsProps> = ({
                   <Checkbox
                     name="done"
                     checked={done}
-                    onChange={() => setDone((prev) => !prev)}
+                    onChange={() => {
+                      setDone((prev) => !prev);
+                    }}
                   />
                 }
               />
@@ -153,37 +139,50 @@ export const TaskDetails: React.FC<TaskDetailsProps> = ({
               label={"Title"}
               inputProps={{ maxlenth: 150 }}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
             />
 
             <TextField
               name="notes"
               label={"Notes"}
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => {
+                setNotes(e.target.value);
+              }}
               multiline
               rows={4}
             />
 
             <DueForm
               value={newDue}
-              onChange={(newValue) => setNewDue(newValue)}
-              onClear={() => setNewDue(null)}
+              onChange={(newValue) => {
+                setNewDue(newValue);
+              }}
+              onClear={() => {
+                setNewDue(null);
+              }}
             />
 
             <LastModified
               timestamp={task.modified}
               userId={task.userModified}
-              showUser={project.sharing}
+              showUser={project?.sharing ?? false}
             />
 
             {!isShared && (
-              <DeleteTaskBtn onDelete={handleTaskDelete} isLoading={loading} />
+              <DeleteTaskBtn
+                onDelete={(close) => void handleTaskDelete(close)}
+                isLoading={loading}
+              />
             )}
 
             <ErrorAlert
               open={error !== null}
-              toggle={() => setError(null)}
+              toggle={() => {
+                setError(null);
+              }}
               message={error}
             />
           </>
@@ -205,7 +204,7 @@ const DeleteBtnContainer = styled(Box)({
   marginTop: "2rem",
 });
 
-const DetailsHeader: React.FC<{
+const DetailsHeader: FC<{
   toggleSidebar: () => void;
   onTaskSave: () => void;
   isTask: boolean;
@@ -225,9 +224,9 @@ const DetailsHeader: React.FC<{
   </SidebarHeader>
 );
 
-const DetailsBody: React.FC<{
+const DetailsBody: FC<{
   isTask: boolean;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }> = ({ isTask, children }) => (
   <SidebarBody>
     {isTask ? (
@@ -238,12 +237,14 @@ const DetailsBody: React.FC<{
   </SidebarBody>
 );
 
-const DeleteTaskBtn: React.FC<{
+const DeleteTaskBtn: FC<{
   onDelete: (closeModal: () => void) => void;
   isLoading: boolean;
 }> = ({ onDelete, isLoading }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const toggleDeleteModal = () => setDeleteModalOpen((x) => !x);
+  const toggleDeleteModal = () => {
+    setDeleteModalOpen((x) => !x);
+  };
 
   return (
     <DeleteBtnContainer>
@@ -258,7 +259,9 @@ const DeleteTaskBtn: React.FC<{
 
       <SimpleModal
         open={deleteModalOpen}
-        onConfirm={() => onDelete(toggleDeleteModal)}
+        onConfirm={() => {
+          onDelete(toggleDeleteModal);
+        }}
         onClose={toggleDeleteModal}
         title={"Delete task?"}
         content={"This action cannot be undone."}

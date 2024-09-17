@@ -1,9 +1,11 @@
-import React from "react";
+import { FC } from "react";
 import { useSelector } from "react-redux";
-import { Box, Avatar } from "@mui/material";
+
+import { Avatar, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { selectUserById } from "app/store/usersSlice";
+import { selectUserById } from "~/store/usersSlice";
+
 import { formatTime } from "./format-time.util";
 
 const Container = styled(Box)({
@@ -24,17 +26,11 @@ const UserAvatar = styled(Avatar)({
   height: "2rem",
 });
 
-type LastModifiedProps = {
+export const LastModified: FC<{
   timestamp: string;
   userId: number;
   showUser: boolean;
-};
-
-export const LastModified: React.FC<LastModifiedProps> = ({
-  timestamp,
-  userId,
-  showUser,
-}) => {
+}> = ({ timestamp, userId, showUser }) => {
   const user = useSelector(selectUserById(userId));
 
   return (

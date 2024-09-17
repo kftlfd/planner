@@ -1,37 +1,34 @@
-import React from "react";
-import { Button, Paper, Collapse } from "@mui/material";
+import { FC, useState } from "react";
+
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 import EditIcon from "@mui/icons-material/Edit";
+import { Button, Collapse, Paper } from "@mui/material";
 
-import type { IProject } from "app/types/projects.types";
-import { useActions } from "app/context/ActionsContext";
-import { InputModal } from "app/layout/Modal";
-import { ErrorAlert } from "app/layout/Alert";
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { InputModal } from "~/layout/Modal";
+import type { IProject } from "~/types/projects.types";
 
-type BoardEditProps = {
+export const BoardEdit: FC<{
   projectId: number;
   board: IProject["board"];
   boardEdit: boolean;
   toggleBoardEdit: () => void;
-};
-
-export const BoardEdit: React.FC<BoardEditProps> = ({
-  projectId,
-  board,
-  boardEdit,
-  toggleBoardEdit,
-}) => {
+}> = ({ projectId, board, boardEdit, toggleBoardEdit }) => {
   const actions = useActions();
 
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const toggleModal = () => setModalOpen((x) => !x);
+  const [modalOpen, setModalOpen] = useState(false);
+  const toggleModal = () => {
+    setModalOpen((x) => !x);
+  };
 
-  const [newColName, setNewColName] = React.useState("");
-  const changeColName = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setNewColName(e.target.value);
+  const [newColName, setNewColName] = useState("");
+  const changeColName = (v: string) => {
+    setNewColName(v);
+  };
 
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function createNewColumn() {
     const newCol = {
@@ -43,7 +40,7 @@ export const BoardEdit: React.FC<BoardEditProps> = ({
     const newOrder = Array.from(board.order);
     newOrder.push(newCol.id);
 
-    const newBoard = {
+    const newBoard: IProject["board"] = {
       ...board,
       order: newOrder,
       columns: {
@@ -58,7 +55,7 @@ export const BoardEdit: React.FC<BoardEditProps> = ({
       await actions.project.updateTasksOrder({
         id: projectId,
         board: newBoard,
-      });
+      } as IProject);
       setLoading(false);
       setNewColName("");
       toggleModal();
@@ -99,7 +96,7 @@ export const BoardEdit: React.FC<BoardEditProps> = ({
 
       <InputModal
         open={modalOpen}
-        onConfirm={createNewColumn}
+        onConfirm={() => void createNewColumn()}
         onClose={toggleModal}
         title={"Add new column"}
         content={null}
@@ -112,7 +109,9 @@ export const BoardEdit: React.FC<BoardEditProps> = ({
 
       <ErrorAlert
         open={error !== null}
-        toggle={() => setError(null)}
+        toggle={() => {
+          setError(null);
+        }}
         message={error}
       />
     </Paper>

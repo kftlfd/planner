@@ -1,10 +1,10 @@
-import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 import {
   selectProjectaTasksLoaded,
   selectProjectTasksIds,
-} from "app/store/projectsSlice";
+} from "~/store/projectsSlice";
 
 export const useTasks = () => {
   const params = useParams<{ projectId: string }>();

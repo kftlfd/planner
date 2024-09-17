@@ -1,13 +1,12 @@
-import React from "react";
-import { Typography, styled } from "@mui/material";
+import { FC } from "react";
 
-export const NoTasks: React.FC = () => {
-  return (
-    <Heading variant="h4" align="center">
-      No tasks
-    </Heading>
-  );
-};
+import { styled, Typography } from "@mui/material";
+
+export const NoTasks: FC = () => (
+  <Heading variant="h4" align="center">
+    No tasks
+  </Heading>
+);
 
 const Heading = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(6),

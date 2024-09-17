@@ -1,52 +1,65 @@
-import React from "react";
+import { FC, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { addMonths } from "date-fns";
-import { Container, Box, IconButton } from "@mui/material";
-import { West as WestIcon, Today as TodayIcon } from "@mui/icons-material";
 
-import type { ITask } from "app/types/tasks.types";
-import { selectSelectedCalDate } from "app/store/projectsSlice";
-import { selectAllTasks } from "app/store/tasksSlice";
-import { useActions } from "app/context/ActionsContext";
+import { Today as TodayIcon, West as WestIcon } from "@mui/icons-material";
+import { Box, Container, IconButton } from "@mui/material";
 
-import type { TasksViewProps } from "../index";
-import { TaskCard, CardSkeleton } from "../../TaskCard";
+import { useActions } from "~/context/ActionsContext";
+import { selectSelectedCalDate } from "~/store/projectsSlice";
+import { selectAllTasks } from "~/store/tasksSlice";
+import type { ITask } from "~/types/tasks.types";
+
+import { CardSkeleton, TaskCard } from "../../TaskCard";
 import { CreateTaskWithDate } from "../../TaskCreateForm";
 import { useTasks } from "../../use-tasks.hook";
+import type { TasksViewProps } from "../index";
 import { MonthDays } from "./MonthDays";
-import { getDayTimestamp, TaskDayTimestamp, getMonthTitle } from "./utils";
 import {
   CalendarCard,
   CalendarHeadingTile,
+  CalendarMonthTitle,
   CalendarNavigation,
   DayTasks,
-  CalendarMonthTitle,
 } from "./styled";
+import { getDayTimestamp, getMonthTitle, TaskDayTimestamp } from "./utils";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-export const TasksCalendarView: React.FC<TasksViewProps> = ({ selectTask }) => {
+export const TasksCalendarView: FC<TasksViewProps> = ({ selectTask }) => {
   const { projectId, tasksLoaded } = useTasks();
   const actions = useActions();
   const allTasks = useSelector(selectAllTasks);
   const selectedDate =
     useSelector(selectSelectedCalDate(projectId)) || new Date();
 
-  const tasksByDateAccumulator: { [timestamp: TaskDayTimestamp]: ITask[] } = {};
+  const tasksByDate = useMemo(() => {
+    const tasksByDateAccumulator: { [timestamp: TaskDayTimestamp]: ITask[] } =
+      {};
 
-  const tasksByDate = Object.entries(allTasks).reduce((acc, [taskId, task]) => {
-    if (task.project !== projectId || !task.due) return acc;
+    const tasks = Object.values(allTasks).reduce((acc, task) => {
+      if (!task) return acc;
 
-    const taskTimestamp = getDayTimestamp(new Date(task.due));
-    if (!acc[taskTimestamp]) acc[taskTimestamp] = [];
-    acc[taskTimestamp].push(task);
+      if (task.project !== projectId || !task.due) return acc;
 
-    return acc;
-  }, tasksByDateAccumulator);
+      const taskTimestamp = getDayTimestamp(new Date(task.due));
+      if (!acc[taskTimestamp]) acc[taskTimestamp] = [];
+      acc[taskTimestamp].push(task);
 
-  Object.keys(tasksByDate).forEach((d) =>
-    tasksByDate[d].sort((a, b) => (a.due! > b.due! ? 1 : -1)),
-  );
+      return acc;
+    }, tasksByDateAccumulator);
+
+    Object.values(tasks).forEach((tasksList) =>
+      tasksList.sort((a, b) => {
+        if (!a.due || !b.due) {
+          return a.due === b.due ? 0 : a.due === null ? 1 : -1;
+        }
+        return a.due > b.due ? 1 : -1;
+      }),
+    );
+
+    return tasks;
+  }, [allTasks, projectId]);
 
   const goToPrevMonth = () => {
     const newSelect = addMonths(selectedDate, -1);

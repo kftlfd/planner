@@ -1,32 +1,33 @@
-import React, { useState } from "react";
-import {
-  Container,
-  Box,
-  Button,
-  IconButton,
-  Paper,
-  InputBase,
-  CircularProgress,
-} from "@mui/material";
+import { FC, ReactNode, useEffect, useState } from "react";
+
 import {
   Add as AddIcon,
   AddCircle as AddCircleIcon,
 } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  IconButton,
+  InputBase,
+  Paper,
+  SxProps,
+} from "@mui/material";
 
-import { useActions } from "app/context/ActionsContext";
-import { BaseSkeleton } from "app/layout/Loading";
-import { InputModal } from "app/layout/Modal";
-import { ErrorAlert } from "app/layout/Alert";
+import { useActions } from "~/context/ActionsContext";
+import { ErrorAlert } from "~/layout/Alert";
+import { BaseSkeleton } from "~/layout/Loading";
+import { InputModal } from "~/layout/Modal";
 
 import { DueForm } from "./DueForm";
 
-export function TaskCreateForm(props: {
+export const TaskCreateForm: FC<{
   projectId?: number;
   loading?: boolean;
-  sx?: any;
-  children?: React.ReactNode;
-}) {
-  const { projectId } = props;
+  sx?: SxProps;
+  children?: ReactNode;
+}> = ({ projectId, loading: loadingProp, sx, children }) => {
   const actions = useActions();
 
   const [taskCreateTitle, setTaskCreateTitle] = useState("");
@@ -41,10 +42,8 @@ export function TaskCreateForm(props: {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleCreateTask: React.FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
-    event.preventDefault();
+  const handleCreateTask = async () => {
+    if (projectId === undefined) return;
     setLoading(true);
     try {
       await actions.task.create(projectId, { title: taskCreateTitle });
@@ -57,7 +56,7 @@ export function TaskCreateForm(props: {
     }
   };
 
-  if (props.loading) {
+  if (loadingProp) {
     return (
       <CreateFormWrapper>
         <BaseSkeleton height={"2.5rem"} sx={{ flexGrow: 1 }} />
@@ -69,13 +68,16 @@ export function TaskCreateForm(props: {
     <CreateFormWrapper>
       <Paper
         component="form"
-        onSubmit={handleCreateTask}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleCreateTask();
+        }}
         sx={{
           flexGrow: 1,
           display: "flex",
           height: "2.5rem",
           padding: "0.3rem 1rem",
-          ...props.sx,
+          ...sx,
         }}
       >
         <InputBase
@@ -101,65 +103,68 @@ export function TaskCreateForm(props: {
         </Button>
         <ErrorAlert
           open={error !== null}
-          toggle={() => setError(null)}
+          toggle={() => {
+            setError(null);
+          }}
           message={error}
         />
       </Paper>
-      {props.children}
+      {children}
     </CreateFormWrapper>
   );
-}
+};
 
-function CreateFormWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <Container
-      maxWidth="md"
-      sx={{
-        paddingBlock: { xs: "1rem", sm: "1.5rem" },
-        display: "flex",
-        justifyContent: "end",
-        alignItems: "start",
-        gap: "1rem",
-        flexWrap: "wrap",
-      }}
-    >
-      {children}
-    </Container>
-  );
-}
+const CreateFormWrapper: FC<{ children?: ReactNode }> = ({ children }) => (
+  <Container
+    maxWidth="md"
+    sx={{
+      paddingBlock: { xs: "1rem", sm: "1.5rem" },
+      display: "flex",
+      justifyContent: "end",
+      alignItems: "start",
+      gap: "1rem",
+      flexWrap: "wrap",
+    }}
+  >
+    {children}
+  </Container>
+);
 
-export function CreateTaskWithDate(props: { projectId: number; due: Date }) {
+export const CreateTaskWithDate: FC<{
+  projectId: number;
+  due?: Date;
+}> = ({ projectId, due = null }) => {
   const actions = useActions();
 
-  const [state, setState] = React.useState<{
+  const [state, setState] = useState<{
     open: boolean;
     taskTitle: string;
     taskDue: Date | null;
   }>({
     open: false,
     taskTitle: "",
-    taskDue: props.due || null,
+    taskDue: due,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    setState((prev) => ({ ...prev, taskDue: props.due }));
-  }, [props.due]);
+  useEffect(() => {
+    setState((prev) => ({ ...prev, taskDue: due }));
+  }, [due]);
 
   function handleClose() {
-    setState((prev) => ({
+    setState(() => ({
       open: false,
       taskTitle: "",
-      taskDue: props.due || null,
+      taskDue: due ?? null,
     }));
   }
 
   async function handleCreate() {
     setLoading(true);
     try {
-      await actions.task.create(props.projectId, {
+      await actions.task.create(projectId, {
         title: state.taskTitle,
         ...(state.taskDue && { due: state.taskDue.toISOString() }),
       });
@@ -174,28 +179,34 @@ export function CreateTaskWithDate(props: { projectId: number; due: Date }) {
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center" }}>
-      <IconButton onClick={() => setState((prev) => ({ ...prev, open: true }))}>
+      <IconButton
+        onClick={() => {
+          setState((prev) => ({ ...prev, open: true }));
+        }}
+      >
         <AddCircleIcon sx={{ height: "3rem", width: "3rem" }} />
       </IconButton>
 
       <InputModal
         open={state.open}
-        onConfirm={handleCreate}
+        onConfirm={() => void handleCreate()}
         onClose={handleClose}
         title={"Create new task"}
         action={"Create"}
         inputLabel={"Task title"}
         inputValue={state.taskTitle}
-        inputChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setState((prev) => ({ ...prev, taskTitle: e.target.value }))
-        }
+        inputChange={(v) => {
+          setState((prev) => ({ ...prev, taskTitle: v }));
+        }}
         formChildren={
           <DueForm
             value={state.taskDue}
-            onChange={(newVal) =>
-              setState((prev) => ({ ...prev, taskDue: newVal }))
-            }
-            onClear={() => setState((prev) => ({ ...prev, taskDue: null }))}
+            onChange={(newVal) => {
+              setState((prev) => ({ ...prev, taskDue: newVal }));
+            }}
+            onClear={() => {
+              setState((prev) => ({ ...prev, taskDue: null }));
+            }}
             mt
             disabled={loading}
           />
@@ -204,9 +215,11 @@ export function CreateTaskWithDate(props: { projectId: number; due: Date }) {
       />
       <ErrorAlert
         open={error !== null}
-        toggle={() => setError(null)}
+        toggle={() => {
+          setError(null);
+        }}
         message={error}
       />
     </Box>
   );
-}
+};
