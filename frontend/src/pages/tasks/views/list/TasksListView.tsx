@@ -4,7 +4,7 @@ import {
   Draggable,
   Droppable,
   OnDragEndResponder,
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import { Box, BoxProps, Container } from "@mui/material";
@@ -122,6 +122,7 @@ const DragHandle: FC<BoxProps> = (props) => (
       display: "grid",
       placeContent: "center",
       margin: " 1rem -0.5rem 0 0.5rem",
+      cursor: "grab",
     }}
   >
     <DragIndicatorIcon />

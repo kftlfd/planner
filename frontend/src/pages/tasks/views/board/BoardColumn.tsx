@@ -3,7 +3,7 @@ import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
   DroppableProvidedProps,
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditIcon from "@mui/icons-material/Edit";
