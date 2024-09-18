@@ -1,14 +1,10 @@
-### project root
-.vscode
-.db
-static
-.env
-
 ### backend
 __venv__
 __pycache__
 py_venv
 migrations
+static
+.env
 *.sqlite3
 .venv
 .ruff_cache
