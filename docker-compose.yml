@@ -11,21 +11,32 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: passw
 
-  backend:
-    build:
-      context: .
-      dockerfile: app.backend.dockerfile
-    restart: always
+  migrations:
+    image: planner
+    build: .
+    command: sh migrate.sh
     depends_on:
-      - db
+      db:
+        condition: service_started
+    environment:
+      - DB_URL=postgresql://user:passw@db:5432/planner
+      - TRIES=5
+
+  planner:
+    image: planner
+    build: .
+    depends_on:
+      db:
+        condition: service_started
+      migrations:
+        condition: service_completed_successfully
     ports:
       - 8000:8000
-    volumes:
-      - ./backend:/app/backend
-    working_dir: /app/backend
-    command: ./manage.py runserver 0.0.0.0:8000
-    profiles:
-      - be
+    environment:
+      - HOST=0.0.0.0
+      - ENV_MODE=prod
+      - SECRET_KEY=secret-prod-key
+      - DB_URL=postgresql://user:passw@db:5432/planner
 
 volumes:
   db:
