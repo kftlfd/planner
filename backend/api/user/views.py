@@ -19,7 +19,7 @@ class UserDetails(generics.RetrieveUpdateDestroyAPIView):
         return self.request.user
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def user_projects(request):
     if not request.user.is_authenticated:
         return Response("Not authenticated", status=status.HTTP_401_UNAUTHORIZED)
