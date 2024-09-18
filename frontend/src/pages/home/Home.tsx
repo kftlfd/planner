@@ -1,12 +1,13 @@
-import { FC, useState } from "react";
+import { FC, lazy, Suspense, useState } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useMatch } from "react-router-dom";
 
-import { Divider } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import { useActions } from "~/context/ActionsContext";
+import { LoadingSpinner } from "~/layout/Loading";
 import { Main, MainDrawer } from "~/layout/Main";
 import {
   selectProjectIds,
@@ -16,9 +17,16 @@ import { selectNavDrawerOpen } from "~/store/settingsSlice";
 import { selectUser } from "~/store/usersSlice";
 
 import { ProjectCreateButton } from "./ProjectCreateButton";
-import { ProjectsButtons } from "./ProjectsButtons";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { UserButtons } from "./UserButtons";
+
+const ProjectsButtons = lazy(() => import("./ProjectsButtons"));
+
+const loadingSpinner = (
+  <Box>
+    <LoadingSpinner size={50} />
+  </Box>
+);
 
 const Home: FC = () => {
   const user = useSelector(selectUser);
@@ -57,21 +65,25 @@ const Home: FC = () => {
         <Divider />
 
         {ownedProjectIds.length > 0 ? (
-          <ProjectsButtons
-            type="owned"
-            header={"Projects"}
-            projectIds={ownedProjectIds}
-            drawerToggle={handleCloseDrawer}
-          />
+          <Suspense fallback={loadingSpinner}>
+            <ProjectsButtons
+              type="owned"
+              header={"Projects"}
+              projectIds={ownedProjectIds}
+              drawerToggle={handleCloseDrawer}
+            />
+          </Suspense>
         ) : null}
 
         {sharedProjectIds.length > 0 ? (
-          <ProjectsButtons
-            type="shared"
-            header={"Shared projects"}
-            projectIds={sharedProjectIds}
-            drawerToggle={handleCloseDrawer}
-          />
+          <Suspense fallback={loadingSpinner}>
+            <ProjectsButtons
+              type="shared"
+              header={"Shared projects"}
+              projectIds={sharedProjectIds}
+              drawerToggle={handleCloseDrawer}
+            />
+          </Suspense>
         ) : null}
 
         <ProjectCreateButton drawerToggle={handleCloseDrawer} />

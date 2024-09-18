@@ -2,6 +2,7 @@ import { FC } from "react";
 
 import {
   Box,
+  CircularProgress,
   LinearProgress,
   Skeleton,
   SkeletonProps,
@@ -50,4 +51,20 @@ export const SplashScreen: FC<{ message?: string }> = ({ message }) => (
       </Box>
     </CenterCard>
   </Main>
+);
+
+export const LoadingSpinner: FC<{
+  size?: number;
+}> = ({ size = 200 }) => (
+  <Box
+    sx={{
+      paddingBlock: "2rem",
+      flexGrow: 1,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <CircularProgress size={size} />
+  </Box>
 );

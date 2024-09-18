@@ -1,1 +1,1 @@
-export { TasksListView } from "./TasksListView";
+export { TasksListView as default } from "./TasksListView";

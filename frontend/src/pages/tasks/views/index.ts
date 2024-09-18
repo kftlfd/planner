@@ -1,14 +1,16 @@
-import { FC } from "react";
+import { FC, lazy, LazyExoticComponent } from "react";
 
-import { TasksBoardView } from "./board/";
-import { TasksCalendarView } from "./calendar";
-import { TasksListView } from "./list";
+const TasksBoardView = lazy(() => import("./board/"));
+const TasksCalendarView = lazy(() => import("./calendar"));
+const TasksListView = lazy(() => import("./list"));
 
 export type TasksViewProps = {
   selectTask: (taskId: number) => () => void;
 };
 
-export const tasksViews: Record<string, FC<TasksViewProps>> = {
+type ViewComponent = LazyExoticComponent<FC<TasksViewProps>>;
+
+export const tasksViews: Record<string, ViewComponent> = {
   list: TasksListView,
   board: TasksBoardView,
   calendar: TasksCalendarView,

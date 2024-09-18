@@ -1,1 +1,1 @@
-export { TasksCalendarView } from "./TasksCalendarView";
+export { TasksCalendarView as default } from "./TasksCalendarView";

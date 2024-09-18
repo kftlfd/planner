@@ -1,1 +1,1 @@
-export { TasksBoardView } from "./TasksBoardView";
+export { TasksBoardView as default } from "./TasksBoardView";

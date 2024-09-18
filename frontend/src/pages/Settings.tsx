@@ -23,7 +23,7 @@ import {
 } from "~/store/settingsSlice";
 import { selectUser } from "~/store/usersSlice";
 
-export const Settings: FC = () => {
+const Settings: FC = () => {
   return (
     <>
       <MainHeader title="Settings" />
@@ -38,6 +38,8 @@ export const Settings: FC = () => {
     </>
   );
 };
+
+export default Settings;
 
 const SettingWrapper: FC<{
   header: string;
