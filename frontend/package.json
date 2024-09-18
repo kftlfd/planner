@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "bundle-analyzer": "pnpm dlx vite-bundle-visualizer",
     "lint": "tsc -b && eslint .",
     "format": "prettier -w ."
   },

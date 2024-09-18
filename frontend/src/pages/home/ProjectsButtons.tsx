@@ -22,7 +22,7 @@ import {
 import { useActions } from "~/context/ActionsContext";
 import { selectProjectById } from "~/store/projectsSlice";
 
-export const ProjectsButtons: FC<{
+const ProjectsButtons: FC<{
   type: string;
   header: string;
   projectIds: number[];
@@ -91,6 +91,8 @@ export const ProjectsButtons: FC<{
     </List>
   );
 };
+
+export default ProjectsButtons;
 
 const ProjectButton: FC<{
   projectId: number;

@@ -1,21 +1,37 @@
-import { FC, useEffect } from "react";
+import { FC, lazy, ReactElement, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { useActions } from "~/context/ActionsContext";
-import { SplashScreen } from "~/layout/Loading";
+import { LoadingSpinner, SplashScreen } from "~/layout/Loading";
 import Navbar from "~/layout/Navbar";
-import Login from "~/pages/auth/login.component";
-import Register from "~/pages/auth/register.component";
 import Error from "~/pages/Error";
 import Home from "~/pages/home/Home";
-import Invite from "~/pages/Invite";
-import Project from "~/pages/project/Project";
-import { Settings } from "~/pages/Settings";
-import Tasks from "~/pages/tasks/Tasks";
-import Welcome from "~/pages/welcome/";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { selectLoadingProjects } from "~/store/projectsSlice";
 import { fetchUser, selectLoadingUser, selectUser } from "~/store/usersSlice";
+
+const withSuspense = (
+  Component: FC,
+  fallback: ReactElement = <LoadingSpinner />,
+) => {
+  const Cmp: FC = () => (
+    <Suspense fallback={fallback}>
+      <Component />
+    </Suspense>
+  );
+  Cmp.displayName = `Suspended${Component.displayName}`;
+  return Cmp;
+};
+
+const Login = withSuspense(lazy(() => import("~/pages/auth/login.component")));
+const Register = withSuspense(
+  lazy(() => import("~/pages/auth/register.component")),
+);
+const Invite = withSuspense(lazy(() => import("~/pages/Invite")));
+const Project = withSuspense(lazy(() => import("~/pages/project/Project")));
+const Settings = withSuspense(lazy(() => import("~/pages/Settings")));
+const Tasks = withSuspense(lazy(() => import("~/pages/tasks/Tasks")));
+const Welcome = withSuspense(lazy(() => import("~/pages/welcome/")));
 
 const App: FC = () => {
   const user = useAppSelector(selectUser);

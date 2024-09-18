@@ -1,6 +1,7 @@
-import { FC, useEffect, useState } from "react";
+import { FC, Suspense, useEffect, useState } from "react";
 
 import { useActions } from "~/context/ActionsContext";
+import { LoadingSpinner } from "~/layout/Loading";
 import { useAppSelector } from "~/store/hooks";
 import { selectProjectView } from "~/store/settingsSlice";
 import type { ITask } from "~/types/tasks.types";
@@ -37,7 +38,11 @@ const Tasks: FC = () => {
 
   return (
     <>
-      {TasksView && <TasksView selectTask={selectTask} />}
+      {TasksView && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <TasksView selectTask={selectTask} />
+        </Suspense>
+      )}
 
       <TaskDetails
         open={taskDetailsOpen}
