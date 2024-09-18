@@ -6,11 +6,15 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   publicDir: "static",
+  base: process.env.NODE_ENV === "production" ? "/static" : "/",
   server: {
     port: 8080,
     proxy: {
       "/api": "http://localhost:8000",
       "/ws": "ws://localhost:8000",
     },
+  },
+  build: {
+    emptyOutDir: true,
   },
 });
