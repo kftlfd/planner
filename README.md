@@ -1,3 +1,36 @@
+# v2 Changelog
+
+Code setup, organization and tooling improvements. The actual app logic (frontend components, API endpoints) is mostly unchanged (so, remains mostly not good)
+
+- split backend and frontend code
+- added Python and Node versions
+- add Dockerfile with docker-compose for production build of the planner
+- removed setup.sh script
+
+### Backend
+
+- restructured source code (api Django app, and separate api modules)
+- use Poetry for dependency management
+- use Ruff linter + formatter
+- added Makefile with main commands
+- `migrate.sh` script for migrations Docker service (tries to apply migrations with retries after interval)
+- added `.python-version` file for PyEnv
+- changed default .env to use Sqlite db for development by default
+
+### Frontend
+
+- changed package manager to pnpm@8
+- migrated from Webpack to Vite
+- removed sass, styling only with MUI
+- removed unused dependencies
+- replaced react-beautiful-dnd (abandoned) with @hello-pangea/dnd (a maintained fork)
+- migrated all code to Typescript
+- add Eslint + Prettier
+- fixing of typescript/eslint errors
+- added code splitting
+
+---
+
 # Planner
 
 Task tracking app with real-time collaboration, build with Django and React JS.
