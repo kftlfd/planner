@@ -4,96 +4,66 @@ Task tracking app with real-time collaboration, build with Django and React JS.
 
 Video demo: [https://www.youtube.com/watch?v=1GzO4nYecYU](https://www.youtube.com/watch?v=1GzO4nYecYU)
 
-## Backend
+**Backend:**
 
-Backend is done with [Django](https://www.djangoproject.com/), [Django REST Framework](https://www.django-rest-framework.org/) for api calls to database, and [Django Channels](https://channels.readthedocs.io/en/stable/) for WebSocket connections for real-time collaboration. Database is PostgreSQL in Docker container.
+- Python 3.9+, [Poetry](https://python-poetry.org/)
+- [Django](https://www.djangoproject.com/)
+- [Django REST Framework](https://www.django-rest-framework.org/)
+- [Django Channels](https://channels.readthedocs.io/en/stable/)
+- SQLite/PostrgeSQL DB.
 
-## Frontend
+**Frontend:**
 
-Frontend is a [React](https://reactjs.org/) app with [React-router](https://reactrouter.com/), [Redux](https://redux.js.org/), [React-beutiful-dnd](https://www.npmjs.com/package/react-beautiful-dnd) for drag & drop, and [Material UI](https://mui.com/).
+- NodeJS 18+, [pnpm](https://pnpm.io/), [Vite](https://vitejs.dev/)
+- [React](https://reactjs.org/)
+- [React-router](https://reactrouter.com/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [Material UI](https://mui.com/).
 
 # Setup
 
-Launch Database with `docker compose up -d`, or use some other DB (configure `DB_URL` in `.env`).
+## Backend
 
-## Development
+in `backend` dir:
 
-Script: `./setup.sh --dev`
+0. Requirements:
+   - Python 3.9+ (e.g. with [PyEnv](https://github.com/pyenv/pyenv) `pyenv install`, and create venv `python -m venv .venv`)
+   - [Poetry](https://python-poetry.org/)
+   - make (optional, can just use commands from the Makefile instead)
+1. create .env: `cp .env.example .env`
+2. `make install`
+3. `make db-migrate`
+4. start dev server: `make dev`
 
-### Backend
+By default runs on `localhost:8000` (configure port in Makefile),  
+expects frontend on `localhost:8080` (configure `CSRF_ORIGIN` in `.env`).
 
-```bash
-# move to backend dir
-cd backend
+## Frontend
 
-# enable python virtual environment
-python3 -m venv __venv__
-source __venv__/bin/activate
+in `frontend` dir
 
-# install dependencies
-pip install -r requirements.txt
+0. Requirements:
+   - Node 18+ (e.g. with [n](https://github.com/tj/n) `n auto`)
+   - pnpm 8 (`corepack enable`, `corepack up`)
+1. `pnpm install`
+2. `pnpm run dev`
 
-# make database migrations
-python manage.py makemigrations api
-python manage.py migrate
+By default runs on `localhost:8080` (configure in `vite.config.ts`),  
+if changing backend location/port, update proxies in `vite.config.ts`.
 
-# start server
-python manage.py runserver
+## Build
 
-# http://localhost:8000
-```
+`DIR$` means that the command should be run in the `DIR` directory
 
-### Frontend
+1. `frontend$` `pnpm run build`
+2. `backend$` `make prep-static`
+3. `backend$` `make start`
 
-```bash
-# move to frontend dir
-cd frontend
+## Docker
 
-# install dependencies
-yarn
+PostgreSQL DB + DB migrations service + app build
 
-# start devserver
-yarn start
-
-# http://localhost:8080
-```
-
-## Production
-
-Script: `./setup.sh --prod`
-
-```bash
-# move to frontend dir
-cd frontend
-
-# install dependencies
-yarn
-
-# make a production bundle
-yarn build
-
-# move to backend dir
-cd ../backend
-
-# enable python virtual environment
-python3 -m venv __venv__
-source __venv__/bin/activate
-
-# install dependencies
-pip install -r requirements.txt
-
-# make database migrations
-python manage.py makemigrations api
-python manage.py migrate
-
-# collect static files
-python manage.py collectstatic
-
-# !!! update .env, or remove it and set environment variables directly
-
-# start production server, for example:
-daphne server.asgi:application -v2 --port $PORT --bind $IP
-```
+Run: `docker compose up --build`
 
 # Credits
 
