@@ -9,7 +9,7 @@ import Home from "~/pages/home/Home";
 import { useAppSelector } from "~/store";
 import { selectLoadingProjects } from "~/store/projectsSlice";
 
-import { useGetUserQuery } from "./store/plannerApi";
+import { useGetUserQuery } from "./store/queries/users";
 
 const withSuspense = (
   Component: FC,

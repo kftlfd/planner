@@ -1,11 +1,9 @@
-import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-
 import * as api from "~/api/client";
 import { IUser } from "~/types/users.types";
 
-export const plannerApi = createApi({
-  reducerPath: "plannerApi",
-  baseQuery: fakeBaseQuery(),
+import apiSlice from "./apiSlice";
+
+const usersQueries = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query<IUser, void>({
       queryFn: async () => {
@@ -16,4 +14,4 @@ export const plannerApi = createApi({
   }),
 });
 
-export const { useGetUserQuery } = plannerApi;
+export const { useGetUserQuery } = usersQueries;

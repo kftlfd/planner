@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import chatReducer from "./chatSlice";
-import { plannerApi } from "./plannerApi";
 import projectsReducer from "./projectsSlice";
+import apiSlice from "./queries/apiSlice";
 import settingsReducer from "./settingsSlice";
 import tasksReducer from "./tasksSlice";
 import usersReducer from "./usersSlice";
@@ -14,7 +14,7 @@ export const store = configureStore({
     projects: projectsReducer,
     tasks: tasksReducer,
     chat: chatReducer,
-    [plannerApi.reducerPath]: plannerApi.reducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -23,7 +23,7 @@ export const store = configureStore({
         ignoredActions: ["projects/selectCalDate"],
         ignoredPaths: ["projects.selectedCalDate"],
       },
-    }).concat(plannerApi.middleware),
+    }).concat(apiSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
