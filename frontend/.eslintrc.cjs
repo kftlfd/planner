@@ -29,9 +29,11 @@ module.exports = {
       "error",
       { allowBoolean: true, allowNumber: true },
     ],
+    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-invalid-void-type": "off",
     "jsx-a11y/no-autofocus": "off",
     "unused-imports/no-unused-imports": "error",
-    "unused-imports/no-unused-vars": "error",
+    "unused-imports/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     "simple-import-sort/exports": "error",
     "simple-import-sort/imports": [
       "error",

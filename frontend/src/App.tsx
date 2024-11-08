@@ -6,9 +6,10 @@ import { LoadingSpinner, SplashScreen } from "~/layout/Loading";
 import Navbar from "~/layout/Navbar";
 import Error from "~/pages/Error";
 import Home from "~/pages/home/Home";
-import { useAppDispatch, useAppSelector } from "~/store";
+import { useAppSelector } from "~/store";
 import { selectLoadingProjects } from "~/store/projectsSlice";
-import { fetchUser, selectLoadingUser, selectUser } from "~/store/usersSlice";
+
+import { useGetUserQuery } from "./store/plannerApi";
 
 const withSuspense = (
   Component: FC,
@@ -34,17 +35,19 @@ const Tasks = withSuspense(lazy(() => import("~/pages/tasks/Tasks")));
 const Welcome = withSuspense(lazy(() => import("~/pages/welcome/")));
 
 const App: FC = () => {
-  const user = useAppSelector(selectUser);
-  const loadingUser = useAppSelector(selectLoadingUser);
+  // const user = useAppSelector(selectUser);
+  // const loadingUser = useAppSelector(selectLoadingUser);
   const loadingProjects = useAppSelector(selectLoadingProjects);
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const actions = useActions();
 
-  useEffect(() => {
-    dispatch(fetchUser()).catch((err: unknown) => {
-      console.error(err);
-    });
-  }, [dispatch]);
+  const { data: user, isLoading: loadingUser } = useGetUserQuery();
+
+  // useEffect(() => {
+  //   dispatch(fetchUser()).catch((err: unknown) => {
+  //     console.error(err);
+  //   });
+  // }, [dispatch]);
 
   useEffect(() => {
     if (user && loadingProjects) {
@@ -53,6 +56,8 @@ const App: FC = () => {
       });
     }
   }, [user, loadingProjects, actions.project]);
+
+  console.log({ loadingUser, user, loadingProjects });
 
   if (loadingUser) {
     return <SplashScreen />;

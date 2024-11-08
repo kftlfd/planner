@@ -9,12 +9,12 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useActions } from "~/context/ActionsContext";
 import { LoadingSpinner } from "~/layout/Loading";
 import { Main, MainDrawer } from "~/layout/Main";
+import { useGetUserQuery } from "~/store/plannerApi";
 import {
   selectProjectIds,
   selectSharedProjectIds,
 } from "~/store/projectsSlice";
 import { selectNavDrawerOpen } from "~/store/settingsSlice";
-import { selectUser } from "~/store/usersSlice";
 
 import { ProjectCreateButton } from "./ProjectCreateButton";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -29,7 +29,8 @@ const loadingSpinner = (
 );
 
 const Home: FC = () => {
-  const user = useSelector(selectUser);
+  // const user = useSelector(selectUser);
+  const { data: user } = useGetUserQuery();
   const rootPath = useMatch("/");
 
   const ownedProjectIds = useSelector(selectProjectIds);
